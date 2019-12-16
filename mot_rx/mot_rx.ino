@@ -1,6 +1,6 @@
 #include <CanSatKit.h>
 
-#define R_MOT 1
+#define R_MOT 3
 #define L_MOT 2
 
 using namespace CanSatKit;
@@ -29,31 +29,23 @@ void setup() {
 }
 
 void loop() {
-  // prepare empty space for received frame
-  // maximum length is maximum frame length + null termination
-  // 255 + 1 byte = 256 bytes
-  char data[256];
-
-  // receive data and save it to string
-  radio.receive(data);
+  for (int i = 0; i < 255; i++)
+  {
+    analogWrite(L_MOT, i);
+    analogWrite(R_MOT, 255 - i);
+    delay(5);
+  }
+  digitalWrite(L_MOT, 0);
+  digitalWrite(R_MOT, 0);
+  delay(2000);
   
-  // get and print signal level (rssi)
-  SerialUSB.print("Received (RSSI = ");
-  SerialUSB.print(radio.get_rssi_last());
-  SerialUSB.print("): ");
-
-  // print received message
-  //SerialUSB.println(data);
-  l_mot = data[0];
-  r_mot = data[1];
-
-  SerialUSB.print("rRX: ");
-  SerialUSB.print(int(l_mot));
-  SerialUSB.print(" ");
-  SerialUSB.println(int(r_mot));
-
-
-  analogWrite(LED_BUILTIN, l_mot);
-  analogWrite(L_MOT, l_mot);
-  analogWrite(R_MOT, r_mot);
+  for (int i = 0; i < 255; i++)
+  {
+    analogWrite(R_MOT, i);
+    analogWrite(L_MOT, 255 - i);
+    delay(5);
+  }
+  digitalWrite(L_MOT, 0);
+  digitalWrite(R_MOT, 0);
+  delay(2000);
 }
