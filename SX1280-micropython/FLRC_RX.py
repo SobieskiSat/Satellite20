@@ -77,7 +77,8 @@ print("FLRC Receiver ready")
 while True:
 	SX1280.setRx(PERIOBASE_01_MS, 0)
 
-	while (!SX1280.DIO1.value())
+	while not SX1280.DIO1.value():
+		pass
 	
 	LED1.on()
 
