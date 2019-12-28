@@ -2,7 +2,7 @@
 
 #include <SPI.h>
 #include "Settings.h"
-#include <SX1280_lite.h>
+#include <SX1280LT.h>
 
 SX1280Class SX1280LT;
 
@@ -12,10 +12,12 @@ uint8_t TXPacketL;
 
 long lastSend = 0;
 int count = 0;
+bool state = false;
 
 void setup()
 {
   SerialUSB.begin(Serial_Monitor_Baud);
+  pinMode(LED_BUILTIN, OUTPUT);
 
   SPI.begin();
   SPI.beginTransaction(SPISettings(12000000, MSBFIRST, SPI_MODE0));
@@ -58,6 +60,8 @@ void loop()
   {
     if (count >= 1200)
     {
+      digitalWrite(LED_BUILTIN, state);
+      state = !state;
       long spe = TXPacketL * 8 * 1000 * 1000;
       long del = micros() - lastSend;
       float rate = spe / del;

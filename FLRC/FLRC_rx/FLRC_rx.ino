@@ -3,6 +3,13 @@
 #include "Settings.h"
 #include <SX1280_lite.h>
 
+// TX | RX | RSSI
+//  0 | 0  | -65    / -58
+//  0 | 1  | -43    / -43
+//  1 | 0  | -50.5  / -49
+//  1 | 1  | -37.5  / -36
+
+
 SX1280Class SX1280LT;
 
 uint32_t RXpacketCount = 0;
@@ -15,11 +22,12 @@ int8_t  PacketRSSI;                              //stores RSSI of received packe
 
 long lastRecv = 0;
 int count = 0;
-
+bool state = false;
 
 void setup()
 {
   SerialUSB.begin(Serial_Monitor_Baud);
+  pinMode(LED_BUILTIN, OUTPUT);
 
   SPI.begin();
   SPI.beginTransaction(SPISettings(12000000, MSBFIRST, SPI_MODE0));
@@ -44,10 +52,11 @@ void setup()
 
 void loop()
 {
-  SX1280LT.setRx(PERIOBASE_01_MS, 0);            //set no SX1280 RX timeout
+  //SerialUSB.println("Loop start");
+  SX1280LT.setRx(PERIOBASE_01_MS, 0xFFFF);            //set no SX1280 RX timeout
 
   while (!digitalRead(DIO1));                    //wait for RxDone or timeout interrupt activating DIO1
-
+  
   SX1280LT.readPacketReceptionFLRC();
   RXPacketL = SX1280LT.readRXPacketL();
   PacketRSSI = SX1280LT.readPacketRSSI();
@@ -59,8 +68,10 @@ void loop()
     RXpacketCount++;
     len = SX1280LT.readPacketFLRC(RXBUFFER, RXBUFFER_SIZE);         //read the actual packet, maximum size specified in RXBUFFER_SIZE
   
-    if (count >= 1200)
+    if (count >= 50)
     {
+      digitalWrite(LED_BUILTIN, state);
+      state = !state;
       long spe = RXPacketL * 8 * 1000 * 1000;
       long del = micros() - lastRecv;
       float rate = spe / del;
@@ -78,6 +89,7 @@ void loop()
      errors++;
      SX1280LT.printIrqStatus();
   }
+  //SerialUSB.println("Loop end");
 }
 
 void setup_FLRC()
@@ -91,4 +103,5 @@ void setup_FLRC()
   SX1280LT.setPacketParams(PREAMBLE_LENGTH_32_BITS, FLRC_SYNC_WORD_LEN_P32S, RADIO_RX_MATCH_SYNCWORD_1, RADIO_PACKET_VARIABLE_LENGTH, 127, RADIO_CRC_3_BYTES, RADIO_WHITENING_OFF);
   SX1280LT.setDioIrqParams(IRQ_RADIO_ALL, IRQ_RX_DONE, 0, 0);
   SX1280LT.setSyncWord1(Sample_Syncword);
+  SX1280LT.setHighSensitivity();
 }
