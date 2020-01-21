@@ -1,0 +1,3 @@
+run.cpp:12:6:void setup()	8	static
+run.cpp:18:6:void loop()	8	static
+run.cpp:25:6:void LED_animation()	8	static
