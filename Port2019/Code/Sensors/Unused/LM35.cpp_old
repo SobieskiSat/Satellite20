@@ -1,0 +1,57 @@
+#include "Arduino.h"
+#include "Sensors.h"
+#include "Sensor.h"
+#include <cmath>
+
+#define LM35_pin A1
+
+using namespace SobieskiSat;
+
+LM35::LM35() : LM35(LM35_pin) { }
+LM35::LM35(int pin_)
+{
+	pin = pin_;
+	analogReadResolution(12);
+	ID = 'L';
+}
+		
+bool LM35::begin()
+{
+	minDelay = 0;
+	fileName = "LM35.txt";
+	
+	float lastTemperature = 1000;
+	int errorCounter = 0;
+	for (int i = 0; i < 50; i++)
+	{ 
+		lastTemperature = Temperature;
+		update();
+		if (i > 2 && (lastTemperature - Temperature > 10 || lastTemperature - Temperature < -10))
+			errorCounter++;
+		delay(1);
+	}
+	if (errorCounter > 10)
+	{
+		//sendLog("uin", *this); // uin - unsuccesful initialization
+		return false;
+	}
+			
+	//sendLog("sin", *this); // sin - succesful initialization
+	Initialized = true;
+	return true;
+}
+		
+bool LM35::update()
+{
+	if (millis() - lastUpdate > updateDelay && Initialized)
+	{
+		Temperature = 100.0 * (analogRead(pin) * 3.3 / (std::pow(2, 12)));
+		//loadToSDBuffer({Temperature});
+		
+		lastUpdate = millis();
+		return true;
+	}
+	else return false;
+}
+		
+float LM35::readValue() { update(); return Temperature; }
