@@ -1,5 +1,0 @@
-main2.c:78:5:main	40	static
-main2.c:162:6:SystemClock_Config	88	static
-main2.c:205:13:MX_I2C1_Init	8	static
-main2.c:239:13:MX_GPIO_Init	40	static
-main2.c:268:6:Error_Handler	4	static
