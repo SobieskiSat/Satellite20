@@ -55,6 +55,7 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 I2C_HandleTypeDef* Get_I2C1_Instance();
+SPI_HandleTypeDef* Get_SPI1_Instance();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

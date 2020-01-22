@@ -84,15 +84,6 @@ typedef struct {
 
 } BMP280;
 
-// default config
-static inline void bmp280_get_default_config(BMP280_config *inst_params) {
-	inst_params->mode = BMP280_MODE_NORMAL;
-	inst_params->filter = BMP280_FILTER_OFF;
-	inst_params->oversampling_pressure = BMP280_ULTRA_HIGH_RES;
-	inst_params->oversampling_temperature = BMP280_ULTRA_HIGH_RES;
-	inst_params->standby = BMP280_STANDBY_05;
-};
-
 bool bmp280_init(BMP280 *inst, BMP280_config *params);
 bool bmp280_is_measuring(BMP280 *inst);
 bool bmp280_read_fixed(BMP280 *inst, int32_t *temperature, uint32_t *pressure);

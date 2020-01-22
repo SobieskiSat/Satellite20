@@ -15,5 +15,7 @@ static inline void print(char* str)
 	CDC_Transmit_FS((uint8_t*) str, strlen(str));
 };
 
+bool bmp280_begin();
+bool radio_begin();
 
 #endif /* RUN_H_ */

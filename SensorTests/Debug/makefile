@@ -20,6 +20,7 @@ RM := rm -rf
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
 -include Code/Sensors/subdir.mk
+-include Code/Components/subdir.mk
 -include Code/subdir.mk
 -include subdir.mk
 -include objects.mk
