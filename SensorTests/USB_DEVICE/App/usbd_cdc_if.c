@@ -183,7 +183,7 @@ static int8_t CDC_DeInit_FS(void)
 static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 {
   /* USER CODE BEGIN 5 */
-  uint8_t tempbuf[7] = {0,0,0,0,0,0,0};
+	uint8_t tempbuf[7] = {0,0,0,0,0,0,0};
   switch(cmd)
   {
     case CDC_SEND_ENCAPSULATED_COMMAND:

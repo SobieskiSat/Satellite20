@@ -1,0 +1,4 @@
+run.h:13:20:print	16	static
+bmp280.h:88:20:bmp280_get_default_config	16	static
+run.c:12:6:setup	8	static
+run.c:28:6:loop	32	static
