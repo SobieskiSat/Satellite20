@@ -21,10 +21,12 @@ static BMP280_config bmp280_default_config = {
 static SX1278_config sx1278_default_config = {
 	433.0,	//note: frequency must be in MHz
 	SX1278_POWER_17DBM,
-	SX1278_SF_8,
+	SX1278_SF_7,
 	SX1278_CR_4_5,
-	SX1278_BW_20_8KHZ,
-	SX1278_CRC_EN };
+	SX1278_BW_125KHZ,
+	SX1278_CRC_EN,
+	100	// rxTimeout = val * 1.024ms (for SF=7, BW=125K) [TimeOut = val * (2^(SF) / BW)]
+	};
 #endif
 
 #ifdef RADIO_SX1280

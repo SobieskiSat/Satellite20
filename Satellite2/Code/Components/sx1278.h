@@ -13,23 +13,18 @@ typedef enum _SX1278_MODE {
 
 typedef struct
 {
-	uint16_t frequency;
-	uint8_t power;
-	uint8_t spreadingFactor;
-	uint8_t codingRate;
-	uint8_t bandWidth;
-	uint8_t crc;
-} SX1278_config;
-
-typedef struct
-{
 	float frequency;
 	uint8_t power;
 	uint8_t spreadingFactor;
 	uint8_t codingRate;
 	uint8_t bandWidth;
 	uint8_t crc;
+	uint16_t rxTimeoutSymb;
+} SX1278_config;
 
+typedef struct
+{
+	SX1278_config config;
 	SX1278_Mode mode;
 
 	uint16_t reset;

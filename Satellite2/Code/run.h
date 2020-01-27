@@ -9,7 +9,7 @@
 static void setup();
 static void loop();
 
-static char printBuffer[256];
+static char printBuffer[512];
 static inline void print(char* str)
 {
 	CDC_Transmit_FS((uint8_t*) str, strlen(str));

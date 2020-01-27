@@ -1,6 +1,7 @@
 #include "run.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_i2c.h"
 
@@ -15,7 +16,7 @@ SX1278 radio;
 uint8_t sendBuffer[SX1278_MAX_PACKET];
 bool nextTX;
 int message;
-int message_length;
+uint8_t message_length;
 
 void setup()
 {
@@ -44,7 +45,8 @@ void loop()
 	}
 	if (radio.newPacket)
 	{
-		printf("Received (%d @ %d):\t%s\r\n", radio.rxLen, radio.rssi, radio.rxBuffer);
+		sprintf(printBuffer, "Received (%d @ %d):\t%s\r\n", radio.rxLen, radio.rssi, radio.rxBuffer);
+		print(printBuffer);
 		radio.newPacket = false;
 	}
 	else if (radio.txDone)
@@ -59,8 +61,9 @@ void radio_procedure()
 {
 	if (nextTX)
 	{
+		memset(sendBuffer, 0x00, SX1278_MAX_PACKET);
 		message_length = sprintf(sendBuffer, "Hello %d", message);
-		SX1278_transmit(&radio, (uint8_t*)sendBuffer, message_length);
+		SX1278_transmit(&radio, sendBuffer, message_length);
 		print("Sending...\n");
 		nextTX = false;
 	}
@@ -93,8 +96,11 @@ bool bmp280_begin()
 
 void dio0_IRQ()
 {
-	SX1278_dio0_IRQ(&radio);
-	radio_procedure();
+	if (radio.pendingIRQ)
+	{
+		SX1278_dio0_IRQ(&radio);
+		radio_procedure();
+	}
 }
 
 bool radio_begin()
@@ -104,16 +110,10 @@ bool radio_begin()
 	radio.nss = LR_NSS_Pin;
 	radio.reset_port = LR_RESET_GPIO_Port;
 	radio.dio0_port = LR_DIO0_GPIO_Port;
-	radio.nss = LR_NSS_GPIO_Port;
+	radio.nss_port = LR_NSS_GPIO_Port;
 	radio.spi = Get_SPI1_Instance();
 
-	// to change
-	radio.frequency = sx1278_default_config.frequency;
-	radio.power = sx1278_default_config.power;
-	radio.spreadingFactor = sx1278_default_config.spreadingFactor;
-	radio.codingRate = sx1278_default_config.codingRate;
-	radio.bandWidth = sx1278_default_config.bandWidth;
-	radio.crc = sx1278_default_config.crc;
+	radio.config = sx1278_default_config;
 
 	radio.useDio0IRQ = true;
 

@@ -49,14 +49,12 @@ static bool read_calibration_data(BMP280 *inst)
 
 bool bmp280_init(BMP280 *inst, BMP280_config *params)
 {
-	uint16_t success = 0;
-
-	success |= (inst->addr != BMP280_I2C_ADDRESS_0 && inst->addr != BMP280_I2C_ADDRESS_1);
-	success |= (read_data(inst, BMP280_REG_ID, &inst->id, 1));
-	success |= (inst->id != BMP280_CHIP_ID);
+	if (inst->addr != BMP280_I2C_ADDRESS_0 && inst->addr != BMP280_I2C_ADDRESS_1) return false;
+	if (read_data(inst, BMP280_REG_ID, &inst->id, 1)) return false;
+	if (inst->id != BMP280_CHIP_ID) return false;
 
 	// Soft reset.
-	success |= (write_register8(inst, BMP280_REG_RESET, BMP280_RESET_VALUE));
+	if (write_register8(inst, BMP280_REG_RESET, BMP280_RESET_VALUE)) return false;
 
 	// Wait until finished copying over the NVP data.
 	while (1) {
@@ -64,7 +62,7 @@ bool bmp280_init(BMP280 *inst, BMP280_config *params)
 		if (!read_data(inst, BMP280_REG_STATUS, &status, 1) && (status & 1) == 0) break;
 	}
 
-	success |= (!read_calibration_data(inst));
+	if (!read_calibration_data(inst)) return false;
 
 	uint8_t config = (params->standby << 5) | (params->filter << 2);
 	if (write_register8(inst, BMP280_REG_CONFIG, config)) return false;
@@ -75,9 +73,9 @@ bool bmp280_init(BMP280 *inst, BMP280_config *params)
 
 	uint8_t ctrl = (params->oversampling_temperature << 5) | (params->oversampling_pressure << 2) | (params->mode);
 
-	success != (write_register8(inst, BMP280_REG_CTRL, ctrl));
+	if (write_register8(inst, BMP280_REG_CTRL, ctrl)) return false;
 
-	return (success == 0 ? true : false);
+	return true;
 }
 
 bool bmp280_is_measuring(BMP280 *inst) {

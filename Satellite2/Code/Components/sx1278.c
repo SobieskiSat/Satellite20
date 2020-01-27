@@ -27,7 +27,6 @@ void SX1278_command_burst(SX1278* inst, uint8_t addr, uint8_t* buff, uint8_t len
 {
 	uint8_t i;
 
-	//why not 1???
 	if (len <= 1) return;
 
 	HAL_GPIO_WritePin(inst->nss_port, inst->nss, GPIO_PIN_RESET);
@@ -69,7 +68,6 @@ void SX1278_read_burst(SX1278* inst, uint8_t addr, uint8_t* buff, uint8_t len)
 {
 	uint8_t i;
 
-	//why not 1???
 	if (len <= 1) return;
 
 	HAL_GPIO_WritePin(inst->nss_port, inst->nss, GPIO_PIN_RESET);
@@ -109,24 +107,24 @@ bool SX1278_init(SX1278* inst)
 	//[!!!!] heavy low level shit going out there, must check if correct
 	//####################################
 	float step_in_mhz = 32/pow(2, 19);
-	float multiplier = inst->frequency/step_in_mhz;
+	float multiplier = inst->config.frequency/step_in_mhz;
 	uint8_t* multiplier_addr = &multiplier;
 	SX1278_command(inst, LR_RegFrMsb, *multiplier_addr);
 	SX1278_command(inst, LR_RegFrMid, *(multiplier_addr + 1));
 	SX1278_command(inst, LR_RegFrLsb, *(multiplier_addr + 2));
 
-	SX1278_command(inst, LR_RegPaConfig, inst->power);				//Setting transmit power
+	SX1278_command(inst, LR_RegPaConfig, inst->config.power);				//Setting transmit power
 	SX1278_command(inst, LR_RegOcp, 0x2B);			// [was 0x0B] Over current protection set to 100mA
 	SX1278_command(inst, LR_RegLna, 0x23);			// LNA settings: G1 - max gain, Boost on
 	SX1278_command(inst, REG_LR_PADAC, 0x87);		//high power setting +20dBm
 	SX1278_command(inst, LR_RegHopPeriod, 0x00);	//frequency hopping off
 
-	if (inst->spreadingFactor == SX1278_SF_6)
+	if (inst->config.spreadingFactor == SX1278_SF_6)
 	{
 		uint8_t tmp;
 		//implicit CRC enable
-		SX1278_command(inst, LR_RegModemConfig1, ((inst->bandWidth << 4) + (inst->codingRate << 1) + 0x01));
-		SX1278_command(inst, LR_RegModemConfig2, ((inst->spreadingFactor << 4) + (inst->crc << 2) + 0x03));
+		SX1278_command(inst, LR_RegModemConfig1, ((inst->config.bandWidth << 4) + (inst->config.codingRate << 1) + 0x01));
+		SX1278_command(inst, LR_RegModemConfig2, ((inst->config.spreadingFactor << 4) + (inst->config.crc << 2) + (uint8_t)(inst->config.rxTimeoutSymb >> 8)));
 		tmp = SX1278_read_address(inst, 0x31);
 		tmp &= 0xF8;
 		tmp |= 0x05;
@@ -136,12 +134,12 @@ bool SX1278_init(SX1278* inst)
 	else
 	{
 		//explicit CRC enable
-		SX1278_command(inst, LR_RegModemConfig1, ((inst->bandWidth << 4) + (inst->codingRate << 1) + 0x00));
+		SX1278_command(inst, LR_RegModemConfig1, ((inst->config.bandWidth << 4) + (inst->config.codingRate << 1) + 0x00));
 		//SFactor &  LNA gain set by the internal AGC loop
-		SX1278_command(inst, LR_RegModemConfig2, ((inst->spreadingFactor << 4) + (inst->crc << 2) + 0x03));
+		SX1278_command(inst, LR_RegModemConfig2, ((inst->config.spreadingFactor << 4) + (inst->config.crc << 2) + (uint8_t)(inst->config.rxTimeoutSymb >> 8)));
 	}
 
-	SX1278_command(inst, LR_RegSymbTimeoutLsb, 0xFF);	//recievier timeout value = 0x3FF(Max) [timeout = symbtimeout*ts]
+	SX1278_command(inst, LR_RegSymbTimeoutLsb, (uint8_t)(inst->config.rxTimeoutSymb & 0x00FF));	//recievier timeout value [timeout = symbtimeout*ts]
 	SX1278_command(inst, LR_RegPreambleMsb, 0x00);		//Setting the preable length?
 	SX1278_command(inst, LR_RegPreambleLsb, 12);		//8+4=12byte Preamble
 	SX1278_command(inst, REG_LR_DIOMAPPING2, 0x01);		//RegDioMapping2 DIO5=00, DIO4=01
@@ -205,7 +203,7 @@ bool SX1278_receive(SX1278* inst)
 			//wait for dio0 pin to rise
 			while (HAL_GPIO_ReadPin(inst->dio0_port, inst->dio0) == GPIO_PIN_RESET);
 
-			inst->newPacket = SX1278_rx_get_packet(inst);
+			SX1278_rx_get_packet(inst);
 			return inst->newPacket;
 		}
 
@@ -243,7 +241,6 @@ bool SX1278_rx_get_packet(SX1278* inst)
 	uint8_t packet_size;
 
 	SX1278_update_IRQ_status(inst);
-	if (inst->rxTimeout || (inst->crcError && LR_VALIDATE_CRCERROR)) return false;
 
 	memset(inst->rxBuffer, 0x00, SX1278_MAX_PACKET);	//clear rxBuffer
 
@@ -251,7 +248,7 @@ bool SX1278_rx_get_packet(SX1278* inst)
 	SX1278_command(inst, LR_RegFifoAddrPtr, addr);				//set fifo pointer to this address
 
 	//When SpreadingFactor = 6, use Implicit Header mode (Excluding internal packet length)
-	if (inst->spreadingFactor == SX1278_SF_6)
+	if (inst->config.spreadingFactor == SX1278_SF_6)
 	{
 		// ??? not sure what to put here
 		packet_size = inst->txLen;
@@ -263,12 +260,13 @@ bool SX1278_rx_get_packet(SX1278* inst)
 
 	SX1278_read_burst(inst, 0x00, inst->rxBuffer, packet_size);
 
+	inst->newPacket = (inst->rxTimeout || (inst->crcError && LR_VALIDATE_CRCERROR));
 	inst->rssi = SX1278_getRSSI(inst);
 	inst->rxLen = packet_size;
-	inst->newPacket = true;
 	SX1278_clearLoRaIrq(inst);
 	SX1278_standby(inst);
-	return true;
+
+	return inst->newPacket;
 }
 
 //#### Functions to change SX1278 operation mode ####
@@ -294,7 +292,7 @@ void SX1278_rx_mode(SX1278* inst)
 
 	SX1278_clearLoRaIrq(inst);
 	SX1278_command(inst, REG_LR_DIOMAPPING1, 0x01);	//DIO=00, DIO1=00,DIO2=00, DIO3=01
-	SX1278_command(inst, LR_RegIrqFlagsMask, 0x3F);	//Open RxDone interrupt & Timeout (shouldn't this be after clearIRQ?)
+	SX1278_command(inst, LR_RegIrqFlagsMask, 0x1F);	//Open RxDone, RxTimeout, crcError interrupt
 
 	addr = SX1278_read_address(inst, LR_RegFifoRxBaseAddr);	//read rx_fifo beginning adress in memory
 	SX1278_command(inst, LR_RegFifoAddrPtr, addr);			//set fifo pointer there
