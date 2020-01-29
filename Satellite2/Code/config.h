@@ -25,7 +25,7 @@ static SX1278_config sx1278_default_config = {
 	SX1278_CR_4_5,
 	SX1278_BW_125KHZ,
 	SX1278_CRC_EN,
-	100	// rxTimeout = val * 1.024ms (for SF=7, BW=125K) [TimeOut = val * (2^(SF) / BW)]
+	100	// rxTimeout = val * 1.024ms (for SF=7, BW=125K) [rxTimeout = val * (2^(SF) / BW)]
 	};
 #endif
 

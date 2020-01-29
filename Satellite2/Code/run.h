@@ -14,6 +14,11 @@ static inline void print(char* str)
 {
 	CDC_Transmit_FS((uint8_t*) str, strlen(str));
 };
+static inline void println(char* str)
+{
+	CDC_Transmit_FS((uint8_t*) str, strlen(str));
+	CDC_Transmit_FS((uint8_t*) "\n\r", 2);
+};
 
 static bool bmp280_begin();
 static bool radio_begin();
