@@ -1,4 +1,3 @@
-"Code/Components/clock.o"
 "Code/Components/sd.o"
 "Code/Components/sx1278.o"
 "Code/Sensors/bmp280.o"
