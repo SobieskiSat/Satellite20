@@ -57,6 +57,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/bmp280.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sx1278.h \
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sd.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/config.h
 
 ../Core/Inc/main.h:
@@ -184,5 +185,7 @@ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/run.h:
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/bmp280.h:
 
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sx1278.h:
+
+C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sd.h:
 
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/config.h:

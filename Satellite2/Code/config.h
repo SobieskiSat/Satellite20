@@ -3,6 +3,9 @@
 
 #include "stm32f4xx_hal.h"
 
+#define MOTOR_L_DIR 1
+#define MOTOR_R_DIR 1
+
 #include "bmp280.h"
 
 static BMP280_config bmp280_default_config = {
@@ -12,10 +15,6 @@ static BMP280_config bmp280_default_config = {
 	BMP280_ULTRA_HIGH_RES, //temperature
 	BMP280_STANDBY_05};
 
-#define RADIO_SX1278
-//#define RADIO_SX1280
-
-#ifdef RADIO_SX1278
 #include "sx1278.h"
 
 static SX1278_config sx1278_default_config = {
@@ -27,10 +26,5 @@ static SX1278_config sx1278_default_config = {
 	SX1278_CRC_EN,
 	100	// rxTimeout = val * 1.024ms (for SF=7, BW=125K) [rxTimeout = val * (2^(SF) / BW)]
 	};
-#endif
-
-#ifdef RADIO_SX1280
-
-#endif
 
 #endif /* CONFIG_H_ */

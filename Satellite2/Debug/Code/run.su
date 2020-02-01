@@ -1,7 +1,8 @@
 run.h:13:20:print	16	static
-run.c:21:6:setup	8	static
-run.c:38:6:loop	32	static
-run.c:60:6:radio_procedure	8	static
-run.c:78:6:bmp280_begin	8	static
-run.c:97:6:dio0_IRQ	8	static
-run.c:106:6:radio_begin	8	static
+run.h:17:20:println	16	static
+run.c:22:6:setup	8	static
+run.c:50:6:loop	32	static
+run.c:72:6:radio_procedure	8	static
+run.c:90:6:bmp280_begin	8	static
+run.c:109:6:radio_begin	8	static
+run.c:136:6:dio0_IRQ	8	static

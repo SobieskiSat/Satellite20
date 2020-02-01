@@ -7,7 +7,7 @@
 
 static FRESULT SD_setFileTime(char* path, DateTime* dateTime)
 {
-    FILINFO ifno;
+    FILINFO info;
 
     // fatfs counts date from 1980, +20 to year needed
     info.fdate = (WORD)(((dateTime->year + 20) << 9) | (dateTime->month << 5) | (dateTime->dayM));
@@ -54,7 +54,9 @@ FRESULT SD_newFile(char* path)
 		//f_mount(0, SDPath, 0);
 		return status;
 	}
-	SD_setFileTime(&file, getTime());
+
+	DateTime now = getTime();
+	SD_setFileTime(path, &now);
 	return f_close(&file);
 }
 FRESULT SD_clearFile(char* path)

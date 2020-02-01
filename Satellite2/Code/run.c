@@ -7,6 +7,7 @@
 
 #include "bmp280.h"
 #include "sx1278.h"
+#include "sd.h"
 #include "config.h"
 
 BMP280 bmp280;
@@ -20,9 +21,12 @@ uint8_t message_length;
 
 void setup()
 {
+	HAL_Delay(500);
+
 	if (bmp280_begin())
 	{
 		bmp280_read_float(&bmp280, &temperature, &pressure);
+		println("BMP280 init successful!");
 		HAL_GPIO_TogglePin(LEDA_GPIO_Port, LEDA_Pin);
 		HAL_Delay(500);
 	}
@@ -30,7 +34,15 @@ void setup()
 	if (radio_begin())
 	{
 		radio_procedure();	//starts radio loop, now radio wokrs dependend on DIO0 interrupt in ping-pong mode
+		println("Radio init successful!");
 		HAL_GPIO_TogglePin(LEDB_GPIO_Port, LEDB_Pin);
+		HAL_Delay(500);
+	}
+
+	if (SD_init())
+	{
+		println("SD init successful!");
+		HAL_GPIO_TogglePin(LEDC_GPIO_Port, LEDC_Pin);
 		HAL_Delay(500);
 	}
 }
@@ -94,15 +106,6 @@ bool bmp280_begin()
 }
 
 
-void dio0_IRQ()
-{
-	if (radio.pendingIRQ)
-	{
-		SX1278_dio0_IRQ(&radio);
-		radio_procedure();
-	}
-}
-
 bool radio_begin()
 {
 	radio.reset = LR_RESET_Pin;
@@ -128,4 +131,13 @@ bool radio_begin()
 	}
 
 	return true;
+}
+
+void dio0_IRQ()
+{
+	if (radio.pendingIRQ)
+	{
+		SX1278_dio0_IRQ(&radio);
+		radio_procedure();
+	}
 }

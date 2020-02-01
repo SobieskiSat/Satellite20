@@ -1,0 +1,5 @@
+motors.c:11:13:setMotors	24	static
+motors.c:19:13:haltMotors	4	static
+motors.c:25:13:enableMotors	8	static
+motors.c:39:13:disableMotors	8	static
+motors.c:46:13:setPwmFrequency	16	static

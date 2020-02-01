@@ -50,12 +50,16 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 I2C_HandleTypeDef* Get_I2C1_Instance();
 SPI_HandleTypeDef* Get_SPI1_Instance();
+RTC_HandleTypeDef* Get_RTC_Instance();
+TIM_HandleTypeDef* Get_TIM2_Instance();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
