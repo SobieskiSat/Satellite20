@@ -6,8 +6,10 @@
 
 // Left motor: Timer2 Channel2
 // Right motor: Timer2 Channel4
+// PWM configured in Mode2 - Up-Down
 // DRV8838 has max of 250kHz PWM frequency
-// PWM frequency = 42MHz / (PSC+1) = 42MHz / 420 = 100kHz
+// Motors will automatically turn off after (TIM3->ARR * 1ms) time, default 100ms
+// Any new value applied will reset timeout timer
 
 static uint8_t motL = 0;
 static uint8_t motR = 0;

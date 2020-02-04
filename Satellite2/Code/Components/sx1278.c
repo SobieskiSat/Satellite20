@@ -5,6 +5,7 @@
 #include <math.h>
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_spi.h"
+#include "run.h"
 
 //#### SPI communication with SX1278 ####
 
@@ -108,10 +109,12 @@ bool SX1278_init(SX1278* inst)
 	//####################################
 	float step_in_mhz = 32/pow(2, 19);
 	float multiplier = inst->config.frequency/step_in_mhz;
-	uint8_t* multiplier_addr = &multiplier;
-	SX1278_command(inst, LR_RegFrMsb, *multiplier_addr);
-	SX1278_command(inst, LR_RegFrMid, *(multiplier_addr + 1));
-	SX1278_command(inst, LR_RegFrLsb, *(multiplier_addr + 2));
+	uint8_t multiplierBytes[4] = {0};
+	floatToBytes(multiplier, multiplierBytes);
+	// start from 2nd byte, dependent on byteorder, must check if correct
+	SX1278_command(inst, LR_RegFrMsb, multiplierBytes[1]);
+	SX1278_command(inst, LR_RegFrMid, multiplierBytes[2]);
+	SX1278_command(inst, LR_RegFrLsb, multiplierBytes[3]);
 
 	SX1278_command(inst, LR_RegPaConfig, inst->config.power);				//Setting transmit power
 	SX1278_command(inst, LR_RegOcp, 0x2B);			// [was 0x0B] Over current protection set to 100mA

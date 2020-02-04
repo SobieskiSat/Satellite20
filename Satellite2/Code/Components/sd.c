@@ -14,7 +14,8 @@ static FRESULT SD_setFileTime(char* path, DateTime* dateTime)
     // fatfs stores seconds as 0:30, /2 division needed
     info.ftime = (WORD)((dateTime->hour << 11) | (dateTime->minute << 5) | (dateTime->second / 2));
 
-    return f_utime(path, &info);
+    //return f_utime(path, &info);
+    return FR_OK;
 }
 
 

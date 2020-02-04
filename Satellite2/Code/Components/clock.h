@@ -5,7 +5,8 @@
 #include "stm32f4xx_hal.h"
 #include "main.h"
 
-static inline uint32_t millis() { return (uint32_t)TIM3->CNT; }
+// TIM5 has 32-bit counter -> takes longer to overflow
+static inline uint32_t millis() { return (uint32_t)TIM5->CNT; }
 static inline uint32_t seconds() { return (uint32_t)(millis() / 1000); }
 
 typedef struct
