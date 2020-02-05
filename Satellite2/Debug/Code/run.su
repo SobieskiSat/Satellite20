@@ -4,8 +4,8 @@ clock.h:9:24:millis	4	static
 clock.h:41:24:getTime	56	static
 run.c:34:6:setup	8	static
 run.c:77:6:loop	8	static
-run.c:174:6:radio_procedure	8	static
-run.c:206:6:bmp280_begin	8	static
-run.c:225:6:radio_begin	8	static
-run.c:252:6:dio0_IRQ	4	static
-run.c:264:6:sd_begin	88	static
+run.c:175:6:radio_procedure	8	static
+run.c:207:6:bmp280_begin	8	static
+run.c:226:6:radio_begin	8	static
+run.c:253:6:dio0_IRQ	4	static
+run.c:265:6:sd_begin	88	static
