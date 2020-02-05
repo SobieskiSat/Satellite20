@@ -132,6 +132,7 @@ void loop()
 		umotR = 255 - counter;
 		setMotors(umotL, umotR);
 		HAL_Delay(15);
+		println("Setting motors");
 	}
 	else
 	{

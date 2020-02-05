@@ -4,11 +4,11 @@ clock.h:9:24:millis	4	static
 clock.h:41:24:getTime	56	static
 run.c:34:6:setup	8	static
 run.c:77:6:loop	8	static
-run.c:173:6:radio_procedure	8	static
-run.c:205:6:bmp280_begin	8	static
-run.c:224:6:radio_begin	8	static
-run.c:251:6:dio0_IRQ	4	static
-run.c:263:6:sd_begin	88	static
+run.c:174:6:radio_procedure	8	static
+run.c:206:6:bmp280_begin	8	static
+run.c:225:6:radio_begin	8	static
+run.c:252:6:dio0_IRQ	4	static
+run.c:264:6:sd_begin	88	static
 motors.c:13:13:setMotors	24	static
 motors.c:21:13:haltMotors	4	static
 motors.c:29:13:enableMotors	8	static
