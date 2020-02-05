@@ -406,10 +406,6 @@ static void MX_TIM2_Init(void)
   sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
-  {
-    Error_Handler();
-  }
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
   {
     Error_Handler();
@@ -584,7 +580,7 @@ static void MX_GPIO_Init(void)
                           |LR_RESET_Pin|LEDB_Pin|LEDA_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, PH_L_Pin|PH_R_Pin|P7_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, PH_L_Pin|EN_L_Pin|PH_R_Pin|P7_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, P6_Pin|P3_Pin|LEDD_Pin|LEDC_Pin 
@@ -599,8 +595,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PH_L_Pin PH_R_Pin */
-  GPIO_InitStruct.Pin = PH_L_Pin|PH_R_Pin;
+  /*Configure GPIO pins : PH_L_Pin EN_L_Pin PH_R_Pin */
+  GPIO_InitStruct.Pin = PH_L_Pin|EN_L_Pin|PH_R_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

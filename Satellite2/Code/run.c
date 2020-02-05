@@ -77,10 +77,13 @@ void setup()
 void loop()
 {
 	HAL_Delay(2000);
+	HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_SET);
+	HAL_Delay(500);
+	HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_RESET);
 	//if (!HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin))
 	//{
 		//Hearing frequency: 20Hz - 20kHz
-		if (notPlayed)
+	/*	if (notPlayed)
 		{
 			notPlayed = false;
 			for (i = 0; i < 100; i++)
@@ -140,6 +143,7 @@ void loop()
 		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
 		haltMotors();
 	//}
+	 */
 
 	/*
 	if (bmp280_read_float(&bmp280, &temperature, &pressure))
