@@ -4624,10 +4624,10 @@ Discarded input sections
                 0x0000000000000000       0x14 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
  .text.HAL_TIM_Base_MspDeInit
                 0x0000000000000000       0x14 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
+ .text.HAL_TIM_Base_Start
+                0x0000000000000000       0x48 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
  .text.HAL_TIM_Base_Stop
                 0x0000000000000000       0x56 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
- .text.HAL_TIM_Base_Start_IT
-                0x0000000000000000       0x48 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
  .text.HAL_TIM_Base_Stop_IT
                 0x0000000000000000       0x56 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
  .text.HAL_TIM_Base_Start_DMA
@@ -9004,9 +9004,9 @@ LOAD c:/program files/stm/stm32cubeide_1.2.0/stm32cubeide/plugins/com.st.stm32cu
  .text.HAL_TIM_Base_Init
                 0x0000000008008048       0x56 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
                 0x0000000008008048                HAL_TIM_Base_Init
- .text.HAL_TIM_Base_Start
+ .text.HAL_TIM_Base_Start_IT
                 0x000000000800809e       0x48 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
-                0x000000000800809e                HAL_TIM_Base_Start
+                0x000000000800809e                HAL_TIM_Base_Start_IT
  .text.HAL_TIM_PWM_Init
                 0x00000000080080e6       0x56 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.o
                 0x00000000080080e6                HAL_TIM_PWM_Init

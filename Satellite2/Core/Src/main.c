@@ -132,11 +132,11 @@ int main(void)
   setup();
 
   // Start motor timeout interrupt timer
-  HAL_TIM_Base_Start(&htim4);
+  HAL_TIM_Base_Start_IT(&htim4);
 
-  HAL_TIM_Base_Start(&htim2);
-  HAL_TIM_Base_Start(&htim3);
-  HAL_TIM_Base_Start(&htim5);
+  HAL_TIM_Base_Start_IT(&htim2);
+  HAL_TIM_Base_Start_IT(&htim3);
+  HAL_TIM_Base_Start_IT(&htim5);
   /* USER CODE END 2 */
  
  

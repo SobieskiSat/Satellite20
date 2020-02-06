@@ -3632,19 +3632,19 @@ int main(void)
  8001f3c:	f7ff fc7e 	bl	800183c <setup>
 
   // Start motor timeout interrupt timer
-  HAL_TIM_Base_Start(&htim4);
+  HAL_TIM_Base_Start_IT(&htim4);
  8001f40:	4807      	ldr	r0, [pc, #28]	; (8001f60 <main+0x64>)
- 8001f42:	f006 f8ac 	bl	800809e <HAL_TIM_Base_Start>
+ 8001f42:	f006 f8ac 	bl	800809e <HAL_TIM_Base_Start_IT>
 
-  HAL_TIM_Base_Start(&htim2);
+  HAL_TIM_Base_Start_IT(&htim2);
  8001f46:	4807      	ldr	r0, [pc, #28]	; (8001f64 <main+0x68>)
- 8001f48:	f006 f8a9 	bl	800809e <HAL_TIM_Base_Start>
-  HAL_TIM_Base_Start(&htim3);
+ 8001f48:	f006 f8a9 	bl	800809e <HAL_TIM_Base_Start_IT>
+  HAL_TIM_Base_Start_IT(&htim3);
  8001f4c:	4806      	ldr	r0, [pc, #24]	; (8001f68 <main+0x6c>)
- 8001f4e:	f006 f8a6 	bl	800809e <HAL_TIM_Base_Start>
-  HAL_TIM_Base_Start(&htim5);
+ 8001f4e:	f006 f8a6 	bl	800809e <HAL_TIM_Base_Start_IT>
+  HAL_TIM_Base_Start_IT(&htim5);
  8001f52:	4806      	ldr	r0, [pc, #24]	; (8001f6c <main+0x70>)
- 8001f54:	f006 f8a3 	bl	800809e <HAL_TIM_Base_Start>
+ 8001f54:	f006 f8a3 	bl	800809e <HAL_TIM_Base_Start_IT>
   while (1)
   {
     /* USER CODE END WHILE */
@@ -20862,12 +20862,12 @@ HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim)
  800809a:	46bd      	mov	sp, r7
  800809c:	bd80      	pop	{r7, pc}
 
-0800809e <HAL_TIM_Base_Start>:
-  * @brief  Starts the TIM Base generation.
+0800809e <HAL_TIM_Base_Start_IT>:
+  * @brief  Starts the TIM Base generation in interrupt mode.
   * @param  htim TIM Base handle
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_TIM_Base_Start(TIM_HandleTypeDef *htim)
+HAL_StatusTypeDef HAL_TIM_Base_Start_IT(TIM_HandleTypeDef *htim)
 {
  800809e:	b480      	push	{r7}
  80080a0:	b085      	sub	sp, #20
@@ -20877,39 +20877,37 @@ HAL_StatusTypeDef HAL_TIM_Base_Start(TIM_HandleTypeDef *htim)
   /* Check the parameters */
   assert_param(IS_TIM_INSTANCE(htim->Instance));
 
-  /* Set the TIM state */
-  htim->State = HAL_TIM_STATE_BUSY;
+  /* Enable the TIM Update interrupt */
+  __HAL_TIM_ENABLE_IT(htim, TIM_IT_UPDATE);
  80080a6:	687b      	ldr	r3, [r7, #4]
- 80080a8:	2202      	movs	r2, #2
- 80080aa:	f883 203d 	strb.w	r2, [r3, #61]	; 0x3d
+ 80080a8:	681b      	ldr	r3, [r3, #0]
+ 80080aa:	68da      	ldr	r2, [r3, #12]
+ 80080ac:	687b      	ldr	r3, [r7, #4]
+ 80080ae:	681b      	ldr	r3, [r3, #0]
+ 80080b0:	f042 0201 	orr.w	r2, r2, #1
+ 80080b4:	60da      	str	r2, [r3, #12]
 
   /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
   tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
- 80080ae:	687b      	ldr	r3, [r7, #4]
- 80080b0:	681b      	ldr	r3, [r3, #0]
- 80080b2:	689b      	ldr	r3, [r3, #8]
- 80080b4:	f003 0307 	and.w	r3, r3, #7
- 80080b8:	60fb      	str	r3, [r7, #12]
+ 80080b6:	687b      	ldr	r3, [r7, #4]
+ 80080b8:	681b      	ldr	r3, [r3, #0]
+ 80080ba:	689b      	ldr	r3, [r3, #8]
+ 80080bc:	f003 0307 	and.w	r3, r3, #7
+ 80080c0:	60fb      	str	r3, [r7, #12]
   if (!IS_TIM_SLAVEMODE_TRIGGER_ENABLED(tmpsmcr))
- 80080ba:	68fb      	ldr	r3, [r7, #12]
- 80080bc:	2b06      	cmp	r3, #6
- 80080be:	d007      	beq.n	80080d0 <HAL_TIM_Base_Start+0x32>
+ 80080c2:	68fb      	ldr	r3, [r7, #12]
+ 80080c4:	2b06      	cmp	r3, #6
+ 80080c6:	d007      	beq.n	80080d8 <HAL_TIM_Base_Start_IT+0x3a>
   {
     __HAL_TIM_ENABLE(htim);
- 80080c0:	687b      	ldr	r3, [r7, #4]
- 80080c2:	681b      	ldr	r3, [r3, #0]
- 80080c4:	681a      	ldr	r2, [r3, #0]
- 80080c6:	687b      	ldr	r3, [r7, #4]
- 80080c8:	681b      	ldr	r3, [r3, #0]
- 80080ca:	f042 0201 	orr.w	r2, r2, #1
- 80080ce:	601a      	str	r2, [r3, #0]
+ 80080c8:	687b      	ldr	r3, [r7, #4]
+ 80080ca:	681b      	ldr	r3, [r3, #0]
+ 80080cc:	681a      	ldr	r2, [r3, #0]
+ 80080ce:	687b      	ldr	r3, [r7, #4]
+ 80080d0:	681b      	ldr	r3, [r3, #0]
+ 80080d2:	f042 0201 	orr.w	r2, r2, #1
+ 80080d6:	601a      	str	r2, [r3, #0]
   }
-
-  /* Change the TIM state*/
-  htim->State = HAL_TIM_STATE_READY;
- 80080d0:	687b      	ldr	r3, [r7, #4]
- 80080d2:	2201      	movs	r2, #1
- 80080d4:	f883 203d 	strb.w	r2, [r3, #61]	; 0x3d
 
   /* Return function status */
   return HAL_OK;
