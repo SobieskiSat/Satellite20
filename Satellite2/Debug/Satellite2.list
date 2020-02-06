@@ -37,13 +37,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  16 .debug_macro  00007916  00000000  00000000  000621a8  2**0
                   CONTENTS, READONLY, DEBUGGING
- 17 .debug_line   0001dfe9  00000000  00000000  00069abe  2**0
+ 17 .debug_line   0001dfeb  00000000  00000000  00069abe  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_str    000d443d  00000000  00000000  00087aa7  2**0
+ 18 .debug_str    000d443d  00000000  00000000  00087aa9  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000007b  00000000  00000000  0015bee4  2**0
+ 19 .comment      0000007b  00000000  00000000  0015bee6  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00008fa8  00000000  00000000  0015bf60  2**2
+ 20 .debug_frame  00008fa4  00000000  00000000  0015bf64  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -2806,7 +2806,7 @@ static void setup()
  8001958:	f7ff ff0e 	bl	8001778 <println>
 	setMotorTimeout(1000);
  800195c:	f44f 707a 	mov.w	r0, #1000	; 0x3e8
- 8001960:	f000 fa92 	bl	8001e88 <setMotorTimeout>
+ 8001960:	f000 fa82 	bl	8001e68 <setMotorTimeout>
 	println("[MOT] Left motor: GPIO (copy on P7), Right motor: PWM (copy on P6)");
  8001964:	4815      	ldr	r0, [pc, #84]	; (80019bc <setup+0x180>)
  8001966:	f7ff ff07 	bl	8001778 <println>
@@ -2859,7 +2859,7 @@ static void loop()
  80019d8:	2b00      	cmp	r3, #0
  80019da:	d12b      	bne.n	8001a34 <loop+0x74>
 		{
-			setMotors(i, i);
+			setMotors((uint8_t)i, (uint8_t)i);
  80019dc:	4b4f      	ldr	r3, [pc, #316]	; (8001b1c <loop+0x15c>)
  80019de:	681b      	ldr	r3, [r3, #0]
  80019e0:	b2da      	uxtb	r2, r3
@@ -2923,8 +2923,8 @@ static void loop()
  8001a52:	f002 f959 	bl	8003d08 <HAL_GPIO_WritePin>
 		}
 
-		HAL_Delay(10);
- 8001a56:	200a      	movs	r0, #10
+		HAL_Delay(100);
+ 8001a56:	2064      	movs	r0, #100	; 0x64
  8001a58:	f001 fad4 	bl	8003004 <HAL_Delay>
 	for (i = 0; i < 255; i++)
  8001a5c:	4b2f      	ldr	r3, [pc, #188]	; (8001b1c <loop+0x15c>)
@@ -2951,7 +2951,7 @@ static void loop()
  8001a82:	2b00      	cmp	r3, #0
  8001a84:	d12b      	bne.n	8001ade <loop+0x11e>
 		{
-			setMotors(i, i);
+			setMotors((uint8_t)i, (uint8_t)i);
  8001a86:	4b25      	ldr	r3, [pc, #148]	; (8001b1c <loop+0x15c>)
  8001a88:	681b      	ldr	r3, [r3, #0]
  8001a8a:	b2da      	uxtb	r2, r3
@@ -3015,8 +3015,8 @@ static void loop()
  8001afc:	f002 f904 	bl	8003d08 <HAL_GPIO_WritePin>
 		}
 
-		HAL_Delay(10);
- 8001b00:	200a      	movs	r0, #10
+		HAL_Delay(100);
+ 8001b00:	2064      	movs	r0, #100	; 0x64
  8001b02:	f001 fa7f 	bl	8003004 <HAL_Delay>
 	for (i = 255; i >= 0; i--)
  8001b06:	4b05      	ldr	r3, [pc, #20]	; (8001b1c <loop+0x15c>)
@@ -3409,8 +3409,8 @@ static void enableMotors()
 
 static void setPwmFrequency(uint32_t f_hz)
 {
- 8001dd0:	b590      	push	{r4, r7, lr}
- 8001dd2:	b083      	sub	sp, #12
+ 8001dd0:	b580      	push	{r7, lr}
+ 8001dd2:	b082      	sub	sp, #8
  8001dd4:	af00      	add	r7, sp, #0
  8001dd6:	6078      	str	r0, [r7, #4]
 	// ARR = Clock frequency / (2 * Frequency)
@@ -3419,17 +3419,17 @@ static void setPwmFrequency(uint32_t f_hz)
 	//TIM2->ARR = (uint32_t)(42000000 / TIM2->PSC) / (2 * f_hz);
 
 	if (f_hz > MAX_PWM_FREQ)
- 8001dd8:	4b23      	ldr	r3, [pc, #140]	; (8001e68 <setPwmFrequency+0x98>)
+ 8001dd8:	4b1c      	ldr	r3, [pc, #112]	; (8001e4c <setPwmFrequency+0x7c>)
  8001dda:	681b      	ldr	r3, [r3, #0]
  8001ddc:	687a      	ldr	r2, [r7, #4]
  8001dde:	429a      	cmp	r2, r3
  8001de0:	d908      	bls.n	8001df4 <setPwmFrequency+0x24>
 	{
 		println("[MOT] PWM frequency too high! Setting maximum.");
- 8001de2:	4822      	ldr	r0, [pc, #136]	; (8001e6c <setPwmFrequency+0x9c>)
+ 8001de2:	481b      	ldr	r0, [pc, #108]	; (8001e50 <setPwmFrequency+0x80>)
  8001de4:	f7ff fcc8 	bl	8001778 <println>
 		setPwmFrequency(MAX_PWM_FREQ);
- 8001de8:	4b1f      	ldr	r3, [pc, #124]	; (8001e68 <setPwmFrequency+0x98>)
+ 8001de8:	4b18      	ldr	r3, [pc, #96]	; (8001e4c <setPwmFrequency+0x7c>)
  8001dea:	681b      	ldr	r3, [r3, #0]
  8001dec:	4618      	mov	r0, r3
  8001dee:	f7ff ffef 	bl	8001dd0 <setPwmFrequency>
@@ -3439,7 +3439,7 @@ static void setPwmFrequency(uint32_t f_hz)
 
 	}
 }
- 8001df2:	e034      	b.n	8001e5e <setPwmFrequency+0x8e>
+ 8001df2:	e026      	b.n	8001e42 <setPwmFrequency+0x72>
 		TIM2->CNT = 0;
  8001df4:	f04f 4380 	mov.w	r3, #1073741824	; 0x40000000
  8001df8:	2200      	movs	r2, #0
@@ -3448,193 +3448,197 @@ static void setPwmFrequency(uint32_t f_hz)
  8001dfc:	687b      	ldr	r3, [r7, #4]
  8001dfe:	005b      	lsls	r3, r3, #1
  8001e00:	f04f 4280 	mov.w	r2, #1073741824	; 0x40000000
- 8001e04:	491a      	ldr	r1, [pc, #104]	; (8001e70 <setPwmFrequency+0xa0>)
+ 8001e04:	4913      	ldr	r1, [pc, #76]	; (8001e54 <setPwmFrequency+0x84>)
  8001e06:	fbb1 f3f3 	udiv	r3, r1, r3
  8001e0a:	62d3      	str	r3, [r2, #44]	; 0x2c
-		printLen = sprintf(printBuffer, "[MOT] Frequency set to: %fMhz", (float)(f_hz / 1000000));
+		printLen = sprintf(printBuffer, "[MOT] Frequency set to: %dHz", (uint16_t)f_hz);
  8001e0c:	687b      	ldr	r3, [r7, #4]
- 8001e0e:	4a19      	ldr	r2, [pc, #100]	; (8001e74 <setPwmFrequency+0xa4>)
- 8001e10:	fba2 2303 	umull	r2, r3, r2, r3
- 8001e14:	0c9b      	lsrs	r3, r3, #18
- 8001e16:	ee07 3a90 	vmov	s15, r3
- 8001e1a:	eef8 7a67 	vcvt.f32.u32	s15, s15
- 8001e1e:	ee17 0a90 	vmov	r0, s15
- 8001e22:	f7fe fb91 	bl	8000548 <__aeabi_f2d>
- 8001e26:	4603      	mov	r3, r0
- 8001e28:	460c      	mov	r4, r1
- 8001e2a:	461a      	mov	r2, r3
- 8001e2c:	4623      	mov	r3, r4
- 8001e2e:	4912      	ldr	r1, [pc, #72]	; (8001e78 <setPwmFrequency+0xa8>)
- 8001e30:	4812      	ldr	r0, [pc, #72]	; (8001e7c <setPwmFrequency+0xac>)
- 8001e32:	f00c fec7 	bl	800ebc4 <siprintf>
- 8001e36:	4603      	mov	r3, r0
- 8001e38:	461a      	mov	r2, r3
- 8001e3a:	4b11      	ldr	r3, [pc, #68]	; (8001e80 <setPwmFrequency+0xb0>)
- 8001e3c:	601a      	str	r2, [r3, #0]
+ 8001e0e:	b29b      	uxth	r3, r3
+ 8001e10:	461a      	mov	r2, r3
+ 8001e12:	4911      	ldr	r1, [pc, #68]	; (8001e58 <setPwmFrequency+0x88>)
+ 8001e14:	4811      	ldr	r0, [pc, #68]	; (8001e5c <setPwmFrequency+0x8c>)
+ 8001e16:	f00c fed5 	bl	800ebc4 <siprintf>
+ 8001e1a:	4603      	mov	r3, r0
+ 8001e1c:	461a      	mov	r2, r3
+ 8001e1e:	4b10      	ldr	r3, [pc, #64]	; (8001e60 <setPwmFrequency+0x90>)
+ 8001e20:	601a      	str	r2, [r3, #0]
 		printv(printBuffer, printLen);
- 8001e3e:	4b10      	ldr	r3, [pc, #64]	; (8001e80 <setPwmFrequency+0xb0>)
- 8001e40:	681b      	ldr	r3, [r3, #0]
- 8001e42:	4619      	mov	r1, r3
- 8001e44:	480d      	ldr	r0, [pc, #52]	; (8001e7c <setPwmFrequency+0xac>)
- 8001e46:	f7ff fcd9 	bl	80017fc <printv>
+ 8001e22:	4b0f      	ldr	r3, [pc, #60]	; (8001e60 <setPwmFrequency+0x90>)
+ 8001e24:	681b      	ldr	r3, [r3, #0]
+ 8001e26:	4619      	mov	r1, r3
+ 8001e28:	480c      	ldr	r0, [pc, #48]	; (8001e5c <setPwmFrequency+0x8c>)
+ 8001e2a:	f7ff fce7 	bl	80017fc <printv>
 		TIM3->CNT = 0;
- 8001e4a:	4b0e      	ldr	r3, [pc, #56]	; (8001e84 <setPwmFrequency+0xb4>)
- 8001e4c:	2200      	movs	r2, #0
- 8001e4e:	625a      	str	r2, [r3, #36]	; 0x24
+ 8001e2e:	4b0d      	ldr	r3, [pc, #52]	; (8001e64 <setPwmFrequency+0x94>)
+ 8001e30:	2200      	movs	r2, #0
+ 8001e32:	625a      	str	r2, [r3, #36]	; 0x24
 		TIM3->ARR = 42000000 / (2 * f_hz);
- 8001e50:	687b      	ldr	r3, [r7, #4]
- 8001e52:	005b      	lsls	r3, r3, #1
- 8001e54:	4a0b      	ldr	r2, [pc, #44]	; (8001e84 <setPwmFrequency+0xb4>)
- 8001e56:	4906      	ldr	r1, [pc, #24]	; (8001e70 <setPwmFrequency+0xa0>)
- 8001e58:	fbb1 f3f3 	udiv	r3, r1, r3
- 8001e5c:	62d3      	str	r3, [r2, #44]	; 0x2c
+ 8001e34:	687b      	ldr	r3, [r7, #4]
+ 8001e36:	005b      	lsls	r3, r3, #1
+ 8001e38:	4a0a      	ldr	r2, [pc, #40]	; (8001e64 <setPwmFrequency+0x94>)
+ 8001e3a:	4906      	ldr	r1, [pc, #24]	; (8001e54 <setPwmFrequency+0x84>)
+ 8001e3c:	fbb1 f3f3 	udiv	r3, r1, r3
+ 8001e40:	62d3      	str	r3, [r2, #44]	; 0x2c
 }
- 8001e5e:	bf00      	nop
- 8001e60:	370c      	adds	r7, #12
- 8001e62:	46bd      	mov	sp, r7
- 8001e64:	bd90      	pop	{r4, r7, pc}
- 8001e66:	bf00      	nop
- 8001e68:	20000000 	.word	0x20000000
- 8001e6c:	08011f10 	.word	0x08011f10
- 8001e70:	0280de80 	.word	0x0280de80
- 8001e74:	431bde83 	.word	0x431bde83
- 8001e78:	08011f40 	.word	0x08011f40
- 8001e7c:	20000578 	.word	0x20000578
- 8001e80:	20000574 	.word	0x20000574
- 8001e84:	40000400 	.word	0x40000400
+ 8001e42:	bf00      	nop
+ 8001e44:	3708      	adds	r7, #8
+ 8001e46:	46bd      	mov	sp, r7
+ 8001e48:	bd80      	pop	{r7, pc}
+ 8001e4a:	bf00      	nop
+ 8001e4c:	20000000 	.word	0x20000000
+ 8001e50:	08011f10 	.word	0x08011f10
+ 8001e54:	0280de80 	.word	0x0280de80
+ 8001e58:	08011f40 	.word	0x08011f40
+ 8001e5c:	20000578 	.word	0x20000578
+ 8001e60:	20000574 	.word	0x20000574
+ 8001e64:	40000400 	.word	0x40000400
 
-08001e88 <setMotorTimeout>:
+08001e68 <setMotorTimeout>:
 
 static void setMotorTimeout(uint32_t timeout_ms)
 {
- 8001e88:	b580      	push	{r7, lr}
- 8001e8a:	b082      	sub	sp, #8
- 8001e8c:	af00      	add	r7, sp, #0
- 8001e8e:	6078      	str	r0, [r7, #4]
+ 8001e68:	b580      	push	{r7, lr}
+ 8001e6a:	b082      	sub	sp, #8
+ 8001e6c:	af00      	add	r7, sp, #0
+ 8001e6e:	6078      	str	r0, [r7, #4]
 	TIM4->CNT = 0;
- 8001e90:	4b0d      	ldr	r3, [pc, #52]	; (8001ec8 <setMotorTimeout+0x40>)
- 8001e92:	2200      	movs	r2, #0
- 8001e94:	625a      	str	r2, [r3, #36]	; 0x24
+ 8001e70:	4b0d      	ldr	r3, [pc, #52]	; (8001ea8 <setMotorTimeout+0x40>)
+ 8001e72:	2200      	movs	r2, #0
+ 8001e74:	625a      	str	r2, [r3, #36]	; 0x24
 	TIM4->ARR = timeout_ms;
- 8001e96:	4a0c      	ldr	r2, [pc, #48]	; (8001ec8 <setMotorTimeout+0x40>)
- 8001e98:	687b      	ldr	r3, [r7, #4]
- 8001e9a:	62d3      	str	r3, [r2, #44]	; 0x2c
+ 8001e76:	4a0c      	ldr	r2, [pc, #48]	; (8001ea8 <setMotorTimeout+0x40>)
+ 8001e78:	687b      	ldr	r3, [r7, #4]
+ 8001e7a:	62d3      	str	r3, [r2, #44]	; 0x2c
 	printLen = sprintf(printBuffer, "[MOT] Timeout set to: %dms", (uint16_t)timeout_ms);
- 8001e9c:	687b      	ldr	r3, [r7, #4]
- 8001e9e:	b29b      	uxth	r3, r3
- 8001ea0:	461a      	mov	r2, r3
- 8001ea2:	490a      	ldr	r1, [pc, #40]	; (8001ecc <setMotorTimeout+0x44>)
- 8001ea4:	480a      	ldr	r0, [pc, #40]	; (8001ed0 <setMotorTimeout+0x48>)
- 8001ea6:	f00c fe8d 	bl	800ebc4 <siprintf>
- 8001eaa:	4603      	mov	r3, r0
- 8001eac:	461a      	mov	r2, r3
- 8001eae:	4b09      	ldr	r3, [pc, #36]	; (8001ed4 <setMotorTimeout+0x4c>)
- 8001eb0:	601a      	str	r2, [r3, #0]
+ 8001e7c:	687b      	ldr	r3, [r7, #4]
+ 8001e7e:	b29b      	uxth	r3, r3
+ 8001e80:	461a      	mov	r2, r3
+ 8001e82:	490a      	ldr	r1, [pc, #40]	; (8001eac <setMotorTimeout+0x44>)
+ 8001e84:	480a      	ldr	r0, [pc, #40]	; (8001eb0 <setMotorTimeout+0x48>)
+ 8001e86:	f00c fe9d 	bl	800ebc4 <siprintf>
+ 8001e8a:	4603      	mov	r3, r0
+ 8001e8c:	461a      	mov	r2, r3
+ 8001e8e:	4b09      	ldr	r3, [pc, #36]	; (8001eb4 <setMotorTimeout+0x4c>)
+ 8001e90:	601a      	str	r2, [r3, #0]
 	printv(printBuffer, printLen);
- 8001eb2:	4b08      	ldr	r3, [pc, #32]	; (8001ed4 <setMotorTimeout+0x4c>)
- 8001eb4:	681b      	ldr	r3, [r3, #0]
- 8001eb6:	4619      	mov	r1, r3
- 8001eb8:	4805      	ldr	r0, [pc, #20]	; (8001ed0 <setMotorTimeout+0x48>)
- 8001eba:	f7ff fc9f 	bl	80017fc <printv>
+ 8001e92:	4b08      	ldr	r3, [pc, #32]	; (8001eb4 <setMotorTimeout+0x4c>)
+ 8001e94:	681b      	ldr	r3, [r3, #0]
+ 8001e96:	4619      	mov	r1, r3
+ 8001e98:	4805      	ldr	r0, [pc, #20]	; (8001eb0 <setMotorTimeout+0x48>)
+ 8001e9a:	f7ff fcaf 	bl	80017fc <printv>
 }
- 8001ebe:	bf00      	nop
- 8001ec0:	3708      	adds	r7, #8
- 8001ec2:	46bd      	mov	sp, r7
- 8001ec4:	bd80      	pop	{r7, pc}
- 8001ec6:	bf00      	nop
- 8001ec8:	40000800 	.word	0x40000800
- 8001ecc:	08011f60 	.word	0x08011f60
- 8001ed0:	20000578 	.word	0x20000578
- 8001ed4:	20000574 	.word	0x20000574
+ 8001e9e:	bf00      	nop
+ 8001ea0:	3708      	adds	r7, #8
+ 8001ea2:	46bd      	mov	sp, r7
+ 8001ea4:	bd80      	pop	{r7, pc}
+ 8001ea6:	bf00      	nop
+ 8001ea8:	40000800 	.word	0x40000800
+ 8001eac:	08011f60 	.word	0x08011f60
+ 8001eb0:	20000578 	.word	0x20000578
+ 8001eb4:	20000574 	.word	0x20000574
 
-08001ed8 <motorTimeout>:
+08001eb8 <motorTimeout>:
 
 static void motorTimeout()
 {
- 8001ed8:	b580      	push	{r7, lr}
- 8001eda:	af00      	add	r7, sp, #0
+ 8001eb8:	b580      	push	{r7, lr}
+ 8001eba:	af00      	add	r7, sp, #0
 	haltMotors();
- 8001edc:	f7ff ff10 	bl	8001d00 <haltMotors>
+ 8001ebc:	f7ff ff20 	bl	8001d00 <haltMotors>
 	println("[MOT] Motors halted due to timeout!");
- 8001ee0:	4802      	ldr	r0, [pc, #8]	; (8001eec <motorTimeout+0x14>)
- 8001ee2:	f7ff fc49 	bl	8001778 <println>
+ 8001ec0:	4802      	ldr	r0, [pc, #8]	; (8001ecc <motorTimeout+0x14>)
+ 8001ec2:	f7ff fc59 	bl	8001778 <println>
 }
- 8001ee6:	bf00      	nop
- 8001ee8:	bd80      	pop	{r7, pc}
- 8001eea:	bf00      	nop
- 8001eec:	08011f7c 	.word	0x08011f7c
+ 8001ec6:	bf00      	nop
+ 8001ec8:	bd80      	pop	{r7, pc}
+ 8001eca:	bf00      	nop
+ 8001ecc:	08011f7c 	.word	0x08011f7c
 
-08001ef0 <main>:
+08001ed0 <main>:
 /**
   * @brief  The application entry point.
   * @retval int
   */
 int main(void)
 {
- 8001ef0:	b580      	push	{r7, lr}
- 8001ef2:	af00      	add	r7, sp, #0
+ 8001ed0:	b580      	push	{r7, lr}
+ 8001ed2:	af00      	add	r7, sp, #0
   
 
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
- 8001ef4:	f001 f814 	bl	8002f20 <HAL_Init>
+ 8001ed4:	f001 f824 	bl	8002f20 <HAL_Init>
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
- 8001ef8:	f000 f824 	bl	8001f44 <SystemClock_Config>
+ 8001ed8:	f000 f834 	bl	8001f44 <SystemClock_Config>
   /* USER CODE BEGIN SysInit */
 
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
- 8001efc:	f000 fb5a 	bl	80025b4 <MX_GPIO_Init>
+ 8001edc:	f000 fb6a 	bl	80025b4 <MX_GPIO_Init>
   MX_DMA_Init();
- 8001f00:	f000 fb30 	bl	8002564 <MX_DMA_Init>
+ 8001ee0:	f000 fb40 	bl	8002564 <MX_DMA_Init>
   MX_SDIO_SD_Init();
- 8001f04:	f000 f928 	bl	8002158 <MX_SDIO_SD_Init>
+ 8001ee4:	f000 f938 	bl	8002158 <MX_SDIO_SD_Init>
   MX_FATFS_Init();
- 8001f08:	f009 fba2 	bl	800b650 <MX_FATFS_Init>
+ 8001ee8:	f009 fbb2 	bl	800b650 <MX_FATFS_Init>
   MX_I2C1_Init();
- 8001f0c:	f000 f89c 	bl	8002048 <MX_I2C1_Init>
+ 8001eec:	f000 f8ac 	bl	8002048 <MX_I2C1_Init>
   MX_USB_DEVICE_Init();
- 8001f10:	f00b f9ea 	bl	800d2e8 <MX_USB_DEVICE_Init>
+ 8001ef0:	f00b f9fa 	bl	800d2e8 <MX_USB_DEVICE_Init>
   MX_SPI1_Init();
- 8001f14:	f000 f940 	bl	8002198 <MX_SPI1_Init>
+ 8001ef4:	f000 f950 	bl	8002198 <MX_SPI1_Init>
   MX_USART3_UART_Init();
- 8001f18:	f000 fafa 	bl	8002510 <MX_USART3_UART_Init>
+ 8001ef8:	f000 fb0a 	bl	8002510 <MX_USART3_UART_Init>
   MX_RTC_Init();
- 8001f1c:	f000 f8c2 	bl	80020a4 <MX_RTC_Init>
+ 8001efc:	f000 f8d2 	bl	80020a4 <MX_RTC_Init>
   MX_TIM2_Init();
- 8001f20:	f000 f970 	bl	8002204 <MX_TIM2_Init>
+ 8001f00:	f000 f980 	bl	8002204 <MX_TIM2_Init>
   MX_TIM5_Init();
- 8001f24:	f000 faa6 	bl	8002474 <MX_TIM5_Init>
+ 8001f04:	f000 fab6 	bl	8002474 <MX_TIM5_Init>
   MX_TIM3_Init();
- 8001f28:	f000 f9e0 	bl	80022ec <MX_TIM3_Init>
+ 8001f08:	f000 f9f0 	bl	80022ec <MX_TIM3_Init>
   MX_TIM4_Init();
- 8001f2c:	f000 fa54 	bl	80023d8 <MX_TIM4_Init>
+ 8001f0c:	f000 fa64 	bl	80023d8 <MX_TIM4_Init>
   /* USER CODE BEGIN 2 */
   setup();
- 8001f30:	f7ff fc84 	bl	800183c <setup>
+ 8001f10:	f7ff fc94 	bl	800183c <setup>
 
   // Start motor timeout interrupt timer
   HAL_TIM_Base_Start(&htim4);
- 8001f34:	4802      	ldr	r0, [pc, #8]	; (8001f40 <main+0x50>)
- 8001f36:	f006 f89c 	bl	8008072 <HAL_TIM_Base_Start>
+ 8001f14:	4807      	ldr	r0, [pc, #28]	; (8001f34 <main+0x64>)
+ 8001f16:	f006 f8ac 	bl	8008072 <HAL_TIM_Base_Start>
+
+  HAL_TIM_Base_Start(&htim2);
+ 8001f1a:	4807      	ldr	r0, [pc, #28]	; (8001f38 <main+0x68>)
+ 8001f1c:	f006 f8a9 	bl	8008072 <HAL_TIM_Base_Start>
+  HAL_TIM_Base_Start(&htim3);
+ 8001f20:	4806      	ldr	r0, [pc, #24]	; (8001f3c <main+0x6c>)
+ 8001f22:	f006 f8a6 	bl	8008072 <HAL_TIM_Base_Start>
+  HAL_TIM_Base_Start(&htim5);
+ 8001f26:	4806      	ldr	r0, [pc, #24]	; (8001f40 <main+0x70>)
+ 8001f28:	f006 f8a3 	bl	8008072 <HAL_TIM_Base_Start>
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 	loop();
- 8001f3a:	f7ff fd41 	bl	80019c0 <loop>
- 8001f3e:	e7fc      	b.n	8001f3a <main+0x4a>
- 8001f40:	20000c6c 	.word	0x20000c6c
+ 8001f2c:	f7ff fd48 	bl	80019c0 <loop>
+ 8001f30:	e7fc      	b.n	8001f2c <main+0x5c>
+ 8001f32:	bf00      	nop
+ 8001f34:	20000c6c 	.word	0x20000c6c
+ 8001f38:	20000f1c 	.word	0x20000f1c
+ 8001f3c:	20000d80 	.word	0x20000d80
+ 8001f40:	20000d40 	.word	0x20000d40
 
 08001f44 <SystemClock_Config>:
 /**
@@ -4415,8 +4419,8 @@ static void MX_TIM3_Init(void)
     Error_Handler();
  8002396:	f000 fa35 	bl	8002804 <Error_Handler>
   }
-  sConfigOC.OCMode = TIM_OCMODE_PWM2;
- 800239a:	2370      	movs	r3, #112	; 0x70
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+ 800239a:	2360      	movs	r3, #96	; 0x60
  800239c:	607b      	str	r3, [r7, #4]
   sConfigOC.Pulse = 0;
  800239e:	2300      	movs	r3, #0
@@ -5164,7 +5168,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
  80027f0:	d101      	bne.n	80027f6 <HAL_TIM_PeriodElapsedCallback+0x16>
 	{
 		motorTimeout();
- 80027f2:	f7ff fb71 	bl	8001ed8 <motorTimeout>
+ 80027f2:	f7ff fb61 	bl	8001eb8 <motorTimeout>
 	}
 
 }
@@ -6538,7 +6542,7 @@ LoopFillZerobss:
  8002efa:	f00a ff1f 	bl	800dd3c <__libc_init_array>
 /* Call the application's entry point.*/
   bl  main
- 8002efe:	f7fe fff7 	bl	8001ef0 <main>
+ 8002efe:	f7fe ffe7 	bl	8001ed0 <main>
   bx  lr    
  8002f02:	4770      	bx	lr
   ldr   sp, =_estack     /* set stack pointer */

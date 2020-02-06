@@ -95,7 +95,7 @@ static void setPwmFrequency(uint32_t f_hz)
 	{
 		TIM2->CNT = 0;
 		TIM2->ARR = 42000000 / (2 * f_hz);
-		printLen = sprintf(printBuffer, "[MOT] Frequency set to: %fMhz", (float)(f_hz / 1000000));
+		printLen = sprintf(printBuffer, "[MOT] Frequency set to: %dHz", (uint16_t)f_hz);
 		printv(printBuffer, printLen);
 
 		//todelete

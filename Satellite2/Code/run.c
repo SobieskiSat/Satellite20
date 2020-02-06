@@ -86,7 +86,7 @@ static void loop()
 	{
 		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
 		{
-			setMotors(i, i);
+			setMotors((uint8_t)i, (uint8_t)i);
 			HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, (i % 2 == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET);
 			HAL_GPIO_WritePin(P7_GPIO_Port, P7_Pin, (i % 2 == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET);
 			HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_SET);
@@ -99,13 +99,13 @@ static void loop()
 			HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
 		}
 
-		HAL_Delay(10);
+		HAL_Delay(100);
 	}
 	for (i = 255; i >= 0; i--)
 	{
 		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
 		{
-			setMotors(i, i);
+			setMotors((uint8_t)i, (uint8_t)i);
 			HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, (i % 2 == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET);
 			HAL_GPIO_WritePin(P7_GPIO_Port, P7_Pin, (i % 2 == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET);
 			HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_SET);
@@ -118,7 +118,7 @@ static void loop()
 			HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
 		}
 
-		HAL_Delay(10);
+		HAL_Delay(100);
 	}
 
 	/*
