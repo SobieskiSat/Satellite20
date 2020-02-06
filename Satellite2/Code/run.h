@@ -17,8 +17,15 @@ static inline void print(char* str)
 };
 static inline void println(char* str)
 {
-	CDC_Transmit_FS((uint8_t*) str, strlen(str));
-	CDC_Transmit_FS((uint8_t*) "\n\r", 2);
+	printLen = strlen(str);
+	uint8_t i;
+	for (i = 0; i < printLen; i++)
+	{
+		printBuffer[i] = str[i];
+	}
+	printBuffer[printLen] = '\n';
+	printBuffer[printLen] = '\r';
+	CDC_Transmit_FS((uint8_t*) printBuffer, printLen + 2);
 };
 static inline void printv(char* str, uint32_t len)
 {

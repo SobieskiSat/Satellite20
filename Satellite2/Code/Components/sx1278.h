@@ -13,7 +13,7 @@ typedef enum _SX1278_MODE {
 
 typedef struct
 {
-	float frequency;
+	uint32_t frequency;
 	uint8_t power;
 	uint8_t spreadingFactor;
 	uint8_t codingRate;

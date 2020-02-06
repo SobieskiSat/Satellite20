@@ -11,6 +11,8 @@
 // Motors will automatically turn off after (TIM3->ARR * 1ms) time, default 100ms
 // Any new value applied will reset timeout timer
 
+static uint32_t MAX_PWM_FREQ = 1;
+
 static uint8_t motL = 0;
 static uint8_t motR = 0;
 static bool motL_forward = true;
@@ -23,5 +25,7 @@ static void enableMotors();
 static void disableMotors();
 
 static void setPwmFrequency(uint32_t f_hz);
+static void setMotorTimeout(uint32_t timeout_ms);
+static void motorTimeout();
 
 #endif /* COMPONENTS_MOTORS_H_ */

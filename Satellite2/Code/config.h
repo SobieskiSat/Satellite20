@@ -3,6 +3,7 @@
 
 #include "stm32f4xx_hal.h"
 
+#define PWM_RESOLUTION 256
 #define MOTOR_L_DIR 1
 #define MOTOR_R_DIR 1
 
@@ -18,7 +19,7 @@ static BMP280_config bmp280_default_config = {
 #include "sx1278.h"
 
 static SX1278_config sx1278_default_config = {
-	433.0,	//note: frequency must be in MHz
+	43400000,	//frequency in Hz, radio resolution: 61.035Hz (in code resolution may be different)
 	SX1278_POWER_17DBM,
 	SX1278_SF_7,
 	SX1278_CR_4_5,
