@@ -23,6 +23,12 @@ static void setMotors(uint8_t pwmL, uint8_t pwmR)
 	if (pwmR != 0) TIM3->CCR3 = (uint32_t)((float)TIM3->ARR / ((float)pwmR / (float)(PWM_RESOLUTION)));
 	else TIM3->CCR3 = TIM3->ARR;
 
+	HAL_TIM_PWM_Start(Get_TIM2_Instance(), TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(Get_TIM2_Instance(), TIM_CHANNEL_4);
+
+	//todelete
+	HAL_TIM_PWM_Start(Get_TIM3_Instance(), TIM_CHANNEL_3);
+
 	TIM4->CNT = 0;	// reset timer counter -> clears motor timeout
 }
 
