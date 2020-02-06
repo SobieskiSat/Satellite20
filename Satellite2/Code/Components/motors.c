@@ -95,7 +95,7 @@ static void setPwmFrequency(uint32_t f_hz)
 	{
 		TIM2->CNT = 0;
 		TIM2->ARR = 42000000 / (2 * f_hz);
-		printLen = sprintf(printBuffer, "[MOT] Frequency set to: %dHz", (uint16_t)f_hz);
+		printLen = sprintf(printBuffer, "[MOT] Frequency set to: %dHz\n\r", (uint16_t)f_hz);
 		printv(printBuffer, printLen);
 
 		//todelete
@@ -109,7 +109,7 @@ static void setMotorTimeout(uint32_t timeout_ms)
 {
 	TIM4->CNT = 0;
 	TIM4->ARR = timeout_ms;
-	printLen = sprintf(printBuffer, "[MOT] Timeout set to: %dms", (uint16_t)timeout_ms);
+	printLen = sprintf(printBuffer, "[MOT] Timeout set to: %dms\n\r", (uint16_t)timeout_ms);
 	printv(printBuffer, printLen);
 }
 
