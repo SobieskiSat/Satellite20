@@ -44,6 +44,7 @@ static void setup()
 	HAL_Delay(500);
 	HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
 
+	/*
 	if (radio_begin())
 	{
 		println("[LoRa] joined the server!");
@@ -51,7 +52,7 @@ static void setup()
 	}
 
 	sd_begin();
-
+	 */
 	println("[MOT] WATCH OUT NOW! THERE IS A CHANCE THAT PWM POLARITY IS FLIPPED!");
 	println("[MOT] IN THIS CASE MOTORS WILL TURN ON AND WONT STOP!!!!");
 	println("[MOT] Starting in 5 seconds!!");
@@ -76,9 +77,9 @@ static void setup()
 
 static void loop()
 {
-	println("#######################");
-	println("[MOT] Motor test! Press USR.");
-	println("#######################");
+	//println("#######################");
+	//println("[MOT] Motor test! Press USR.");
+	//println("#######################");
 	for (i = 0; i < 255; i++)
 	{
 		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
@@ -118,6 +119,7 @@ static void loop()
 		HAL_Delay(10);
 	}
 
+	/*
 	println("#######################");
 	println("[LoRa] Tx and Rx test!");
 	println("#######################");
@@ -150,6 +152,7 @@ static void loop()
 			radio.txDone = false;
 		}
 	}
+	*/
 }
 
 static void radio_procedure()

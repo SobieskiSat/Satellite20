@@ -13,7 +13,7 @@ static uint32_t printLen = 0;
 static char printBuffer[512];
 static inline void print(char* str)
 {
-	CDC_Transmit_FS((uint8_t*) str, strlen(str));
+	while (CDC_Transmit_FS((uint8_t*) str, strlen(str)) == USBD_BUSY);
 };
 static inline void println(char* str)
 {
@@ -24,12 +24,13 @@ static inline void println(char* str)
 		printBuffer[i] = str[i];
 	}
 	printBuffer[printLen] = '\n';
-	printBuffer[printLen] = '\r';
-	CDC_Transmit_FS((uint8_t*) printBuffer, printLen + 2);
+	printBuffer[printLen + 1] = '\r';
+	printBuffer[printLen + 2] = '\0';
+ 	while (CDC_Transmit_FS((uint8_t*) printBuffer, printLen + 3) == USBD_BUSY);
 };
 static inline void printv(char* str, uint32_t len)
 {
-	CDC_Transmit_FS((uint8_t*) str, len);
+	while (CDC_Transmit_FS((uint8_t*) str, len) == USBD_BUSY);
 }
 
 static inline void floatToBytes(float value, uint8_t bytes[4])
