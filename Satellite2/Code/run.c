@@ -55,6 +55,7 @@ static void setup()
 
 	sd_begin();
 	 */
+	/*
 	println("[MOT] WATCH OUT NOW! THERE IS A CHANCE THAT PWM POLARITY IS FLIPPED!");
 	println("[MOT] IN THIS CASE MOTORS WILL TURN ON AND WONT STOP!!!!");
 	println("[MOT] Starting in 5 seconds!!");
@@ -74,14 +75,30 @@ static void setup()
 	println("[MOT] Same frequency as in CanSatKit. Sound should be the same.");
 	setMotorTimeout(1000);
 	println("[MOT] Left motor: GPIO (copy on P7), Right motor: PWM (copy on P6)");
+	*/
 
 }
 
 static void loop()
 {
+	if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
+	{
+		HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_R_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_SET);
+		HAL_Delay(3000);
+	}
+	else
+	{
+		HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_R_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
+	}
+
 	//println("#######################");
 	//println("[MOT] Motor test! Press USR.");
 	//println("#######################");
+	/*
 	for (i = 0; i < 255; i++)
 	{
 		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
@@ -120,7 +137,7 @@ static void loop()
 
 		HAL_Delay(100);
 	}
-
+*/
 	/*
 	println("#######################");
 	println("[LoRa] Tx and Rx test!");
