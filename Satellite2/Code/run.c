@@ -46,15 +46,18 @@ static void setup()
 	HAL_Delay(500);
 	HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
 
-	/*
+
 	if (radio_begin())
 	{
 		println("[LoRa] joined the server!");
 		//radio_procedure();	//starts radio loop, now radio wokrs dependend on DIO0 interrupt in ping-pong mode
 	}
 
+
+	/*
 	sd_begin();
 	 */
+
 	/*
 	println("[MOT] WATCH OUT NOW! THERE IS A CHANCE THAT PWM POLARITY IS FLIPPED!");
 	println("[MOT] IN THIS CASE MOTORS WILL TURN ON AND WONT STOP!!!!");
@@ -77,21 +80,61 @@ static void setup()
 	println("[MOT] Left motor: GPIO (copy on P7), Right motor: PWM (copy on P6)");
 	*/
 
+	nextTX = true;
+	radio.txDone = true;
+
 }
 
 static void loop()
 {
+	for (i = 0; i < 4; i++)
+	{
+		if (!radio.useDio0IRQ)
+		{
+			HAL_Delay(500);
+			radio_procedure();
+		}
+
+		if (radio.newPacket)
+		{
+			printLen = sprintf(printBuffer, "[LoRa] Valid packet received! Bytes: %d, Rssi: %d, Data:\n\r", radio.rxLen, radio.rssi);
+			printv(printBuffer, printLen);
+
+			for (i = radio.rxLen-1; i >= 0; i++)
+			{
+				char character[1] = {0};
+				character[0] = (char)radio.rxBuffer[i];
+				print(character);
+			}
+			println("");
+
+			// drive motors with values received from radio
+			//setMotors(radio.rxBuffer[0], radio.rxBuffer[1]);
+
+			radio.newPacket = false;
+		}
+		else if (radio.txDone)
+		{
+			printLen = sprintf(printBuffer, "[LoRa] Packet sent: %s\r\n", sendBuffer);
+			printv(printBuffer, radio.txLen + 23);
+			radio.txDone = false;
+		}
+	}
+
+
+/*
+
 	if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
 	{
 		HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_R_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(EN_R_GPIO_Port, EN_R_Pin, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_SET);
-		HAL_Delay(3000);
+		HAL_Delay(7000);
 	}
 	else
 	{
 		HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_R_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(EN_R_GPIO_Port, EN_R_Pin, GPIO_PIN_RESET);
 		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
 	}
 
@@ -138,45 +181,13 @@ static void loop()
 		HAL_Delay(100);
 	}
 */
-	/*
-	println("#######################");
-	println("[LoRa] Tx and Rx test!");
-	println("#######################");
-	for (i = 0; i < 4; i++)
-	{
-		if (!radio.useDio0IRQ) radio_procedure();
 
-		if (radio.newPacket)
-		{
-			printLen = sprintf(printBuffer, "[LoRa] Valid packet received! Bytes: %d, Rssi: %d, Data:\n\r", radio.rxLen, radio.rssi);
-			printv(printBuffer, printLen);
 
-			for (i = 0; i < radio.rxLen; i++)
-			{
-				char character[1] = {0};
-				character[0] = radio.rxBuffer[i];
-				print(character);
-			}
-			println("");
-
-			// drive motors with values received from radio
-			//setMotors(radio.rxBuffer[0], radio.rxBuffer[1]);
-
-			radio.newPacket = false;
-		}
-		else if (radio.txDone)
-		{
-			printLen = sprintf(printBuffer, "[LoRa] Packet sent: %s\r\n", sendBuffer);
-			printv(printBuffer, radio.txLen + 23);
-			radio.txDone = false;
-		}
-	}
-	*/
 }
 
 static void radio_procedure()
 {
-	if (nextTX)
+	if (nextTX && false)
 	{
 		memset(sendBuffer, 0x00, SX1278_MAX_PACKET);
 		message_length = sprintf(sendBuffer, "Cats can have little a salami.");
@@ -233,7 +244,7 @@ static bool radio_begin()
 	{
 		println("Player [LoRa] could not join the server!");
 		attempts++;
-		if (attempts >= 10)
+		if (attempts >= 1000)
 		{
 			println("[LoRa] Too many attempts, aborting...");
 			return false;

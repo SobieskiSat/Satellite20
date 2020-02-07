@@ -91,7 +91,10 @@ bool SX1278_init(SX1278* inst)
 	SX1278_reset(inst);
 
 	//unable to establish the connection with module
-	if (SX1278_read_address(inst, REG_LR_VERSION) != 0x12)
+	uint8_t recvVersion = SX1278_read_address(inst, REG_LR_VERSION);
+	printLen = sprintf(printBuffer, "Recv: %x\r\n", recvVersion);
+	printv(printBuffer, printLen);
+	if (recvVersion != 0x12)
 	{
 		println("[LoRa] Abort: Unable to access version register, SPI not working!");
 		return false;
@@ -280,7 +283,7 @@ bool SX1278_rx_get_packet(SX1278* inst)
 	{
 		printLen = sprintf(printBuffer, "[LoRa] Receive timeout! Nothing to listen to.\r\n");
 	}
-	else if (inst->crcError)
+	else if (inst->crcError && !LR_VALIDATE_CRCERROR)
 	{
 		printLen = sprintf(printBuffer, "[LoRa] CRC error occured. Packet discarded!\r\n");
 	}

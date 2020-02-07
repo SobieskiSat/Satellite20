@@ -5,7 +5,7 @@
 #include "stm32f4xx_hal.h"
 
 #define SX1278_MAX_PACKET	256
-#define LR_VALIDATE_CRCERROR 0
+#define LR_VALIDATE_CRCERROR 1
 
 typedef enum _SX1278_MODE {
 	SLEEP, STANDBY, TX, RX

@@ -4,9 +4,9 @@ run.h:31:20:printv	16	static
 clock.h:9:24:millis	4	static
 clock.h:41:24:getTime	56	static
 run.c:26:13:setup	8	static
-run.c:82:13:loop	8	static
-run.c:177:13:radio_procedure	16	static
-run.c:195:13:bmp280_begin	8	static
-run.c:214:13:radio_begin	16	static
-run.c:246:13:dio0_IRQ	8	static
-run.c:260:13:sd_begin	88	static
+run.c:88:13:loop	16	static
+run.c:188:13:radio_procedure	8	static
+run.c:206:13:bmp280_begin	8	static
+run.c:225:13:radio_begin	16	static
+run.c:257:13:dio0_IRQ	8	static
+run.c:271:13:sd_begin	88	static
