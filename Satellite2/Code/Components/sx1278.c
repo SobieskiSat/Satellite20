@@ -162,6 +162,7 @@ bool SX1278_transmit(SX1278* inst, uint8_t* txBuffer, uint8_t length)
 	if (inst->mode == STANDBY)
 	{
 		println("[LoRa] Starting transmission...");
+		inst->txDone = false;
 		SX1278_tx_mode(inst);
 		SX1278_tx_input(inst, txBuffer, length);
 		SX1278_tx_push(inst);
@@ -207,7 +208,13 @@ bool SX1278_receive(SX1278* inst)
 		else
 		{
 			//wait for dio0 pin to rise
-			while (HAL_GPIO_ReadPin(inst->dio0_port, inst->dio0) == GPIO_PIN_RESET);
+			println("[LoRa] Waiting for DIO0");
+			while (HAL_GPIO_ReadPin(inst->dio0_port, inst->dio0) == GPIO_PIN_RESET)
+			{
+				HAL_Delay(1);
+			}
+
+			println("\033c");
 
 			SX1278_rx_get_packet(inst);
 			return inst->newPacket;
@@ -273,7 +280,7 @@ bool SX1278_rx_get_packet(SX1278* inst)
 
 	SX1278_read_burst(inst, 0x00, inst->rxBuffer, packet_size);
 
-	inst->newPacket = (inst->rxTimeout || (inst->crcError && LR_VALIDATE_CRCERROR));
+	inst->newPacket = (!inst->rxTimeout && !(inst->crcError && !LR_VALIDATE_CRCERROR));
 	inst->rssi = SX1278_getRSSI(inst);
 	inst->rxLen = packet_size;
 	SX1278_clearLoRaIrq(inst);
@@ -311,6 +318,7 @@ void SX1278_tx_mode(SX1278* inst)
 	SX1278_command(inst, LR_RegFifoAddrPtr, addr);			//set fifo pointer there
 
 	inst->txLen = 0;
+	inst->txDone = false;
 	inst->mode = TX;
 }
 
@@ -330,7 +338,10 @@ void SX1278_rx_mode(SX1278* inst)
 
 	inst->crcError = false;
 	inst->rxLen = 0;
+	inst->newPacket = false;
+	inst->rxDone = false;
 	inst->mode = RX;
+	println("[LoRa] Finished setting RX mode.");
 }
 
 void SX1278_sleep(SX1278* inst)

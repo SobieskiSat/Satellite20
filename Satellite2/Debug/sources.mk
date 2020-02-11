@@ -19,6 +19,7 @@ OBJCOPY_BIN :=
 SUBDIRS := \
 Code/Components \
 Code/Sensors \
+Code/Sensors/gps_base \
 Code \
 Core/Src \
 Core/Startup \

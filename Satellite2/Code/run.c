@@ -17,90 +17,79 @@ BMP280 bmp280;
 
 SX1278 radio;
 uint8_t sendBuffer[SX1278_MAX_PACKET];
-bool nextTX;
 uint8_t message_length;
 
-uint8_t i;
-uint32_t lastMillis;
+bool newIRQ;
 
-static void setup()
+static void setup(void)
 {
-	HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LEDC_GPIO_Port, LEDC_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, GPIO_PIN_RESET);
+	setupPins();
 
-	while (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_SET)
-	{
-		print("Waiting for button press..");
-		printLen = sprintf(printBuffer, "%d(<-should be ~100)\n\r", (int)(millis() - lastMillis));
-		printv(printBuffer, printLen);	//should print: 100
-		lastMillis = millis();
-		HAL_Delay(100);
-	}
+	while (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_SET);
+	println("Hello world!!");	HAL_Delay(500);
 
-	HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_SET);
-	println("Hello world!!");
-	HAL_Delay(500);
-	HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
+	//if (bmp280_begin()) println("[BMP] joined the server!");
+	//if (sd_begin()) println("[SD] joined the server!");
+	//if (radio_begin()) println("[LoRa] joined the server!");
+	//enableMotors() println("[MOT] joined the server!");
+}
 
-
-	if (radio_begin())
-	{
-		println("[LoRa] joined the server!");
-		//radio_procedure();	//starts radio loop, now radio wokrs dependend on DIO0 interrupt in ping-pong mode
-	}
-
-
-	/*
-	sd_begin();
-	 */
-
-	/*
-	println("[MOT] WATCH OUT NOW! THERE IS A CHANCE THAT PWM POLARITY IS FLIPPED!");
-	println("[MOT] IN THIS CASE MOTORS WILL TURN ON AND WONT STOP!!!!");
-	println("[MOT] Starting in 5 seconds!!");
-	HAL_Delay(2000);
-	print("[MOT] 3..");
-	HAL_Delay(1000);
-	print("2..");
-	HAL_Delay(1000);
-	print("1..");
-	HAL_Delay(1000);
-	println("0");
-
-	motL = 0;
-	motR = 0;
-	enableMotors();
-	setPwmFrequency(720);
-	println("[MOT] Same frequency as in CanSatKit. Sound should be the same.");
-	setMotorTimeout(1000);
-	println("[MOT] Left motor: GPIO (copy on P7), Right motor: PWM (copy on P6)");
-	*/
-
-	nextTX = true;
-	radio.txDone = true;
+static void loop(void)
+{
 
 }
 
-static void loop()
+static void mot_up_down(void)
 {
-	for (i = 0; i < 4; i++)
+	uint8_t i;
+	for (i = 0; i < 255; i++)
 	{
-		if (!radio.useDio0IRQ)
+		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
 		{
-			HAL_Delay(500);
-			radio_procedure();
+			setMotors((float)i / 255, (float)i / 255);
+			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_SET);
+		}
+		else
+		{
+			haltMotors();
+			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
 		}
 
-		if (radio.newPacket)
+		HAL_Delay(10);
+	}
+	for (i = 255; i > 0; i--)
+	{
+		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
 		{
+			setMotors((float)i / 255, (float)i / 255);
+			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_SET);
+		}
+		else
+		{
+			haltMotors();
+			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
+		}
+
+		HAL_Delay(10);
+	}
+}
+static void radio_receive(void)
+{
+	uint8_t i;
+	if (!radio.useDio0IRQ)
+	{
+		if (SX1278_receive(&radio))
+		{
+			HAL_GPIO_TogglePin(LEDA_GPIO_Port, LEDA_Pin);
 			printLen = sprintf(printBuffer, "[LoRa] Valid packet received! Bytes: %d, Rssi: %d, Data:\n\r", radio.rxLen, radio.rssi);
 			printv(printBuffer, printLen);
 
-			for (i = radio.rxLen-1; i >= 0; i++)
+			println("");
+			printLen = sprintf(printBuffer, "%d\t%d\r\n", radio.rxBuffer[0], radio.rxBuffer[1]);
+			printv(printBuffer, printLen);
+			println("");
+
+			for (i = 0; i < radio.rxLen; i++)
 			{
 				char character[1] = {0};
 				character[0] = (char)radio.rxBuffer[i];
@@ -109,101 +98,29 @@ static void loop()
 			println("");
 
 			// drive motors with values received from radio
-			//setMotors(radio.rxBuffer[0], radio.rxBuffer[1]);
+			setMotors((float)radio.rxBuffer[0] / 255, (float)radio.rxBuffer[1] / 255);
 
 			radio.newPacket = false;
 		}
-		else if (radio.txDone)
-		{
-			printLen = sprintf(printBuffer, "[LoRa] Packet sent: %s\r\n", sendBuffer);
-			printv(printBuffer, radio.txLen + 23);
-			radio.txDone = false;
-		}
 	}
-
-
-/*
-
-	if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
-	{
-		HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(EN_R_GPIO_Port, EN_R_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_SET);
-		HAL_Delay(7000);
-	}
-	else
-	{
-		HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(EN_R_GPIO_Port, EN_R_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
-	}
-
-	//println("#######################");
-	//println("[MOT] Motor test! Press USR.");
-	//println("#######################");
-	/*
-	for (i = 0; i < 255; i++)
-	{
-		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
-		{
-			setMotors(i, i);
-			HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, (i % 5 == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET);
-			HAL_GPIO_WritePin(P7_GPIO_Port, P7_Pin, (i % 5 == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET);
-			HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_SET);
-		}
-		else
-		{
-			haltMotors();
-			HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(P7_GPIO_Port, P7_Pin, GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
-		}
-
-		HAL_Delay(100);
-	}
-	for (i = 255; i >= 0; i--)
-	{
-		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
-		{
-			setMotors(i, i);
-			HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, (i % 5 == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET);
-			HAL_GPIO_WritePin(P7_GPIO_Port, P7_Pin, (i % 5 == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET);
-			HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_SET);
-		}
-		else
-		{
-			haltMotors();
-			HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(P7_GPIO_Port, P7_Pin, GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
-		}
-
-		HAL_Delay(100);
-	}
-*/
-
-
 }
 
-static void radio_procedure()
+static void dio0_IRQ(void)
 {
-	if (nextTX && false)
+	if (radio.pendingIRQ)
 	{
-		memset(sendBuffer, 0x00, SX1278_MAX_PACKET);
-		message_length = sprintf(sendBuffer, "Cats can have little a salami.");
-		SX1278_transmit(&radio, sendBuffer, message_length);
-
-		nextTX = false;
+		println("[LoRa] DIO0 interrupt received.");
+		newIRQ = true;
+		//SX1278_dio0_IRQ(&radio);
+		//radio_procedure();
 	}
 	else
 	{
-		SX1278_receive(&radio);
-
-		nextTX = true;
+		println("[LoRa] DIO0 interrupt received but NOT used!");
 	}
 }
 
-static bool bmp280_begin()
+static bool bmp280_begin(void)
 {
 	bmp280.params = bmp280_default_config;
 	bmp280.addr = BMP280_I2C_ADDRESS_0;
@@ -220,9 +137,7 @@ static bool bmp280_begin()
 	print("BMP280 found!\n");
 	return true;
 }
-
-
-static bool radio_begin()
+static bool radio_begin(void)
 {
 	println("[LoRa] Joining the server...");
 	radio.reset = LR_RESET_Pin;
@@ -251,26 +166,18 @@ static bool radio_begin()
 		}
 	}
 
+	radio.txDone = true;
+	radio.rxDone = true;
+	radio.newPacket = false;
+	newIRQ = false;
+
 	return true;
 }
-
-static void dio0_IRQ()
+static bool sd_begin(void)
 {
-	if (radio.pendingIRQ)
-	{
-		println("[LoRa] DIO0 interrupt received.");
-		SX1278_dio0_IRQ(&radio);
-		radio_procedure();
-	}
-	else
-	{
-		println("[LoRa] DIO0 interrupt received but NOT used!");
-	}
-}
-
-static bool sd_begin()
-{
+	HAL_Delay(1000);
 	println("[SD] Joining the server...");
+	HAL_Delay(1000);
 	if (SD_init() == FR_OK)
 	{
 		println("[SD] joined the server.");
@@ -296,4 +203,23 @@ static bool sd_begin()
 	else println("Player [SD] could not join the server!");
 
 	return true;
+}
+
+static void setupPins(void)
+{
+	HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LEDC_GPIO_Port, LEDC_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(EN_R_GPIO_Port, EN_R_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(P1_GPIO_Port, P1_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(P2_GPIO_Port, P2_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(P3_GPIO_Port, P3_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(P4_GPIO_Port, P4_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(P5_GPIO_Port, P5_Pin, GPIO_PIN_RESET);
+	//HAL_GPIO_WritePin(P6_GPIO_Port, P6_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(P7_GPIO_Port, P7_Pin, GPIO_PIN_RESET);
 }

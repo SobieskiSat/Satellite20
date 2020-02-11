@@ -55,6 +55,7 @@ Code/run.o: ../Code/run.c ../Code/run.h ../USB_DEVICE/App/usbd_cdc_if.h \
  ../Middlewares/Third_Party/FatFs/src/ff.h ../FATFS/Target/sd_diskio.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/clock.h \
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/run.h \
  ../Code/config.h
 
 ../Code/run.h:
@@ -182,5 +183,7 @@ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sd.h:
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.h:
 
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/clock.h:
+
+C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/run.h:
 
 ../Code/config.h:

@@ -19,6 +19,7 @@ RM := rm -rf
 -include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
+-include Code/Sensors/gps_base/subdir.mk
 -include Code/Sensors/subdir.mk
 -include Code/Components/subdir.mk
 -include Code/subdir.mk

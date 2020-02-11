@@ -11,35 +11,23 @@
 // Motors will automatically turn off after (TIM4->ARR * 1ms) time, default 100ms
 // Any new value applied will reset timeout timer
 
-static void setMotors(uint8_t pwmL, uint8_t pwmR)
+static void setMotors(float dutyL, float dutyR)
 {
-	//							    			some value	 / [0.0:1.0] duty cycle
-	if (pwmL != 0) TIM2->CCR2 = (uint32_t)((float)TIM2->ARR / ((float)pwmL / (float)(PWM_RESOLUTION)));
-	else TIM2->CCR2 = TIM2->ARR;
-	if (pwmR != 0) TIM2->CCR4 = (uint32_t)((float)TIM2->ARR / ((float)pwmR / (float)(PWM_RESOLUTION)));
-	else TIM2->CCR4 = TIM2->ARR;
-
-	//todelete
-	if (pwmR != 0) TIM3->CCR3 = (uint32_t)((float)TIM3->ARR / ((float)pwmR / (float)(PWM_RESOLUTION)));
-	else TIM3->CCR3 = TIM3->ARR;
-
-	HAL_TIM_PWM_Start(Get_TIM2_Instance(), TIM_CHANNEL_2);
-	HAL_TIM_PWM_Start(Get_TIM2_Instance(), TIM_CHANNEL_4);
-
-	//todelete
-	HAL_TIM_PWM_Start(Get_TIM3_Instance(), TIM_CHANNEL_3);
+	TIM2->CCR2 = (uint32_t)((float)TIM2->ARR * (1 - dutyL));
+	TIM2->CCR4 = (uint32_t)((float)TIM2->ARR * (1 - dutyR));
+	TIM2->CNT = 0;
 
 	TIM4->CNT = 0;	// reset timer counter -> clears motor timeout
+
+	//todelete (timeout marking)
+	HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
 }
 
 static void haltMotors()
 {
 	// Function called on TIM4 overflow interrupt
-	TIM2->CCR2 = 0;
-	TIM2->CCR4 = 0;
-
-	//todelete
-	TIM3->CCR3 = 0;
+	TIM2->CCR2 = TIM2->ARR;
+	TIM2->CCR4 = TIM2->ARR;
 
 	TIM4->CNT = 0;	// reset timer counter -> clears motor timeout
 }
@@ -48,8 +36,8 @@ static void enableMotors()
 {
 	haltMotors();
 
-	MAX_PWM_FREQ = 42000000 / (2 * PWM_RESOLUTION); // 82031 Hz for 256 resolution
-	setPwmFrequency(MAX_PWM_FREQ);
+	//MAX_PWM_FREQ = 42000000 / (2 * PWM_RESOLUTION); // 82031 Hz for 256 resolution
+	//setPwmFrequency(MAX_PWM_FREQ);
 
 	motL_forward = true;
 	motR_forward = true;
@@ -60,9 +48,6 @@ static void enableMotors()
 
 	HAL_TIM_PWM_Start(Get_TIM2_Instance(), TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(Get_TIM2_Instance(), TIM_CHANNEL_4);
-
-	//todelete
-	HAL_TIM_PWM_Start(Get_TIM3_Instance(), TIM_CHANNEL_3);
 
 	haltMotors();
 	println("[MOT] MOTORS ENABLED!!");
@@ -93,15 +78,14 @@ static void setPwmFrequency(uint32_t f_hz)
 	}
 	else
 	{
+		uint32_t mehz = 42000000;
+		uint32_t arro = mehz / f_hz;
+		arro /= 2;
 		TIM2->CNT = 0;
-		TIM2->ARR = 42000000 / (2 * f_hz);
-		printLen = sprintf(printBuffer, "[MOT] Frequency set to: %dHz\n\r", (uint16_t)f_hz);
+		TIM2->ARR = arro;
+
+		printLen = sprintf(printBuffer, "[MOT] Frequency set to: %luHz\n\r", f_hz);
 		printv(printBuffer, printLen);
-
-		//todelete
-		TIM3->CNT = 0;
-		TIM3->ARR = 42000000 / (2 * f_hz);
-
 	}
 }
 
@@ -109,12 +93,13 @@ static void setMotorTimeout(uint32_t timeout_ms)
 {
 	TIM4->CNT = 0;
 	TIM4->ARR = timeout_ms;
-	printLen = sprintf(printBuffer, "[MOT] Timeout set to: %dms\n\r", (uint16_t)timeout_ms);
+	printLen = sprintf(printBuffer, "[MOT] Timeout set to: %lums\n\r", timeout_ms);
 	printv(printBuffer, printLen);
 }
 
 static void motorTimeout()
 {
 	haltMotors();
+	HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_SET);
 	println("[MOT] Motors halted due to timeout!");
 }

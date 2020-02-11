@@ -2,6 +2,7 @@
 "Code/Components/sd.o"
 "Code/Components/sx1278.o"
 "Code/Sensors/bmp280.o"
+"Code/Sensors/gps_base/gps.o"
 "Code/run.o"
 "Core/Src/main.o"
 "Core/Src/stm32f4xx_hal_msp.o"

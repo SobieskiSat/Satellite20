@@ -4,6 +4,7 @@
 #include "fatfs.h"
 #include "stm32f4xx_hal.h"
 #include "clock.h"
+#include "run.h"
 
 static FRESULT SD_setFileTime(char* path, DateTime* dateTime)
 {
@@ -49,6 +50,7 @@ FRESULT SD_newFile(char* path)
 {
 	FIL file;
 	FRESULT status;
+	println("[SD] Before open.");
 	status = f_open(&file, path, FA_CREATE_NEW);
 	if (status != FR_OK)
 	{
@@ -57,7 +59,9 @@ FRESULT SD_newFile(char* path)
 	}
 
 	DateTime now = getTime();
+	println("[SD] Time get!");
 	SD_setFileTime(path, &now);
+	println("[SD] Time set!");
 	return f_close(&file);
 }
 FRESULT SD_clearFile(char* path)

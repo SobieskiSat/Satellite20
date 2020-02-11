@@ -18,7 +18,7 @@ static uint8_t motR = 0;
 static bool motL_forward = true;
 static bool motR_forward = true;
 
-static void setMotors(uint8_t pwmL, uint8_t pwmR);
+static void setMotors(float dutyL, float dutyR);
 static void haltMotors();	// assign timeout interrupt to that
 
 static void enableMotors();
