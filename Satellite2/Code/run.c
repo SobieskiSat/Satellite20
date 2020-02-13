@@ -30,13 +30,15 @@ static void setup(void)
 
 	//if (bmp280_begin()) println("[BMP] joined the server!");
 	//if (sd_begin()) println("[SD] joined the server!");
-	//if (radio_begin()) println("[LoRa] joined the server!");
-	//enableMotors() println("[MOT] joined the server!");
+	if (radio_begin()) println("[LoRa] joined the server!");
+	enableMotors(); println("[MOT] joined the server!");
 }
 
 static void loop(void)
 {
-
+	radio_receive();
+	//setMotors(254, 254);
+	//HAL_Delay(1000);
 }
 
 static void mot_up_down(void)

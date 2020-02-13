@@ -7,9 +7,9 @@
 #include "run.h"
 
 // TIM5 has 32-bit counter -> takes longer to overflow
-static inline uint32_t micros(void) { return (uint32_t)TIM5->CNT; }
-static inline uint32_t millis(void) { return (uint32_t)(TIM5->CNT) / 1000; }
-static inline uint32_t seconds(void) { return (uint32_t)(TIM5->CNT) / 10000; }
+//static inline uint32_t micros(void) { return (uint32_t)TIM1->CNT; }
+static inline uint32_t millis(void) { return (uint32_t)(TIM1->CNT); }
+static inline uint32_t seconds(void) { return (uint32_t)(TIM1->CNT) / 1000; }
 
 typedef struct
 {

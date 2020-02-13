@@ -37,9 +37,9 @@ bool GPS_available(GPS* inst)
 /**************************************************************************/
 bool GPS_write(GPS* inst, uint8_t c)
 {
-
 	// code ~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&&&&&&&&&&&&********%%%%%%%%%%%%%%%%
-
+	uint8_t ca[1] = {c};
+	HAL_UART_Transmit(inst->uart, ca, 1, HAL_MAX_DELAY);
 	return 0;
 }
 
@@ -54,10 +54,13 @@ char GPS_read(GPS* inst)
 	static uint32_t firstChar = 0; // first character received in current sentence
 	uint32_t tStart = millis();		// as close as we can get to time char was sent
 	char c = 0;
+	uint8_t ca[1] = {0};
 
 	if (inst->paused) return c;
 
 	// code ~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$#################3
+	HAL_UART_Receive(inst->uart, ca, 1, HAL_MAX_DELAY);
+	c = (char)ca[0];
 
 	inst->currentline[inst->lineidx++] = c;
 	if (inst->lineidx >= MAXLINELENGTH) inst->lineidx = MAXLINELENGTH - 1; // ensure there is someplace to put the next received character
