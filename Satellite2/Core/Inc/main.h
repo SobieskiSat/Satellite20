@@ -50,14 +50,17 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-I2C_HandleTypeDef* Get_I2C1_Instance();
-SPI_HandleTypeDef* Get_SPI1_Instance();
-RTC_HandleTypeDef* Get_RTC_Instance();
-TIM_HandleTypeDef* Get_TIM2_Instance();
+I2C_HandleTypeDef* Get_I2C1_Instance(void);
+SPI_HandleTypeDef* Get_SPI1_Instance(void);
+RTC_HandleTypeDef* Get_RTC_Instance(void);
+TIM_HandleTypeDef* Get_TIM2_Instance(void);
+TIM_HandleTypeDef* Get_TIM5_Instance(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -80,10 +83,6 @@ TIM_HandleTypeDef* Get_TIM2_Instance();
 #define LR_DIO0_EXTI_IRQn EXTI9_5_IRQn
 #define LR_RESET_Pin GPIO_PIN_5
 #define LR_RESET_GPIO_Port GPIOC
-#define P6_Pin GPIO_PIN_0
-#define P6_GPIO_Port GPIOB
-#define P3_Pin GPIO_PIN_1
-#define P3_GPIO_Port GPIOB
 #define GPS_RX_Pin GPIO_PIN_10
 #define GPS_RX_GPIO_Port GPIOB
 #define GPS_TX_Pin GPIO_PIN_11

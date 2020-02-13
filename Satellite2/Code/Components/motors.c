@@ -13,9 +13,9 @@
 
 static void setMotors(float dutyL, float dutyR)
 {
-	TIM2->CCR2 = (uint32_t)((float)TIM2->ARR * (1 - dutyL));
-	TIM2->CCR4 = (uint32_t)((float)TIM2->ARR * (1 - dutyR));
-	TIM2->CNT = 0;
+	TIM5->CCR2 = (uint32_t)((float)TIM5->ARR * (1 - dutyL));
+	TIM5->CCR4 = (uint32_t)((float)TIM5->ARR * (1 - dutyR));
+	TIM5->CNT = 0;
 
 	TIM4->CNT = 0;	// reset timer counter -> clears motor timeout
 
@@ -26,8 +26,8 @@ static void setMotors(float dutyL, float dutyR)
 static void haltMotors()
 {
 	// Function called on TIM4 overflow interrupt
-	TIM2->CCR2 = TIM2->ARR;
-	TIM2->CCR4 = TIM2->ARR;
+	TIM5->CCR2 = TIM5->ARR;
+	TIM5->CCR4 = TIM5->ARR;
 
 	TIM4->CNT = 0;	// reset timer counter -> clears motor timeout
 }
@@ -46,8 +46,8 @@ static void enableMotors()
 	HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, motL_forward ^ MOTOR_L_DIR);
 	HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, motR_forward ^ MOTOR_R_DIR);
 
-	HAL_TIM_PWM_Start(Get_TIM2_Instance(), TIM_CHANNEL_2);
-	HAL_TIM_PWM_Start(Get_TIM2_Instance(), TIM_CHANNEL_4);
+	HAL_TIM_PWM_Start(Get_TIM5_Instance(), TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(Get_TIM5_Instance(), TIM_CHANNEL_4);
 
 	haltMotors();
 	println("[MOT] MOTORS ENABLED!!");
@@ -56,8 +56,8 @@ static void enableMotors()
 static void disableMotors()
 {
 	haltMotors();
-	HAL_TIM_PWM_Stop(Get_TIM2_Instance(), TIM_CHANNEL_2);
-	HAL_TIM_PWM_Stop(Get_TIM2_Instance(), TIM_CHANNEL_4);
+	HAL_TIM_PWM_Stop(Get_TIM5_Instance(), TIM_CHANNEL_2);
+	HAL_TIM_PWM_Stop(Get_TIM5_Instance(), TIM_CHANNEL_4);
 }
 
 static void setPwmFrequency(uint32_t f_hz)
@@ -69,7 +69,7 @@ static void setPwmFrequency(uint32_t f_hz)
 	// ARR = Clock frequency / (2 * Frequency)
 	// Clock frequency (42MHz) = Source frequency (42Mhz) / PSC (1)
 
-	//TIM2->ARR = (uint32_t)(42000000 / TIM2->PSC) / (2 * f_hz);
+	//TIM5->ARR = (uint32_t)(42000000 / TIM5->PSC) / (2 * f_hz);
 
 	if (f_hz > MAX_PWM_FREQ)
 	{
@@ -81,8 +81,8 @@ static void setPwmFrequency(uint32_t f_hz)
 		uint32_t mehz = 42000000;
 		uint32_t arro = mehz / f_hz;
 		arro /= 2;
-		TIM2->CNT = 0;
-		TIM2->ARR = arro;
+		TIM5->CNT = 0;
+		TIM5->ARR = arro;
 
 		printLen = sprintf(printBuffer, "[MOT] Frequency set to: %luHz\n\r", f_hz);
 		printv(printBuffer, printLen);

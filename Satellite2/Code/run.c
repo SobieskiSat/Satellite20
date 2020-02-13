@@ -13,6 +13,23 @@
 #include "clock.h"
 #include "config.h"
 
+
+typedef struct
+{
+	float angle;
+	uint32_t* ccr;
+
+} Servo;
+
+static void setServo(Servo inst, float angle)
+{
+	inst.angle = angle;
+	// CCR1 = 500 -> 1ms -> 0deg
+	// CCR1 = 1000 -> 2ms -> 180deg
+	*(inst.ccr) = 500 * (uint32_t)(angle / 180.0) + 500;
+}
+
+
 BMP280 bmp280;
 
 SX1278 radio;
@@ -20,6 +37,9 @@ uint8_t sendBuffer[SX1278_MAX_PACKET];
 uint8_t message_length;
 
 bool newIRQ;
+uint32_t timenow;
+
+Servo ser1;
 
 static void setup(void)
 {
@@ -32,19 +52,45 @@ static void setup(void)
 	//if (sd_begin()) println("[SD] joined the server!");
 	if (radio_begin()) println("[LoRa] joined the server!");
 	enableMotors(); println("[MOT] joined the server!");
+
+	//ser1.ccr = &(TIM3->CCR3);
 }
 
 static void loop(void)
 {
-	radio_receive();
+	//radio_receive();
 	//setMotors(254, 254);
+	//mot_up_down();
 	//HAL_Delay(1000);
+
+	/*
+	uint32_t a = 0;
+	for (a = 0; a <= 500; a += 1)
+	{
+		//setServo(ser1, a);
+		TIM3->CCR3 = a + 500;
+		HAL_Delay(10);
+	}
+	*/
+
+	TIM3->CCR3 = 450;
+	println("450");
+	HAL_Delay(1000);
+	TIM3->CCR3 = 500;
+	println("500");
+	HAL_Delay(1000);
+	TIM3->CCR3 = 1000;
+	println("1000");
+	HAL_Delay(1000);
+	TIM3->CCR3 = 1200;
+	println("1200");
+	HAL_Delay(1000);
 }
 
 static void mot_up_down(void)
 {
 	uint8_t i;
-	for (i = 0; i < 255; i++)
+	for (i = 0; i < 200; i++)
 	{
 		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
 		{
@@ -57,9 +103,16 @@ static void mot_up_down(void)
 			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
 		}
 
-		HAL_Delay(10);
+		timenow = millis();
+		printLen = sprintf(printBuffer, "%ul ms -->", timenow);
+		printv(printBuffer, printLen);
+		HAL_Delay(100);
+
+		timenow = millis();
+		printLen = sprintf(printBuffer, "%ul ms\r\n", timenow);
+		printv(printBuffer, printLen);
 	}
-	for (i = 255; i > 0; i--)
+	for (i = 200; i > 0; i--)
 	{
 		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
 		{
@@ -72,7 +125,7 @@ static void mot_up_down(void)
 			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
 		}
 
-		HAL_Delay(10);
+		HAL_Delay(100);
 	}
 }
 static void radio_receive(void)
@@ -215,11 +268,11 @@ static void setupPins(void)
 	HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(EN_R_GPIO_Port, EN_R_Pin, GPIO_PIN_RESET);
+	//HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_RESET);
+	//HAL_GPIO_WritePin(EN_R_GPIO_Port, EN_R_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(P1_GPIO_Port, P1_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(P2_GPIO_Port, P2_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(P3_GPIO_Port, P3_Pin, GPIO_PIN_RESET);
+	//HAL_GPIO_WritePin(P3_GPIO_Port, P3_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(P4_GPIO_Port, P4_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(P5_GPIO_Port, P5_Pin, GPIO_PIN_RESET);
 	//HAL_GPIO_WritePin(P6_GPIO_Port, P6_Pin, GPIO_PIN_RESET);

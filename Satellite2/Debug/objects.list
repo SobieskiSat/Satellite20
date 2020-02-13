@@ -1,5 +1,6 @@
 "Code/Components/motors.o"
 "Code/Components/sd.o"
+"Code/Components/servo.o"
 "Code/Components/sx1278.o"
 "Code/Sensors/bmp280.o"
 "Code/Sensors/gps_base/gps.o"
