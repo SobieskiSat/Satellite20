@@ -58,6 +58,7 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 I2C_HandleTypeDef* Get_I2C1_Instance(void);
 SPI_HandleTypeDef* Get_SPI1_Instance(void);
+UART_HandleTypeDef* Get_UART3_Instance(void);
 RTC_HandleTypeDef* Get_RTC_Instance(void);
 TIM_HandleTypeDef* Get_TIM2_Instance(void);
 TIM_HandleTypeDef* Get_TIM5_Instance(void);
@@ -81,6 +82,8 @@ TIM_HandleTypeDef* Get_TIM5_Instance(void);
 #define LR_DIO0_Pin GPIO_PIN_6
 #define LR_DIO0_GPIO_Port GPIOA
 #define LR_DIO0_EXTI_IRQn EXTI9_5_IRQn
+#define LR_TIM_Pin GPIO_PIN_7
+#define LR_TIM_GPIO_Port GPIOA
 #define LR_RESET_Pin GPIO_PIN_5
 #define LR_RESET_GPIO_Port GPIOC
 #define GPS_RX_Pin GPIO_PIN_10

@@ -162,9 +162,9 @@ typedef struct
 	// used by check() for validity tests, room for future expansion
 
 	// these have to be set! \./
-	const char* sources[5]; // valid source ids
-	const char* sentences_parsed[5]; // parseable sentence ids
-	const char* sentences_known[1]; // known, but not parseable sentence ids
+	char* sources[5]; // valid source ids
+	char* sentences_parsed[5]; // parseable sentence ids
+	char* sentences_known[1]; // known, but not parseable sentence ids
 	/*
 	const char* sources[5] = {"II", "WI", "GP", "GN", "ZZZ"}; // valid source ids
 	const char* sentences_parsed[5] = {"GGA", "GLL", "GSA", "RMC", "ZZZ"}; // parseable sentence ids
@@ -186,23 +186,23 @@ typedef struct
 } GPS;
 
 bool GPS_begin(GPS* inst, uint32_t baud_or_i2caddr);
-void GPS_common_init(GPS* inst);
+void GPS_init(GPS* inst);
 
 char* GPS_lastNMEA(GPS* inst);
 bool GPS_newNMEAreceived(GPS* inst);
 
 uint8_t GPS_parseHex(GPS* inst, char c);
-bool GPS_parse(GPS* inst, char *);
-char* GPS_parseStr(GPS* inst, char *buff, char *p, int n);
-bool GPS_isEmpty(GPS* inst, char *pStart);
+bool GPS_parse(GPS* inst, char*);
+char* GPS_parseStr(GPS* inst, char* buff, char* p, int n);
+bool GPS_isEmpty(GPS* inst, char* pStart);
 void GPS_parseTime(GPS* inst, char*);
 void GPS_parseLat(GPS* inst, char*);
 bool GPS_parseLatDir(GPS* inst, char*);
 void GPS_parseLon(GPS* inst, char*);
 bool GPS_parseLonDir(GPS* inst, char*);
 bool GPS_parseFix(GPS* inst, char*);
-uint8_t GPS_parseResponse(GPS* inst, char *response);
-const char* GPS_tokenOnList(GPS* inst, char *token, const char **list);
+uint8_t GPS_parseResponse(GPS* inst, char* response);
+const char* GPS_tokenOnList(GPS* inst, char* token, const char** list);
 
 void GPS_addChecksum(GPS* inst, char *buff);
 float GPS_secondsSinceFix(GPS* inst);
@@ -211,16 +211,16 @@ float GPS_secondsSinceDate(GPS* inst);
 
 char GPS_read(GPS* inst);
 bool GPS_write(GPS* inst, uint8_t);
-void GPS_sendCommand(GPS* inst, const char *);
+void GPS_sendCommand(GPS* inst,char* );
 
-bool GPS_check(GPS* inst, char *nmea);
+bool GPS_check(GPS* inst, char* nmea);
 bool GPS_available(GPS* inst);
 void GPS_pause(GPS* inst, bool b);
 bool GPS_wakeup(GPS* inst);
 bool GPS_standby(GPS* inst);
 
 // (optional arguments) max = MAXWAITSENTENCE, usingInterrupts = false
-bool GPS_waitForSentence(GPS* inst, const char *wait, uint8_t max, bool usingInterrupts);
+bool GPS_waitForSentence(GPS* inst, const char* wait, uint8_t max, bool usingInterrupts);
 bool LOCUS_StartLogger(GPS* inst);
 bool LOCUS_StopLogger(GPS* inst);
 bool LOCUS_ReadStatus(GPS* inst);
@@ -228,7 +228,7 @@ bool LOCUS_ReadStatus(GPS* inst);
 #ifdef NMEA_EXTENSIONS
 // NMEA additional public functions
 // (optional arguments) ref = 'R'
-char* GPS_build(GPS* inst, char *nmea, const char *thisSource, const char *thisSentence, char ref);
+char* GPS_build(GPS* inst, char* nmea, const char* thisSource, const char* thisSentence, char ref);
 void GPS_resetSentTime(GPS* inst);
 #endif
 

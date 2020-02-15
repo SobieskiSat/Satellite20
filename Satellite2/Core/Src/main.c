@@ -233,7 +233,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.ClockSpeed = 400000;
   hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
@@ -370,7 +370,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 8399;
+  htim1.Init.Prescaler = 16799;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 65535;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -629,7 +629,7 @@ static void MX_USART3_UART_Init(void)
 
   /* USER CODE END USART3_Init 1 */
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 115200;
+  huart3.Init.BaudRate = 4800;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;
@@ -706,25 +706,24 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PH_L_Pin PH_R_Pin */
-  GPIO_InitStruct.Pin = PH_L_Pin|PH_R_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : P7_Pin */
-  GPIO_InitStruct.Pin = P7_Pin;
+  /*Configure GPIO pins : PH_L_Pin PH_R_Pin P7_Pin */
+  GPIO_InitStruct.Pin = PH_L_Pin|PH_R_Pin|P7_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(P7_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LR_DIO0_Pin */
   GPIO_InitStruct.Pin = LR_DIO0_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(LR_DIO0_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : LR_TIM_Pin SDIO_SW_Pin */
+  GPIO_InitStruct.Pin = LR_TIM_Pin|SDIO_SW_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LEDD_Pin LEDC_Pin */
   GPIO_InitStruct.Pin = LEDD_Pin|LEDC_Pin;
@@ -739,12 +738,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LEDB_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : SDIO_SW_Pin */
-  GPIO_InitStruct.Pin = SDIO_SW_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(SDIO_SW_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : BTN_USR_Pin */
   GPIO_InitStruct.Pin = BTN_USR_Pin;
@@ -767,11 +760,12 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-I2C_HandleTypeDef* Get_I2C1_Instance() { return &hi2c1; }
-SPI_HandleTypeDef* Get_SPI1_Instance() { return &hspi1; }
-RTC_HandleTypeDef* Get_RTC_Instance() { return &hrtc; }
-TIM_HandleTypeDef* Get_TIM2_Instance() { return &htim2; }
-TIM_HandleTypeDef* Get_TIM5_Instance() { return &htim5; }
+I2C_HandleTypeDef* Get_I2C1_Instance(void) { return &hi2c1; }
+SPI_HandleTypeDef* Get_SPI1_Instance(void) { return &hspi1; }
+UART_HandleTypeDef* Get_UART3_Instance(void) { return &huart3; }
+RTC_HandleTypeDef* Get_RTC_Instance(void) { return &hrtc; }
+TIM_HandleTypeDef* Get_TIM2_Instance(void) { return &htim2; }
+TIM_HandleTypeDef* Get_TIM5_Instance(void) { return &htim5; }
 
 
 /*

@@ -6,6 +6,7 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_spi.h"
 #include "run.h"
+#include "clock.h"
 
 //#### SPI communication with SX1278 ####
 uint64_t frf = 0;
@@ -131,7 +132,8 @@ bool SX1278_init(SX1278* inst)
 		uint8_t tmp;
 		//implicit CRC enable
 		SX1278_command(inst, LR_RegModemConfig1, ((inst->config.bandWidth << 4) + (inst->config.codingRate << 1) + 0x01));
-		SX1278_command(inst, LR_RegModemConfig2, ((inst->config.spreadingFactor << 4) + (inst->config.crc << 2) + (uint8_t)(inst->config.rxTimeoutSymb >> 8)));
+		//SX1278_command(inst, LR_RegModemConfig2, ((inst->config.spreadingFactor << 4) + (inst->config.crc << 2) + (uint8_t)(inst->config.rxTimeoutSymb >> 8)));
+		SX1278_command(inst, LR_RegModemConfig2, ((inst->config.spreadingFactor << 4) + (inst->config.crc << 2) + 0x00));
 		tmp = SX1278_read_address(inst, 0x31);
 		tmp &= 0xF8;
 		tmp |= 0x05;
@@ -143,10 +145,11 @@ bool SX1278_init(SX1278* inst)
 		//explicit CRC enable
 		SX1278_command(inst, LR_RegModemConfig1, ((inst->config.bandWidth << 4) + (inst->config.codingRate << 1) + 0x00));
 		//SFactor &  LNA gain set by the internal AGC loop
-		SX1278_command(inst, LR_RegModemConfig2, ((inst->config.spreadingFactor << 4) + (inst->config.crc << 2) + (uint8_t)(inst->config.rxTimeoutSymb >> 8)));
+		SX1278_command(inst, LR_RegModemConfig2, ((inst->config.spreadingFactor << 4) + (inst->config.crc << 2) + 0x00));
 	}
 
-	SX1278_command(inst, LR_RegSymbTimeoutLsb, (uint8_t)(inst->config.rxTimeoutSymb & 0x00FF));	//recievier timeout value [timeout = symbtimeout*ts]
+	//SX1278_command(inst, LR_RegSymbTimeoutLsb, (uint8_t)(inst->config.rxTimeoutSymb & 0x00FF));	//recievier timeout value [timeout = symbtimeout*ts]
+	SX1278_command(inst, LR_RegSymbTimeoutLsb, 0x64);	//recievier timeout value [timeout = symbtimeout*ts]
 	SX1278_command(inst, LR_RegPreambleMsb, 0x00);		//Setting the preable length?
 	SX1278_command(inst, LR_RegPreambleLsb, 12);		//8+4=12byte Preamble
 	SX1278_command(inst, REG_LR_DIOMAPPING2, 0x01);		//RegDioMapping2 DIO5=00, DIO4=01
@@ -209,9 +212,14 @@ bool SX1278_receive(SX1278* inst)
 		{
 			//wait for dio0 pin to rise
 			println("[LoRa] Waiting for DIO0");
+			uint32_t recvStart = millis();
 			while (HAL_GPIO_ReadPin(inst->dio0_port, inst->dio0) == GPIO_PIN_RESET)
 			{
-				HAL_Delay(1);
+				if (millis() - recvStart >= inst->config.rxTimeoutSymb)
+				{
+					SX1278_rx_get_packet(inst);
+					return false;
+				}
 			}
 
 			println("\033c");
@@ -324,12 +332,13 @@ void SX1278_tx_mode(SX1278* inst)
 
 void SX1278_rx_mode(SX1278* inst)
 {
+	SX1278_standby(inst);
 	println("[LoRa] Goes into Receive mode.");
 	uint8_t addr;
 
-	SX1278_clearLoRaIrq(inst);
 	SX1278_command(inst, REG_LR_DIOMAPPING1, 0x01);	//DIO=00, DIO1=00,DIO2=00, DIO3=01
 	SX1278_command(inst, LR_RegIrqFlagsMask, 0x1F);	//Open RxDone, RxTimeout, crcError interrupt
+	SX1278_clearLoRaIrq(inst);
 
 	addr = SX1278_read_address(inst, LR_RegFifoRxBaseAddr);	//read rx_fifo beginning adress in memory
 	SX1278_command(inst, LR_RegFifoAddrPtr, addr);			//set fifo pointer there

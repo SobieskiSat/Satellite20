@@ -62,6 +62,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/clock.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/run.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/config.h \
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/gps.h \
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/mpu9250.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.c \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/config.h
@@ -201,6 +203,10 @@ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/clock.h:
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/run.h:
 
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/config.h:
+
+C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/gps.h:
+
+C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/mpu9250.h:
 
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.c:
 

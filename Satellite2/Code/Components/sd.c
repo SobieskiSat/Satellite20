@@ -28,6 +28,7 @@ FRESULT SD_init()
 
 	if (FATFS_LinkDriver(&SD_Driver, SDPath) != 0) return FR_NOT_READY;
 
+	f_mount(0, SDPath, 0);
 	FATFS fs;
 	FRESULT mountStatus = f_mount(&fs, SDPath, 0);
 	if (mountStatus != FR_OK)
@@ -48,13 +49,25 @@ FRESULT SD_deinit()
 
 FRESULT SD_newFile(char* path)
 {
+
+	//HAL_Delay(1000);
+	//SD_deinit() == FR_OK ? print("ok") : print("no");
+	HAL_Delay(1000);
+	SD_init() == FR_OK ? print("ok") : print("no");
+	HAL_Delay(1000);
+
 	FIL file;
 	FRESULT status;
 	println("[SD] Before open.");
-	status = f_open(&file, path, FA_CREATE_NEW);
+	status = f_open(&file, "/TUTU.TXT", FA_WRITE);
+	uint8_t sta = (int)status;
+	print("Status:");
+	print_int(sta);
+	println("");
 	if (status != FR_OK)
 	{
 		//f_mount(0, SDPath, 0);
+		println("[SD] Status not ok.");
 		return status;
 	}
 

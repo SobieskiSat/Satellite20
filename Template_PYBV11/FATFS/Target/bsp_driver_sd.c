@@ -110,7 +110,7 @@ __weak uint8_t BSP_SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t Nu
     sd_state = MSD_ERROR;
   }
 
-  return sd_state;  
+  return sd_state;
 }
 
 /* USER CODE BEGIN BeforeWriteBlocksSection */
@@ -128,12 +128,12 @@ __weak uint8_t BSP_SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t 
 {
   uint8_t sd_state = MSD_OK;
 
-  if (HAL_SD_WriteBlocks(&hsd, (uint8_t *)pData, WriteAddr, NumOfBlocks, Timeout) != HAL_OK) 
+  if (HAL_SD_WriteBlocks(&hsd, (uint8_t *)pData, WriteAddr, NumOfBlocks, Timeout) != HAL_OK)
   {
     sd_state = MSD_ERROR;
   }
 
-  return sd_state;  
+  return sd_state;
 }
 
 /* USER CODE BEGIN BeforeReadDMABlocksSection */

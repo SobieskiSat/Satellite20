@@ -30,9 +30,11 @@ typedef struct
 	uint16_t reset;
 	uint16_t dio0;
 	uint16_t nss;
+	uint16_t rxtim;
 	GPIO_TypeDef* reset_port;
 	GPIO_TypeDef* dio0_port;
 	GPIO_TypeDef* nss_port;
+	GPIO_TypeDef* rxtim_port;
 	SPI_HandleTypeDef* spi;
 
 	uint8_t irqStatus;

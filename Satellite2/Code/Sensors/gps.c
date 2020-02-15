@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "run.h"
 
 #define min(a,b) \
 ({ __typeof__ (a) _a = (a); \
@@ -22,7 +23,7 @@ bool GPS_available(GPS* inst)
 {
 	if (inst->paused) return 0;
 
-	// code @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	if (HAL_UART_GetState(inst->uart) == HAL_UART_STATE_READY) return 1;
 
 	return 0;
 }
@@ -40,6 +41,10 @@ bool GPS_write(GPS* inst, uint8_t c)
 	// code ~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&&&&&&&&&&&&********%%%%%%%%%%%%%%%%
 	uint8_t ca[1] = {c};
 	HAL_UART_Transmit(inst->uart, ca, 1, HAL_MAX_DELAY);
+
+
+	// wait for finished transmission
+	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);
 	return 0;
 }
 
@@ -51,6 +56,7 @@ bool GPS_write(GPS* inst, uint8_t c)
 /**************************************************************************/
 char GPS_read(GPS* inst)
 {
+	println("[GPS] read()");
 	static uint32_t firstChar = 0; // first character received in current sentence
 	uint32_t tStart = millis();		// as close as we can get to time char was sent
 	char c = 0;
@@ -92,6 +98,11 @@ char GPS_read(GPS* inst)
 	}
 
 	if (firstChar == 0) firstChar = tStart;
+
+	//wait for finished transmission
+	println("[GPS] read() ... waiting");
+	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);
+	println("[GPS] finished");
 	return c;
 }
 
@@ -100,16 +111,18 @@ char GPS_read(GPS* inst)
 		@brief Initialization code used by all constructor types
 */
 /**************************************************************************/
-void GPS_common_init(GPS* inst)
+void GPS_init(GPS* inst)
 {
 	// UART instance, code ##########################$$$$$$$$$$$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@
-
+	println("[GPS] init()");
 	inst->recvdflag = false;
+	inst->inStandbyMode = false;
 	inst->paused = false;
 	inst->lineidx = 0;
 	inst->currentline = inst->line1;
 	inst->lastline = inst->line2;
 
+	// uint8_t
 	inst->gpsTime.hour = 0;
 	inst->gpsTime.minute = 0;
 	inst->gpsTime.second = 0;
@@ -117,24 +130,66 @@ void GPS_common_init(GPS* inst)
 	inst->gpsTime.month = 0;
 	inst->gpsTime.dayM = 0;
 	inst->fixquality = 0;
-	//inst->gpsTime = 0; something was here
 	inst->fixquality_3d = 0;
-	inst->satellites = 0;	// uint8_t
+	inst->satellites = 0;
+	// bool
+	inst->fix = false;
+	// char
 	inst->lat = 0;
 	inst->lon = 0;
-	inst->mag = 0; // char
-	inst->fix = false;				 // bool
-	inst->gpsTime.msecond = 0;		// uint16_t
-	inst->latitude = 0;
-	inst->longitude = 0;
-	inst->geoidheight = 0;
-	inst->altitude = 0;
-	inst->speed = 0;
-	inst->angle = 0;
-	inst->magvariation = 0;
+	inst->mag = 0;
+	// uint16_t
+	inst->gpsTime.msecond = 0;
+	// float
+	inst->latitude = 0.0;
+	inst->longitude = 0.0;
+	inst->geoidheight = 0.0;
+	inst->altitude = 0.0;
+	inst->speed = 0.0;
+	inst->angle = 0.0;
+	inst->magvariation = 0.0;
 	inst->HDOP = 0.0;
 	inst->VDOP = 0.0;
-	inst->PDOP = 0.0; // float
+	inst->PDOP = 0.0;
+
+	inst->lastUpdate = 0; // millis() when last full sentence successfully parsed
+	inst->lastFix = 0;  // millis() when last fix received
+	inst->lastTime = 0; // millis() when last time received
+	inst->lastDate = 0; // millis() when last date received
+	inst->recvdTime = 0; // millis() when last full sentence received
+	inst->sentTime = 0; // millis() when first character of last full sentence received
+
+	inst->lat = 'X';
+	inst->lon = 'X';
+	inst->mag = 'X';
+
+	inst->thisCheck = 0;
+	memset(inst->thisSource, 0x00, NMEA_MAX_SOURCE_ID);
+	memset(inst->thisSentence, 0x00, NMEA_MAX_SENTENCE_ID);
+	memset(inst->lastSource, 0x00, NMEA_MAX_SOURCE_ID);
+	memset(inst->lastSentence, 0x00, NMEA_MAX_SENTENCE_ID);
+
+	memset(inst->txtTXT, 0x00, 63);
+	inst->txtTot = 0;
+	inst->txtID = 0;
+	inst->txtN = 0;
+
+	inst->sources[0] = "II";
+	inst->sources[1] = "WI";
+	inst->sources[2] = "GP";
+	inst->sources[3] = "GN";
+	inst->sources[4] = "ZZZ";
+	inst->sentences_parsed[0] = "GGA";
+	inst->sentences_parsed[1] = "GLL";
+	inst->sentences_parsed[2] = "GSA";
+	inst->sentences_parsed[3] = "RMC";
+	inst->sentences_parsed[4] = "ZZZ";
+	inst->sentences_known[0] = "ZZZ";
+
+	GPS_standby(inst);
+	GPS_wakeup(inst);
+
+	println("[GPS] End init()");
 }
 
 /**************************************************************************/
@@ -143,10 +198,15 @@ void GPS_common_init(GPS* inst)
 		@param str Pointer to a string holding the command to send
 */
 /**************************************************************************/
-void GPS_sendCommand(GPS* inst, const char* str)
+void GPS_sendCommand(GPS* inst, char* str)
 {
+	println("[GPS] sendCommand()");
 	// NOT THIS PRINTLN, code !!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@#################$$$$$$$$$$$$$$$$$$$$$$$$$$
-	println(str);
+	HAL_UART_Transmit(inst->uart, (uint8_t*)str, strlen(str), HAL_MAX_DELAY);
+	println("[GPS] sendCommand()... waiting");
+	// wait for finished transmission
+	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);
+	println("[GPS] finished");
 }
 
 
@@ -513,8 +573,8 @@ void GPS_parseTime(GPS* inst, char* p)
 /**************************************************************************/
 void GPS_parseLat(GPS* inst, char* p)
 {
-	int32_t degree;
-	long minutes;
+	//int32_t degree;
+	//long minutes;
 	char degreebuff[10];
 	if (!GPS_isEmpty(inst, p))
 	{
@@ -594,7 +654,7 @@ void GPS_parseLon(GPS* inst, char* p)
 /**************************************************************************/
 bool GPS_parseLonDir(GPS* inst, char* p)
 {
-	if (!isEmpty(p))
+	if (!GPS_isEmpty(inst, p))
 	{
 		if (p[0] == 'W')
 		{
@@ -788,7 +848,8 @@ bool GPS_LOCUS_ReadStatus(GPS* inst) {
 		{
 			parsed[i] *= 10;
 			char c = response[0];
-			if (GPS_isDigit(inst, c))
+			//if (isDigit(c))
+			if (((uint8_t)c) >= 0x30 && ((uint8_t)c) <= 0x39)
 				parsed[i] += c - '0';
 			else
 				parsed[i] = c;
@@ -797,7 +858,9 @@ bool GPS_LOCUS_ReadStatus(GPS* inst) {
 	}
 	inst->LOCUS_serial = parsed[0];
 	inst->LOCUS_type = parsed[1];
-	if (GPS_isAlpha(inst, parsed[2])) {
+	//if (isAlpha(parsed[2]))
+	if ((parsed[2] >= 0x41 && parsed[2] <= 0x5A) || (parsed[2] >= 0x61 && parsed[2] <= 0x7A))
+	{
 		parsed[2] = parsed[2] - 'a' + 10;
 	}
 	inst->LOCUS_mode = parsed[2];
