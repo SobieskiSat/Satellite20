@@ -59,7 +59,7 @@ static void setup(void)
 	//if (sd_begin()) println("[SD] joined the server!");
 	//if (radio_begin()) println("[LoRa] joined the server!");
 	//enableMotors(); println("[MOT] joined the server!");
-	if (mpu_begin()) println("[MPU] joined the server!");
+	//if (mpu_begin()) println("[MPU] joined the server!");
 
 	printLen = sprintf(printBuffer, "Time: %lu ms\r\n", millis());
 	printv(printBuffer, printLen);
@@ -67,15 +67,18 @@ static void setup(void)
 	printLen = sprintf(printBuffer, "Time: %lu ms\r\n", millis());
 	printv(printBuffer, printLen);
 
-	//gps_begin();
+	gps_begin();
 
 	//ser1.ccr = &(TIM3->CCR3);
 }
 
 static void loop(void)
 {
-	mpu_printData();
-	//gps_printData();
+	//if (sd_begin()) println("[SD] joined the server!");
+	//HAL_Delay(1000);
+	//mpu_printData();
+	gps_printData();
+	//gps_begin();
 	//radio_receive();
 	//radio_transmit();
 	//setMotors(254, 254);
@@ -213,7 +216,7 @@ static void gps_printData(void)
 		// a tricky thing here is if we print the NMEA sentence, or data
 		// we end up not listening and catching other sentences!
 		// so be very wary if using OUTPUT_ALLDATA and trying to print out data
-		println(GPS_lastNMEA(&gps)); // this also sets the newNMEAreceived() flag to false
+		//println(GPS_lastNMEA(&gps)); // this also sets the newNMEAreceived() flag to false
 		if (!GPS_parse(&gps, GPS_lastNMEA(&gps))) // this also sets the newNMEAreceived() flag to false
 		  return; // we can fail to parse a sentence in which case we should just wait for another
 	}
@@ -242,16 +245,16 @@ static void gps_printData(void)
 		print_int(gps.gpsTime.msecond);
 		print("\r\nDate: ");
 		print_int(gps.gpsTime.dayM); print_char('/');
-		print_int(gps.gpsTime.month); print_char("/20");
-		print_int(gps.gpsTime.year);
+		print_int(gps.gpsTime.month); print("/20");
+		print_int(gps.gpsTime.year); println("");
 		print("\r\nFix: "); print_int((int)gps.fix);
-		print(" quality: "); print_int((int)gps.fixquality);
+		print(" quality: "); print_int((int)gps.fixquality); println("");
 		if (gps.fix)
 		{
 			print("Location: ");
-			print_float(gps.latitude); print_float(gps.lat);
+			print_float(gps.latitudeDegrees); print_char(gps.lat);
 			print(", ");
-			print_float(gps.longitude); print_float(gps.lon);
+			print_float(gps.longitudeDegrees); print_char(gps.lon);
 			print("Speed (knots): "); print_float(gps.speed);
 			print("\r\nAngle: "); print_float(gps.angle);
 			print("\r\nAltitude: "); print_float(gps.altitude);
@@ -377,7 +380,7 @@ static bool gps_begin(void)
 	// 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
 	GPS_init(&gps);
 	// uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
-	GPS_sendCommand(&gps, PMTK_SET_NMEA_OUTPUT_RMCGGA);
+	GPS_sendCommand(&gps, PMTK_SET_NMEA_OUTPUT_ALLDATA);
 	// uncomment this line to turn on only the "minimum recommended" data
 	//GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
 	// For parsing data, we don't suggest using anything but either RMC only or RMC+GGA since

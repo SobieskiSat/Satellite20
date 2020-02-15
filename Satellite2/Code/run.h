@@ -7,7 +7,7 @@
 #include "usbd_cdc_if.h"
 
 #define PRINT_OUT 1
-#define GPSECHO 1
+#define GPSECHO 0
 
 static void setup(void);
 static void loop(void);

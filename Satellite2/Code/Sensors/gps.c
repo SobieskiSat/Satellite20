@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include <string.h>
 #include "run.h"
 
 #define min(a,b) \
@@ -56,7 +57,7 @@ bool GPS_write(GPS* inst, uint8_t c)
 /**************************************************************************/
 char GPS_read(GPS* inst)
 {
-	println("[GPS] read()");
+	//println("[GPS] read()");
 	static uint32_t firstChar = 0; // first character received in current sentence
 	uint32_t tStart = millis();		// as close as we can get to time char was sent
 	char c = 0;
@@ -65,7 +66,9 @@ char GPS_read(GPS* inst)
 	if (inst->paused) return c;
 
 	// code ~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$#################3
-	HAL_UART_Receive(inst->uart, ca, 1, HAL_MAX_DELAY);
+	//println("[GPS] starting receiving");
+	HAL_UART_Receive(inst->uart, ca, 1, 500);
+	//println("[GPS] finished receiving");
 	c = (char)ca[0];
 
 	inst->currentline[inst->lineidx++] = c;
@@ -100,9 +103,9 @@ char GPS_read(GPS* inst)
 	if (firstChar == 0) firstChar = tStart;
 
 	//wait for finished transmission
-	println("[GPS] read() ... waiting");
+	//println("[GPS] read() ... waiting");
 	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);
-	println("[GPS] finished");
+	//println("[GPS] finished");
 	return c;
 }
 
@@ -186,8 +189,8 @@ void GPS_init(GPS* inst)
 	inst->sentences_parsed[4] = "ZZZ";
 	inst->sentences_known[0] = "ZZZ";
 
-	GPS_standby(inst);
-	GPS_wakeup(inst);
+	//GPS_standby(inst);
+	//GPS_wakeup(inst);
 
 	println("[GPS] End init()");
 }
@@ -264,14 +267,14 @@ bool GPS_parse(GPS* inst, char* nmea)
 		if (!GPS_isEmpty(inst, p)) inst->satellites = atoi(p);
 
 		p = strchr(p, ',') + 1;
-		if (!GPS_isEmpty(inst, p)) inst->HDOP = atof(p);
+		if (!GPS_isEmpty(inst, p)) inst->HDOP = (float)atof(p);
 
 		p = strchr(p, ',') + 1;
-		if (!GPS_isEmpty(inst, p)) inst->altitude = atof(p);
+		if (!GPS_isEmpty(inst, p)) inst->altitude = (float)atof(p);
 
 		p = strchr(p, ',') + 1;
 		p = strchr(p, ',') + 1;
-		if (!GPS_isEmpty(inst, p)) inst->geoidheight = atof(p);
+		if (!GPS_isEmpty(inst, p)) inst->geoidheight = (float)atof(p);
 	}
 
 	else if (!strcmp(inst->thisSentence, "RMC"))
@@ -298,16 +301,16 @@ bool GPS_parse(GPS* inst, char* nmea)
 
 		// speed
 		p = strchr(p, ',') + 1;
-		if (!GPS_isEmpty(inst, p)) inst->speed = atof(p);
+		if (!GPS_isEmpty(inst, p)) inst->speed = (float)atof(p);
 
 		// angle
 		p = strchr(p, ',') + 1;
-		if (!GPS_isEmpty(inst, p)) inst->angle = atof(p);
+		if (!GPS_isEmpty(inst, p)) inst->angle = (float)atof(p);
 
 		p = strchr(p, ',') + 1;
 		if (!GPS_isEmpty(inst, p))
 		{
-			uint32_t fulldate = atof(p);
+			uint32_t fulldate = (float)atof(p);
 			inst->gpsTime.dayM = fulldate / 10000;
 			inst->gpsTime.month = (fulldate % 10000) / 100;
 			inst->gpsTime.year = (fulldate % 100);
@@ -353,16 +356,16 @@ bool GPS_parse(GPS* inst, char* nmea)
 		
 		// parse out PDOP
 		p = strchr(p, ',') + 1;
-		if (!GPS_isEmpty(inst, p)) inst->PDOP = atof(p);
+		if (!GPS_isEmpty(inst, p)) inst->PDOP = (float)atof(p);
 		
 		// parse out HDOP, we also parse this from the GGA sentence. Chipset should
 		// report the same for both
 		p = strchr(p, ',') + 1;
-		if (!GPS_isEmpty(inst, p)) inst->HDOP = atof(p);
+		if (!GPS_isEmpty(inst, p)) inst->HDOP = (float)atof(p);
 		
 		// parse out VDOP
 		p = strchr(p, ',') + 1;
-		if (!GPS_isEmpty(inst, p)) inst->VDOP = atof(p);
+		if (!GPS_isEmpty(inst, p)) inst->VDOP = (float)atof(p);
 	}
 
 #ifdef NMEA_EXTENSIONS // Sentences not required for basic GPS functionality

@@ -4,11 +4,11 @@ run.h:56:20:print_int	16	static
 clock.h:11:24:millis	4	static
 clock.h:43:24:getTime	56	static
 sd.c:9:16:SD_setFileTime	40	static
-sd.c:23:9:SD_init	1088	static
+sd.c:23:9:SD_init	4160	static
 sd.c:42:9:SD_deinit	8	static
-sd.c:50:9:SD_newFile	1104	static
+sd.c:50:9:SD_newFile	4176	static
 sd.c:80:9:SD_clearFile	16	static
 sd.c:85:9:SD_deleteFile	16	static
-sd.c:91:9:SD_writeToFile	1096	static
-sd.c:105:9:SD_readFileLine	1104	static
+sd.c:91:9:SD_writeToFile	4168	static
+sd.c:105:9:SD_readFileLine	4176	static
 sd.c:122:9:SD_readFileLines	24	static

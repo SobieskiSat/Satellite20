@@ -30,7 +30,7 @@ FRESULT SD_init()
 
 	f_mount(0, SDPath, 0);
 	FATFS fs;
-	FRESULT mountStatus = f_mount(&fs, SDPath, 0);
+	FRESULT mountStatus = f_mount(&fs, SDPath, 1);
 	if (mountStatus != FR_OK)
 	{
 		f_mount(0, SDPath, 0);
