@@ -1,20 +1,15 @@
 #include "mpu9250.h"
 
 #include "main.h"
-
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_i2c.h"
 
-//todelete
-#include "run.h"
-
 //===================================================================================================================
 //====== Set of useful function to access acceleratio, gyroscope, and temperature data
 //===================================================================================================================
-
 void MPU_writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
 	HAL_I2C_Mem_Write(Get_I2C1_Instance(), address, subAddress, 1, &data, 1, 5000);
@@ -24,7 +19,6 @@ void MPU_writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 	while(HAL_I2C_GetState(Get_I2C1_Instance()) != HAL_I2C_STATE_READY);
 	//i2c.write(address, data_write, 2, 0);
 }
-
 char MPU_readByte(uint8_t address, uint8_t subAddress)
 {
 	uint8_t data[1]; // `data` will store the register data
@@ -40,7 +34,6 @@ char MPU_readByte(uint8_t address, uint8_t subAddress)
 
 	return (char)data[0];
 }
-
 void MPU_readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t* dest)
 {     
 	uint8_t data[14];
@@ -67,7 +60,6 @@ void MPU_readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t* 
 	}
 } 
  
-
 void MPU_getMres()
 {
 	switch (MMscale)
@@ -82,8 +74,6 @@ void MPU_getMres()
 			break;
 	}
 }
-
-
 void MPU_getGres()
 {
 	switch (GGscale)
@@ -105,8 +95,6 @@ void MPU_getGres()
 			break;
 	}
 }
-
-
 void MPU_getAres()
 {
 	switch (AAscale)
@@ -129,7 +117,6 @@ void MPU_getAres()
 	}
 }
 
-
 void MPU_readAccelData(int16_t* destination)
 {
 	uint8_t rawData[6];  // x/y/z accel register data stored here
@@ -138,7 +125,6 @@ void MPU_readAccelData(int16_t* destination)
 	destination[1] = (int16_t)(((int16_t)rawData[2] << 8) | rawData[3]);  
 	destination[2] = (int16_t)(((int16_t)rawData[4] << 8) | rawData[5]); 
 }
-
 void MPU_readGyroData(int16_t* destination)
 {
 	uint8_t rawData[6];  // x/y/z gyro register data stored here
@@ -147,7 +133,6 @@ void MPU_readGyroData(int16_t* destination)
 	destination[1] = (int16_t)(((int16_t)rawData[2] << 8) | rawData[3]);  
 	destination[2] = (int16_t)(((int16_t)rawData[4] << 8) | rawData[5]); 
 }
-
 void MPU_readMagData(int16_t* destination)
 {
 	uint8_t rawData[7];  // x/y/z gyro register data, ST2 register stored here, must read ST2 at end of data acquisition
@@ -163,7 +148,6 @@ void MPU_readMagData(int16_t* destination)
 		}
 	}
 }
-
 int16_t MPU_readTempData()
 {
 	uint8_t rawData[2];  // x/y/z gyro register data stored here
@@ -171,36 +155,22 @@ int16_t MPU_readTempData()
 	return (int16_t)(((int16_t)rawData[0]) << 8 | rawData[1]);  // Turn the MSB and LSB into a 16-bit value
 }
 
-
-void MPU_reset()
+bool MPU_present()
 {
-	// reset device
-	MPU_writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x80); // Write a one to bit 7 reset bit; toggle reset device
-	HAL_Delay(100);
+	// 5 trials of getting WHO_AM_I response from MPU
+	uint8_t attempts = 0;
+	do
+	{
+		char who = MPU_readByte(MPU9250_ADDRESS, MPU9250_WHO_AM_I);
+		if (who == 0x71) return true;
+		else
+		{
+			attempts++;
+			HAL_Delay(1000);
+		}
+	} while (attempts <= 5);
+	return false;
 }
-
-void AK8963_init(float * destination)
-{
-	// First extract the factory calibration for each magnetometer axis
-	uint8_t rawData[3];  // x/y/z gyro calibration data stored here
-	MPU_writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x00); // Power down magnetometer  
-	HAL_Delay(10);
-	MPU_writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x0F); // Enter Fuse ROM access mode
-	HAL_Delay(10);
-	MPU_readBytes(AK8963_ADDRESS, AK8963_ASAX, 3, &rawData[0]);  // Read the x-, y-, and z-axis calibration values
-	destination[0] =  (float)(rawData[0] - 128)/256.0f + 1.0f;   // Return x-axis sensitivity adjustment values, etc.
-	destination[1] =  (float)(rawData[1] - 128)/256.0f + 1.0f;  
-	destination[2] =  (float)(rawData[2] - 128)/256.0f + 1.0f; 
-	MPU_writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x00); // Power down magnetometer  
-	HAL_Delay(10);
-	// Configure the magnetometer for continuous read and highest resolution
-	// set Mscale bit 4 to 1 (0) to enable 16 (14) bit resolution in CNTL register,
-	// and enable continuous mode data acquisition Mmode (bits [3:0]), 0010 for 8 Hz and 0110 for 100 Hz sample rates
-	MPU_writeByte(AK8963_ADDRESS, AK8963_CNTL, MMscale << 4 | Mmode); // Set magnetometer data resolution and sample ODR
-	HAL_Delay(10);
-}
-
-
 void MPU_init()
 {
 	GyroMeasError = PI * (60.0f / 180.0f);
@@ -283,11 +253,38 @@ void MPU_init()
 	MPU_writeByte(MPU9250_ADDRESS, INT_PIN_CFG, 0x22);    
 	MPU_writeByte(MPU9250_ADDRESS, INT_ENABLE, 0x01);  // Enable data ready (bit 0) interrupt
 }
+void AK8963_init(float * destination)
+{
+	// First extract the factory calibration for each magnetometer axis
+	uint8_t rawData[3];  // x/y/z gyro calibration data stored here
+	MPU_writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x00); // Power down magnetometer
+	HAL_Delay(10);
+	MPU_writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x0F); // Enter Fuse ROM access mode
+	HAL_Delay(10);
+	MPU_readBytes(AK8963_ADDRESS, AK8963_ASAX, 3, &rawData[0]);  // Read the x-, y-, and z-axis calibration values
+	destination[0] =  (float)(rawData[0] - 128)/256.0f + 1.0f;   // Return x-axis sensitivity adjustment values, etc.
+	destination[1] =  (float)(rawData[1] - 128)/256.0f + 1.0f;
+	destination[2] =  (float)(rawData[2] - 128)/256.0f + 1.0f;
+	MPU_writeByte(AK8963_ADDRESS, AK8963_CNTL, 0x00); // Power down magnetometer
+	HAL_Delay(10);
+	// Configure the magnetometer for continuous read and highest resolution
+	// set Mscale bit 4 to 1 (0) to enable 16 (14) bit resolution in CNTL register,
+	// and enable continuous mode data acquisition Mmode (bits [3:0]), 0010 for 8 Hz and 0110 for 100 Hz sample rates
+	MPU_writeByte(AK8963_ADDRESS, AK8963_CNTL, MMscale << 4 | Mmode); // Set magnetometer data resolution and sample ODR
+	HAL_Delay(10);
+}
 
-// Function which accumulates gyro and accelerometer data after device initialization. It calculates the average
-// of the at-rest readings and then loads the resulting offsets into accelerometer and gyro bias registers.
+void MPU_reset()
+{
+	// reset device
+	MPU_writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x80); // Write a one to bit 7 reset bit; toggle reset device
+	HAL_Delay(100);
+}
+
 void MPU_calibrate(float* dest1, float* dest2)
 {  
+	// Function which accumulates gyro and accelerometer data after device initialization. It calculates the average
+	// of the at-rest readings and then loads the resulting offsets into accelerometer and gyro bias registers.
 	uint8_t data[12]; // data array to hold accelerometer and gyro x, y, z, data
 	uint16_t ii, packet_count, fifo_count;
 	int32_t gyro_bias[3] = {0, 0, 0}, accel_bias[3] = {0, 0, 0};
@@ -431,11 +428,10 @@ void MPU_calibrate(float* dest1, float* dest2)
 	dest2[1] = (float)accel_bias[1]/(float)accelsensitivity;
 	dest2[2] = (float)accel_bias[2]/(float)accelsensitivity;
 }
-
-
-// Accelerometer and gyroscope self test; check calibration wrt factory settings
-void MPU_SelfTest(float* destination) // Should return percent deviation from factory trim values, +/- 14 or less deviation is a pass
+void MPU_SelfTest(float* destination)
 {
+	// Accelerometer and gyroscope self test; check calibration wrt factory settings
+	 // Should return percent deviation from factory trim values, +/- 14 or less deviation is a pass
 	uint8_t rawData[6] = {0, 0, 0, 0, 0, 0};
 	uint8_t selfTest[6];
 	int32_t gAvg[3] = {0}, aAvg[3] = {0}, aSTAvg[3] = {0}, gSTAvg[3] = {0};
@@ -522,17 +518,43 @@ void MPU_SelfTest(float* destination) // Should return percent deviation from fa
 		destination[i+3] = 100.0*((float)(gSTAvg[i] - gAvg[i]))/factoryTrim[i+3] - 100.; // Report percent differences
 	}
 }
+void MPU_calibrateMag(float* dest1)
+{
+	uint16_t ii = 0, jj=0, sample_count = 0;
+	int32_t mag_bias[3] = {0, 0, 0};
+	int16_t mag_max[3] = {-32767, -32767, -32767}, mag_min[3] = {32767, 32767, 32767}, mag_temp[3] = {0, 0, 0};
 
+	HAL_Delay(4000);
 
+	sample_count = 64;
+	for(ii = 0; ii < sample_count; ii++)
+	{
+		MPU_readMagData(mag_temp);  // Read the mag data
+		for (jj = 0; jj < 3; jj++)
+		{
+			if(mag_temp[jj] > mag_max[jj]) mag_max[jj] = mag_temp[jj];
+			if(mag_temp[jj] < mag_min[jj]) mag_min[jj] = mag_temp[jj];
+		}
+		HAL_Delay(135);  // at 8 Hz ODR, new mag data is available every 125 ms
+	}
 
-// Implementation of Sebastian Madgwick's "...efficient orientation filter for... inertial/magnetic sensor arrays"
-// (see http://www.x-io.co.uk/category/open-source/ for examples and more details)
-// which fuses acceleration, rotation rate, and magnetic moments to produce a quaternion-based estimate of absolute
-// device orientation -- which can be converted to yaw, pitch, and roll. Useful for stabilizing quadcopters, etc.
-// The performance of the orientation filter is at least as good as conventional Kalman-based filtering algorithms
-// but is much less computationally intensive---it can be performed on a 3.3 V Pro Mini operating at 8 MHz!
+	mag_bias[0]  = (mag_max[0] + mag_min[0])/2;  // get average x mag bias in counts
+	mag_bias[1]  = (mag_max[1] + mag_min[1])/2;  // get average y mag bias in counts
+	mag_bias[2]  = (mag_max[2] + mag_min[2])/2;  // get average z mag bias in counts
+
+	dest1[0] = (float) mag_bias[0]*mRes*magCalibration[0];  // save mag biases in G for main program
+	dest1[1] = (float) mag_bias[1]*mRes*magCalibration[1];
+	dest1[2] = (float) mag_bias[2]*mRes*magCalibration[2];
+}
+
 void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz)
 {
+	// Implementation of Sebastian Madgwick's "...efficient orientation filter for... inertial/magnetic sensor arrays"
+	// (see http://www.x-io.co.uk/category/open-source/ for examples and more details)
+	// which fuses acceleration, rotation rate, and magnetic moments to produce a quaternion-based estimate of absolute
+	// device orientation -- which can be converted to yaw, pitch, and roll. Useful for stabilizing quadcopters, etc.
+	// The performance of the orientation filter is at least as good as conventional Kalman-based filtering algorithms
+	// but is much less computationally intensive---it can be performed on a 3.3 V Pro Mini operating at 8 MHz!
 	float q1 = q[0], q2 = q[1], q3 = q[2], q4 = q[3];   // short name local variable for readability
 	float norm;
 	float hx, hy, _2bx, _2bz;
@@ -622,11 +644,9 @@ void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, 
 	q[3] = q4 * norm;
 
 }
-
-	// Similar to Madgwick scheme but uses proportional and integral filtering on the error between estimated reference vectors and
-	// measured ones. 
 void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz)
 {
+	// Similar to Madgwick scheme but uses proportional and integral filtering on the error between estimated reference vectors and measured ones.
 	float q1 = q[0], q2 = q[1], q3 = q[2], q4 = q[3];   // short name local variable for readability
 	float norm;
 	float hx, hy, bx, bz;

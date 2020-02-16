@@ -136,7 +136,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   // Start millisecond timer
-  HAL_TIM_Base_Start(&htim1);
+  HAL_TIM_Base_Start(&htim2);
 
   // Start servo1 timer
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
@@ -416,9 +416,9 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 167;
-  htim2.Init.CounterMode = TIM_COUNTERMODE_CENTERALIGNED2;
-  htim2.Init.Period = 10000;
+  htim2.Init.Prescaler = 83;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 4200000000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)

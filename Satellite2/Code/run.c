@@ -15,23 +15,6 @@
 #include "gps.h"
 #include "mpu9250.h"
 
-
-typedef struct
-{
-	float angle;
-	uint32_t* ccr;
-
-} Servo;
-
-static void setServo(Servo inst, float angle)
-{
-	inst.angle = angle;
-	// CCR1 = 500 -> 1ms -> 0deg
-	// CCR1 = 1000 -> 2ms -> 180deg
-	*(inst.ccr) = 500 * (uint32_t)(angle / 180.0) + 500;
-}
-
-
 BMP280 bmp280;
 
 SX1278 radio;
@@ -43,7 +26,15 @@ GPS gps;
 bool newIRQ;
 uint32_t timenow;
 
-Servo ser1;
+float SelfTest[6];
+float MPU9250gyroBias[3];
+float MPU9250accelBias[3];
+float MPU9250magBias[3];      // Bias corrections for gyro and accelerometer
+float sum;
+uint32_t sumCount;
+uint32_t lastPrint;
+
+// Servo : TIM3->CCR3 (500;1000)
 
 static void setup(void)
 {
@@ -59,49 +50,20 @@ static void setup(void)
 	//if (sd_begin()) println("[SD] joined the server!");
 	//if (radio_begin()) println("[LoRa] joined the server!");
 	//enableMotors(); println("[MOT] joined the server!");
-	//if (mpu_begin()) println("[MPU] joined the server!");
-
-	printLen = sprintf(printBuffer, "Time: %lu ms\r\n", millis());
-	printv(printBuffer, printLen);
-	HAL_Delay(100);
-	printLen = sprintf(printBuffer, "Time: %lu ms\r\n", millis());
-	printv(printBuffer, printLen);
-
-	gps_begin();
+	if (mpu_begin()) println("[MPU] joined the server!");
+	//if (gps_begin()) println("[GPS] joined the server!");
 
 	//ser1.ccr = &(TIM3->CCR3);
 }
 
 static void loop(void)
 {
+	mpu_printData();
 	//if (sd_begin()) println("[SD] joined the server!");
-	//HAL_Delay(1000);
-	//mpu_printData();
-	gps_printData();
-	//gps_begin();
+	//gps_printData();
 	//radio_receive();
 	//radio_transmit();
-	//setMotors(254, 254);
 	//mot_up_down();
-	//HAL_Delay(1000);
-
-	/*
-	uint32_t a = 0;
-	for (a = 0; a <= 500; a += 1)
-	{
-		//setServo(ser1, a);
-		TIM3->CCR3 = a + 500;
-		HAL_Delay(10);
-	}
-	*/
-/*
-	TIM3->CCR3 = 500;
-	println("500");
-	HAL_Delay(1000);
-	TIM3->CCR3 = 1000;
-	println("1000");
-	HAL_Delay(1000);
-*/
 }
 
 static void mot_up_down(void)
@@ -119,15 +81,6 @@ static void mot_up_down(void)
 			haltMotors();
 			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
 		}
-
-		timenow = millis();
-		printLen = sprintf(printBuffer, "%ul ms -->", timenow);
-		printv(printBuffer, printLen);
-		HAL_Delay(100);
-
-		timenow = millis();
-		printLen = sprintf(printBuffer, "%ul ms\r\n", timenow);
-		printv(printBuffer, printLen);
 	}
 	for (i = 200; i > 0; i--)
 	{
@@ -208,7 +161,7 @@ static void gps_printData(void)
 	// read data from the GPS in the 'main loop'
 	char c = GPS_read(&gps);
 	// if you want to debug, this is a good time to do it!
-	char* ca[1] = {c};
+	char ca[1] = {c};
 	if (GPSECHO && c) print(ca);
 	// if a sentence is received, we can check the checksum, parse it...
 	if (GPS_newNMEAreceived(&gps))
@@ -224,7 +177,7 @@ static void gps_printData(void)
 	if (timenow > millis()) timenow = millis();
 
 	// approximately every 2 seconds or so, print out the current stats
-	if (millis() - timenow > 2000)
+	if (millis() - timenow > 200)
 	{
 		timenow = millis(); // reset the timenow
 		print("\r\nTime: ");
@@ -264,7 +217,95 @@ static void gps_printData(void)
 }
 static void mpu_printData(void)
 {
+	if (MPU_readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)
+	{  // check if data ready interrupt
+		MPU_readAccelData(accelCount);  // Read the x/y/z adc values
 
+		// Now we'll calculate the accleration value into actual g's
+		ax = (float)accelCount[0]*aRes - MPU9250accelBias[0];  // get actual g value, this depends on scale being set
+		ay = (float)accelCount[1]*aRes - MPU9250accelBias[1];
+		az = (float)accelCount[2]*aRes - MPU9250accelBias[2];
+
+		MPU_readGyroData(gyroCount);  // Read the x/y/z adc values
+
+		// Calculate the gyro value into actual degrees per second
+		gx = (float)gyroCount[0]*gRes;  // get actual gyro value, this depends on scale being set
+		gy = (float)gyroCount[1]*gRes;
+		gz = (float)gyroCount[2]*gRes;
+
+		MPU_readMagData(magCount);  // Read the x/y/z adc values
+
+		// Calculate the magnetometer values in milliGauss
+		// Include factory calibration per data sheet and user environmental corrections
+		mx = (float)magCount[0]*mRes*magCalibration[0] - MPU9250magBias[0];  // get actual magnetometer value, this depends on scale being set
+		my = (float)magCount[1]*mRes*magCalibration[1] - MPU9250magBias[1];
+		mz = (float)magCount[2]*mRes*magCalibration[2] - MPU9250magBias[2];
+	}
+
+	Now = micros();
+	deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
+	lastUpdate = Now;
+
+	sum += deltat; // sum for averaging filter update rate
+	sumCount++;
+
+	// Sensors x (y)-axis of the accelerometer/gyro is aligned with the y (x)-axis of the magnetometer;
+	// the magnetometer z-axis (+ down) is misaligned with z-axis (+ up) of accelerometer and gyro!
+	// We have to make some allowance for this orientation mismatch in feeding the output to the quaternion filter.
+	// For the MPU9250+MS5637 Mini breakout the +x accel/gyro is North, then -y accel/gyro is East. So if we want te quaternions properly aligned
+	// we need to feed into the Madgwick function Ax, -Ay, -Az, Gx, -Gy, -Gz, My, -Mx, and Mz. But because gravity is by convention
+	// positive down, we need to invert the accel data, so we pass -Ax, Ay, Az, Gx, -Gy, -Gz, My, -Mx, and Mz into the Madgwick
+	// function to get North along the accel +x-axis, East along the accel -y-axis, and Down along the accel -z-axis.
+	// This orientation choice can be modified to allow any convenient (non-NED) orientation convention.
+	// Pass gyro rate as rad/s
+	MadgwickQuaternionUpdate(-ax, ay, az, gx*PI/180.0f, -gy*PI/180.0f, -gz*PI/180.0f,  my,  -mx, mz);
+	//  MahonyQuaternionUpdate(-ax, ay, az, gx*pi/180.0f, -gy*pi/180.0f, -gz*pi/180.0f,  my,  -mx, mz);
+
+	// Serial print and/or display at 0.5 s rate independent of data rates
+	//delt_t = millis() - count;
+	//if (delt_t > 1000)
+	if (millis() - lastPrint > 10)
+	{ // update LCD once per half-second independent of read rate
+		/*
+		println("MPU9250: ");
+		print("ax = "); print_int((int)1000*ax);
+		print(" ay = "); print_int((int)1000*ay);
+		print(" az = "); print_int((int)1000*az); println(" mg");
+		print("gx = "); print_float(gx);
+		print(" gy = "); print_float(gy);
+		print(" gz = "); print_float(gz); println(" deg/s");
+		print("mx = "); print_int((int)mx);
+		print(" my = "); print_int((int)my);
+		print(" mz = "); print_int((int)mz); println(" mG");
+		 */
+		/*
+		print("q0 = "); print_float(q[0]);
+		print(" qx = "); print_float(q[1]);
+		print(" qy = "); print_float(q[2]);
+		print(" qz = "); print_float(q[3]); println("");
+		*/
+		tempCount = MPU_readTempData();  // Read the gyro adc values
+		temperature = ((float) tempCount) / 333.87 + 21.0; // Gyro chip temperature in degrees Centigrade
+		// Print temperature in degrees Centigrade
+
+
+		yaw   = atan2f(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);
+		pitch = -asinf(2.0f * (q[1] * q[3] - q[0] * q[2]));
+		roll  = atan2f(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
+		pitch *= 180.0f / PI;
+		yaw   *= 180.0f / PI;
+		//yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
+		if(yaw < 0) yaw   += 360.0f; // Ensure yaw stays between 0 and 360
+		roll  *= 180.0f / PI;
+
+		//print("Yaw: "); print_float(yaw); print(" , Pitch: "); print_float(pitch); print(" , Roll: "); print_float(roll); println("");
+		print_int(-360); print(" ");
+		print_float(yaw); print(" "); print_float(pitch); print(" "); print_float(roll); print(" ");
+		print_int(360); println("");
+
+		//print("MPU9250 Gyro temperature is ");  print_float(temperature);  println(" degrees C"); // Print T values to tenths of s degree C
+		lastPrint = millis();
+	}
 }
 
 static void dio0_IRQ(void)
@@ -377,26 +418,17 @@ static bool gps_begin(void)
 {
 	println("[GPS] Begin...");
 	gps.uart = Get_UART3_Instance();
-	// 9600 NMEA is the default baud rate for Adafruit MTK GPS's- some use 4800
 	GPS_init(&gps);
-	// uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
 	GPS_sendCommand(&gps, PMTK_SET_NMEA_OUTPUT_ALLDATA);
-	// uncomment this line to turn on only the "minimum recommended" data
-	//GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
-	// For parsing data, we don't suggest using anything but either RMC only or RMC+GGA since
-	// the parser doesn't care about other sentences at this time
-	// Set the update rate
-	GPS_sendCommand(&gps, PMTK_SET_NMEA_UPDATE_1HZ); // 1 Hz update rate
-	// For the parsing code to work nicely and have time to sort thru the data, and
-	// print it out we don't suggest using anything higher than 1 Hz
-
-	// Request updates on antenna status, comment out to keep quiet
-	GPS_sendCommand(&gps, PGCMD_ANTENNA);
+	GPS_sendCommand(&gps, PMTK_SET_NMEA_UPDATE_5HZ);
 
 	HAL_Delay(1000);
 
 	// Ask for firmware version
 	GPS_sendCommand(&gps, PMTK_Q_RELEASE);
+	// TO ADD: chceck firmware response
+
+	return true;
 }
 
 
@@ -418,171 +450,39 @@ static void setupPins(void)
 	//HAL_GPIO_WritePin(P6_GPIO_Port, P6_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(P7_GPIO_Port, P7_Pin, GPIO_PIN_RESET);
 }
-
-static void accelgyrocalMPU9250(float * dest1, float * dest2)
+static void timingDebug(void)
 {
-  uint8_t data[12]; // data array to hold accelerometer and gyro x, y, z, data
-  uint16_t ii, packet_count, fifo_count;
-  int32_t gyro_bias[3]  = {0, 0, 0}, accel_bias[3] = {0, 0, 0};
+	uint32_t start = 0;
+	uint32_t stop = 0;
 
- // reset device
-  MPU_writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x80); // Write a one to bit 7 reset bit; toggle reset device
-  HAL_Delay(100);
+	start = millis();
+	HAL_Delay(1000);
+	stop = millis();
 
- // get stable time source; Auto select clock source to be PLL gyroscope reference if ready
- // else use the internal oscillator, bits 2:0 = 001
-  MPU_writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x01);
-  MPU_writeByte(MPU9250_ADDRESS, PWR_MGMT_2, 0x00);
-  HAL_Delay(200);
+	printLen = sprintf(printBuffer, "Time: %lu ms\r\n", start);
+	printv(printBuffer, printLen);
+	printLen = sprintf(printBuffer, "Time: %lu ms\r\n", stop);
+	printv(printBuffer, printLen);
+	printLen = sprintf(printBuffer, "Space: %lu ms\r\n", stop - start);
+	printv(printBuffer, printLen);
 
-// Configure device for bias calculation
-  MPU_writeByte(MPU9250_ADDRESS, INT_ENABLE, 0x00);   // Disable all interrupts
-  MPU_writeByte(MPU9250_ADDRESS, FIFO_EN, 0x00);      // Disable FIFO
-  MPU_writeByte(MPU9250_ADDRESS, PWR_MGMT_1, 0x00);   // Turn on internal clock source
-  MPU_writeByte(MPU9250_ADDRESS, I2C_MST_CTRL, 0x00); // Disable I2C master
-  MPU_writeByte(MPU9250_ADDRESS, USER_CTRL, 0x00);    // Disable FIFO and I2C master modes
-  MPU_writeByte(MPU9250_ADDRESS, USER_CTRL, 0x0C);    // Reset FIFO and DMP
-  HAL_Delay(15);
 
-// Configure MPU6050 gyro and accelerometer for bias calculation
-  MPU_writeByte(MPU9250_ADDRESS, CONFIG, 0x01);      // Set low-pass filter to 188 Hz
-  MPU_writeByte(MPU9250_ADDRESS, SMPLRT_DIV, 0x00);  // Set sample rate to 1 kHz
-  MPU_writeByte(MPU9250_ADDRESS, GYRO_CONFIG, 0x00);  // Set gyro full-scale to 250 degrees per second, maximum sensitivity
-  MPU_writeByte(MPU9250_ADDRESS, ACCEL_CONFIG, 0x00); // Set accelerometer full-scale to 2 g, maximum sensitivity
+	start = micros();
+	HAL_Delay(1000);
+	stop = micros();
 
-  uint16_t  gyrosensitivity  = 131;   // = 131 LSB/degrees/sec
-  uint16_t  accelsensitivity = 16384;  // = 16384 LSB/g
-
-// Configure FIFO to capture accelerometer and gyro data for bias calculation
-  MPU_writeByte(MPU9250_ADDRESS, USER_CTRL, 0x40);   // Enable FIFO
-  MPU_writeByte(MPU9250_ADDRESS, FIFO_EN, 0x78);     // Enable gyro and accelerometer sensors for FIFO  (max size 512 bytes in MPU-9150)
-  HAL_Delay(40); // accumulate 40 samples in 40 milliseconds = 480 bytes
-
-// At end of sample accumulation, turn off FIFO sensor read
-  MPU_writeByte(MPU9250_ADDRESS, FIFO_EN, 0x00);        // Disable gyro and accelerometer sensors for FIFO
-  MPU_readBytes(MPU9250_ADDRESS, FIFO_COUNTH, 2, &data[0]); // read FIFO sample count
-  fifo_count = ((uint16_t)data[0] << 8) | data[1];
-  packet_count = fifo_count/12;// How many sets of full gyro and accelerometer data for averaging
-
-  for (ii = 0; ii < packet_count; ii++) {
-    int16_t accel_temp[3] = {0, 0, 0}, gyro_temp[3] = {0, 0, 0};
-    MPU_readBytes(MPU9250_ADDRESS, FIFO_R_W, 12, &data[0]); // read data for averaging
-    accel_temp[0] = (int16_t) (((int16_t)data[0] << 8) | data[1]  ) ;  // Form signed 16-bit integer for each sample in FIFO
-    accel_temp[1] = (int16_t) (((int16_t)data[2] << 8) | data[3]  ) ;
-    accel_temp[2] = (int16_t) (((int16_t)data[4] << 8) | data[5]  ) ;
-    gyro_temp[0]  = (int16_t) (((int16_t)data[6] << 8) | data[7]  ) ;
-    gyro_temp[1]  = (int16_t) (((int16_t)data[8] << 8) | data[9]  ) ;
-    gyro_temp[2]  = (int16_t) (((int16_t)data[10] << 8) | data[11]) ;
-
-    accel_bias[0] += (int32_t) accel_temp[0]; // Sum individual signed 16-bit biases to get accumulated signed 32-bit biases
-    accel_bias[1] += (int32_t) accel_temp[1];
-    accel_bias[2] += (int32_t) accel_temp[2];
-    gyro_bias[0]  += (int32_t) gyro_temp[0];
-    gyro_bias[1]  += (int32_t) gyro_temp[1];
-    gyro_bias[2]  += (int32_t) gyro_temp[2];
-
+	printLen = sprintf(printBuffer, "Time: %lu us\r\n", start);
+	printv(printBuffer, printLen);
+	printLen = sprintf(printBuffer, "Time: %lu us\r\n", stop);
+	printv(printBuffer, printLen);
+	printLen = sprintf(printBuffer, "Space: %lu us\r\n", stop - start);
+	printv(printBuffer, printLen);
 }
-    accel_bias[0] /= (int32_t) packet_count; // Normalize sums to get average count biases
-    accel_bias[1] /= (int32_t) packet_count;
-    accel_bias[2] /= (int32_t) packet_count;
-    gyro_bias[0]  /= (int32_t) packet_count;
-    gyro_bias[1]  /= (int32_t) packet_count;
-    gyro_bias[2]  /= (int32_t) packet_count;
-
-  if(accel_bias[2] > 0L) {accel_bias[2] -= (int32_t) accelsensitivity;}  // Remove gravity from the z-axis accelerometer bias calculation
-  else {accel_bias[2] += (int32_t) accelsensitivity;}
-
-// Construct the gyro biases for push to the hardware gyro bias registers, which are reset to zero upon device startup
-  data[0] = (-gyro_bias[0]/4  >> 8) & 0xFF; // Divide by 4 to get 32.9 LSB per deg/s to conform to expected bias input format
-  data[1] = (-gyro_bias[0]/4)       & 0xFF; // Biases are additive, so change sign on calculated average gyro biases
-  data[2] = (-gyro_bias[1]/4  >> 8) & 0xFF;
-  data[3] = (-gyro_bias[1]/4)       & 0xFF;
-  data[4] = (-gyro_bias[2]/4  >> 8) & 0xFF;
-  data[5] = (-gyro_bias[2]/4)       & 0xFF;
-
-// Push gyro biases to hardware registers
-  MPU_writeByte(MPU9250_ADDRESS, XG_OFFSET_H, data[0]);
-  MPU_writeByte(MPU9250_ADDRESS, XG_OFFSET_L, data[1]);
-  MPU_writeByte(MPU9250_ADDRESS, YG_OFFSET_H, data[2]);
-  MPU_writeByte(MPU9250_ADDRESS, YG_OFFSET_L, data[3]);
-  MPU_writeByte(MPU9250_ADDRESS, ZG_OFFSET_H, data[4]);
-  MPU_writeByte(MPU9250_ADDRESS, ZG_OFFSET_L, data[5]);
-
-// Output scaled gyro biases for display in the main program
-  dest1[0] = (float) gyro_bias[0]/(float) gyrosensitivity;
-  dest1[1] = (float) gyro_bias[1]/(float) gyrosensitivity;
-  dest1[2] = (float) gyro_bias[2]/(float) gyrosensitivity;
-
-// Construct the accelerometer biases for push to the hardware accelerometer bias registers. These registers contain
-// factory trim values which must be added to the calculated accelerometer biases; on boot up these registers will hold
-// non-zero values. In addition, bit 0 of the lower byte must be preserved since it is used for temperature
-// compensation calculations. Accelerometer bias registers expect bias input as 2048 LSB per g, so that
-// the accelerometer biases calculated above must be divided by 8.
-
-  int32_t accel_bias_reg[3] = {0, 0, 0}; // A place to hold the factory accelerometer trim biases
-  MPU_readBytes(MPU9250_ADDRESS, XA_OFFSET_H, 2, &data[0]); // Read factory accelerometer trim values
-  accel_bias_reg[0] = (int32_t) (((int16_t)data[0] << 8) | data[1]);
-  MPU_readBytes(MPU9250_ADDRESS, YA_OFFSET_H, 2, &data[0]);
-  accel_bias_reg[1] = (int32_t) (((int16_t)data[0] << 8) | data[1]);
-  MPU_readBytes(MPU9250_ADDRESS, ZA_OFFSET_H, 2, &data[0]);
-  accel_bias_reg[2] = (int32_t) (((int16_t)data[0] << 8) | data[1]);
-
-  uint32_t mask = 1uL; // Define mask for temperature compensation bit 0 of lower byte of accelerometer bias registers
-  uint8_t mask_bit[3] = {0, 0, 0}; // Define array to hold mask bit for each accelerometer bias axis
-
-  for(ii = 0; ii < 3; ii++) {
-    if((accel_bias_reg[ii] & mask)) mask_bit[ii] = 0x01; // If temperature compensation bit is set, record that fact in mask_bit
-  }
-
-  // Construct total accelerometer bias, including calculated average accelerometer bias from above
-  accel_bias_reg[0] -= (accel_bias[0]/8); // Subtract calculated averaged accelerometer bias scaled to 2048 LSB/g (16 g full scale)
-  accel_bias_reg[1] -= (accel_bias[1]/8);
-  accel_bias_reg[2] -= (accel_bias[2]/8);
-
-  data[0] = (accel_bias_reg[0] >> 8) & 0xFF;
-  data[1] = (accel_bias_reg[0])      & 0xFF;
-  data[1] = data[1] | mask_bit[0]; // preserve temperature compensation bit when writing back to accelerometer bias registers
-  data[2] = (accel_bias_reg[1] >> 8) & 0xFF;
-  data[3] = (accel_bias_reg[1])      & 0xFF;
-  data[3] = data[3] | mask_bit[1]; // preserve temperature compensation bit when writing back to accelerometer bias registers
-  data[4] = (accel_bias_reg[2] >> 8) & 0xFF;
-  data[5] = (accel_bias_reg[2])      & 0xFF;
-  data[5] = data[5] | mask_bit[2]; // preserve temperature compensation bit when writing back to accelerometer bias registers
-
-// Apparently this is not working for the acceleration biases in the MPU-9250
-// Are we handling the temperature correction bit properly?
-// Push accelerometer biases to hardware registers
-/*  MPU_writeByte(MPU9250_ADDRESS, XA_OFFSET_H, data[0]);
-  MPU_writeByte(MPU9250_ADDRESS, XA_OFFSET_L, data[1]);
-  MPU_writeByte(MPU9250_ADDRESS, YA_OFFSET_H, data[2]);
-  MPU_writeByte(MPU9250_ADDRESS, YA_OFFSET_L, data[3]);
-  MPU_writeByte(MPU9250_ADDRESS, ZA_OFFSET_H, data[4]);
-  MPU_writeByte(MPU9250_ADDRESS, ZA_OFFSET_L, data[5]);
-*/
-// Output scaled accelerometer biases for display in the main program
-   dest2[0] = (float)accel_bias[0]/(float)accelsensitivity;
-   dest2[1] = (float)accel_bias[1]/(float)accelsensitivity;
-   dest2[2] = (float)accel_bias[2]/(float)accelsensitivity;
-}
-
 
 static bool mpu_begin(void)
 {
-	HAL_Delay(1000);
-	char c = MPU_readByte(MPU9250_ADDRESS, MPU9250_WHO_AM_I);  // Read WHO_AM_I register for MPU-9250
-	print_int((int)c);
-	println(" <- should be 0x71");
-
-
-	float SelfTest[6];
-	float MPU9250gyroBias[3] = {0, 0, 0};
-	float MPU9250accelBias[3] = {0, 0, 0};
-	float MPU9250magBias[3] = {0, 0, 0};      // Bias corrections for gyro and accelerometer
-
-	if (c == 0x71)
+	if (MPU_present())
 	{
-		println("MPU9250 is online...");
-
 		MPU_SelfTest(SelfTest); // Start by performing self test and reporting values
 		println("MPU9250 Self Test:");
 		print("x-axis self test: acceleration trim within : "); print_float(SelfTest[0]); println("% of factory value");
@@ -599,11 +499,11 @@ static bool mpu_begin(void)
 		MPU_getMres();
 
 		println(" Calibrate MPU9250 gyro and accel");
-		accelgyrocalMPU9250(MPU9250gyroBias, MPU9250accelBias); // Calibrate gyro and accelerometers, load biases in bias registers
+		MPU_calibrate(MPU9250gyroBias, MPU9250accelBias); // Calibrate gyro and accelerometers, load biases in bias registers
 		println("accel biases (mg)");
-		print_float(1000.*MPU9250accelBias[0]); println("");
-		print_float(1000.*MPU9250accelBias[1]); println("");
-		print_float(1000.*MPU9250accelBias[2]); println("");
+		print_float(1000.0 * MPU9250accelBias[0]); println("");
+		print_float(1000.0 * MPU9250accelBias[1]); println("");
+		print_float(1000.0 * MPU9250accelBias[2]); println("");
 		println("gyro biases (dps)");
 		print_float(MPU9250gyroBias[0]); println("");
 		print_float(MPU9250gyroBias[1]); println("");
@@ -613,5 +513,24 @@ static bool mpu_begin(void)
 
 		MPU_init();
 		println("MPU9250 initialized for active data mode...."); // Initialize device for active mode read of acclerometer, gyroscope, and temperature
+
+		// Read the WHO_AM_I register of the magnetometer, this is a good test of communication
+		char d = MPU_readByte(AK8963_ADDRESS, AK8963_WHO_AM_I);  // Read WHO_AM_I register for AK8963
+		if (d == 0x48) println("[MAG] SUCCESSS!!!!");
+		HAL_Delay(1000);
+
+		// Get magnetometer calibration from AK8963 ROM
+		AK8963_init(magCalibration); println("AK8963 initialized for active data mode...."); // Initialize device for active mode read of magnetometer
+
+		MPU_calibrateMag(MPU9250magBias);
+		println("AK8963 mag biases (mG)");
+		print_float(MPU9250magBias[0]); println("");
+		print_float(MPU9250magBias[1]); println("");
+		print_float(MPU9250magBias[2]); println("");
+		HAL_Delay(2000); // add delay to see results before serial spew of data
+
+		print("[MAG] X-Axis sensitivity adjustment value "); print_float(magCalibration[0]); println("");
+		print("[MAG] Y-Axis sensitivity adjustment value "); print_float(magCalibration[1]); println("");
+		print("[MAG] Z-Axis sensitivity adjustment value "); print_float(magCalibration[2]); println("");
 	}
 }

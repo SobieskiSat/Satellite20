@@ -111,6 +111,7 @@ static bool mpu_begin(void);
 static void dio0_IRQ(void);
 
 static void setupPins(void);
+static void timingDebug(void);
 
 static void accelgyrocalMPU9250(float * dest1, float * dest2);
 
