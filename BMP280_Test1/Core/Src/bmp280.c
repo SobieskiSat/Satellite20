@@ -66,7 +66,7 @@ static bool read_register16(BMP280_HandleTypedef *dev, uint8_t addr, uint16_t *v
 	uint8_t rx_buff[2];
 	tx_buff = (dev->addr << 1);
 
-	if (HAL_I2C_Mem_Read(dev->i2c, tx_buff, addr, 1, rx_buff, 2, 5000)
+	if (HAL_I2C_Mem_Read(dev->i2c, tx_buff, addr, 1, rx_buff, 2, 100)
 			== HAL_OK) {
 		*value = (uint16_t) ((rx_buff[1] << 8) | rx_buff[0]);
 		return true;
@@ -79,7 +79,7 @@ static inline int read_data(BMP280_HandleTypedef *dev, uint8_t addr, uint8_t *va
 		uint8_t len) {
 	uint16_t tx_buff;
 	tx_buff = (dev->addr << 1);
-	if (HAL_I2C_Mem_Read(dev->i2c, tx_buff, addr, 1, value, len, 5000) == HAL_OK)
+	if (HAL_I2C_Mem_Read(dev->i2c, tx_buff, addr, 1, value, len, 100) == HAL_OK)
 		return 0;
 	else
 		return 1;
@@ -131,7 +131,7 @@ static int write_register8(BMP280_HandleTypedef *dev, uint8_t addr, uint8_t valu
 
 	tx_buff = (dev->addr << 1);
 
-	if (HAL_I2C_Mem_Write(dev->i2c, tx_buff, addr, 1, &value, 1, 10000) == HAL_OK)
+	if (HAL_I2C_Mem_Write(dev->i2c, tx_buff, addr, 1, &value, 1, 100) == HAL_OK)
 		return false;
 	else
 		return true;
@@ -186,14 +186,6 @@ bool bmp280_init(BMP280_HandleTypedef *dev, bmp280_params_t *params) {
 
 	uint8_t ctrl = (params->oversampling_temperature << 5)
 			| (params->oversampling_pressure << 2) | (params->mode);
-
-	if (dev->id == BME280_CHIP_ID) {
-		// Write crtl hum reg first, only active after write to BMP280_REG_CTRL.
-		uint8_t ctrl_hum = params->oversampling_humidity;
-		if (write_register8(dev, BMP280_REG_CTRL_HUM, ctrl_hum)) {
-			return false;
-		}
-	}
 
 	if (write_register8(dev, BMP280_REG_CTRL, ctrl)) {
 		return false;
@@ -297,21 +289,14 @@ static inline uint32_t compensate_humidity(BMP280_HandleTypedef *dev, int32_t ad
 	return v_x1_u32r >> 12;
 }
 
-bool bmp280_read_fixed(BMP280_HandleTypedef *dev, int32_t *temperature, uint32_t *pressure,
-		uint32_t *humidity) {
+bool bmp280_read_fixed(BMP280_HandleTypedef *dev, int32_t *temperature, uint32_t *pressure)
+{
 	int32_t adc_pressure;
 	int32_t adc_temp;
 	uint8_t data[8];
 
-	// Only the BME280 supports reading the humidity.
-	if (dev->id != BME280_CHIP_ID) {
-		if (humidity)
-			*humidity = 0;
-		humidity = NULL;
-	}
-
 	// Need to read in one sequence to ensure they match.
-	size_t size = humidity ? 8 : 6;
+	size_t size = 6;
 	if (read_data(dev, 0xf7, data, size)) {
 		return false;
 	}
@@ -323,25 +308,16 @@ bool bmp280_read_fixed(BMP280_HandleTypedef *dev, int32_t *temperature, uint32_t
 	*temperature = compensate_temperature(dev, adc_temp, &fine_temp);
 	*pressure = compensate_pressure(dev, adc_pressure, fine_temp);
 
-	if (humidity) {
-		int32_t adc_humidity = data[6] << 8 | data[7];
-		*humidity = compensate_humidity(dev, adc_humidity, fine_temp);
-	}
-
 	return true;
 }
 
-bool bmp280_read_float(BMP280_HandleTypedef *dev, float *temperature, float *pressure,
-		float *humidity) {
+bool bmp280_read_float(BMP280_HandleTypedef *dev, float *temperature, float *pressure) {
 	int32_t fixed_temperature;
 	uint32_t fixed_pressure;
-	uint32_t fixed_humidity;
-	if (bmp280_read_fixed(dev, &fixed_temperature, &fixed_pressure,
-			humidity ? &fixed_humidity : NULL)) {
+	if (bmp280_read_fixed(dev, &fixed_temperature, &fixed_pressure))
+	{
 		*temperature = (float) fixed_temperature / 100;
 		*pressure = (float) fixed_pressure / 256;
-		if (humidity)
-			*humidity = (float) fixed_humidity / 1024;
 		return true;
 	}
 

@@ -41,7 +41,14 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h \
  ../USB_DEVICE/Target/usbd_conf.h \
  C:/Users/damia/Desktop/CanSat/soft/Template_PYBV11/Code/run.cpp \
- C:/Users/damia/Desktop/CanSat/soft/Template_PYBV11/Code/run.h
+ C:/Users/damia/Desktop/CanSat/soft/Template_PYBV11/Code/run.h \
+ ../USB_DEVICE/App/usbd_cdc_if.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h
 
 ../Core/Inc/main.h:
 
@@ -138,3 +145,17 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 C:/Users/damia/Desktop/CanSat/soft/Template_PYBV11/Code/run.cpp:
 
 C:/Users/damia/Desktop/CanSat/soft/Template_PYBV11/Code/run.h:
+
+../USB_DEVICE/App/usbd_cdc_if.h:
+
+../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h:
+
+../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h:
+
+../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h:
+
+../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h:
+
+../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h:
+
+../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:

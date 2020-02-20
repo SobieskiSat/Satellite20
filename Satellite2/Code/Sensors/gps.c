@@ -67,7 +67,7 @@ char GPS_read(GPS* inst)
 
 	// code ~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$#################3
 	//println("[GPS] starting receiving");
-	HAL_UART_Receive(inst->uart, ca, 1, 500);
+	HAL_UART_Receive(inst->uart, ca, 1, 50);
 	//println("[GPS] finished receiving");
 	c = (char)ca[0];
 

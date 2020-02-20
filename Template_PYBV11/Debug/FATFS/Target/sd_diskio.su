@@ -5,5 +5,5 @@ sd_diskio.c:170:9:SD_status	16	static
 sd_diskio.c:187:9:SD_read	40	static
 sd_diskio.c:305:9:SD_write	40	static
 sd_diskio.c:419:9:SD_ioctl	56	static
-sd_diskio.c:474:6:BSP_SD_TxCpltCallback	16	static
-sd_diskio.c:485:6:BSP_SD_RxCpltCallback	16	static
+sd_diskio.c:474:6:BSP_SD_WriteCpltCallback	4	static
+sd_diskio.c:485:6:BSP_SD_ReadCpltCallback	4	static

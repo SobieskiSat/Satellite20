@@ -21,14 +21,14 @@ static FRESULT SD_setFileTime(char* path, DateTime* dateTime)
 
 
 FRESULT SD_init()
-{
+{/*
 	if (BSP_SD_Init() != MSD_OK) return FR_NOT_READY;
 
 	if (FATFS_UnLinkDriver(SDPath) != 0) return FR_NOT_READY;
 
 	if (FATFS_LinkDriver(&SD_Driver, SDPath) != 0) return FR_NOT_READY;
-
-	f_mount(0, SDPath, 0);
+*/
+	//f_mount(0, SDPath, 0);
 	FATFS fs;
 	FRESULT mountStatus = f_mount(&fs, SDPath, 1);
 	if (mountStatus != FR_OK)

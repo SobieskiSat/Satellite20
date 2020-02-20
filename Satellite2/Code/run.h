@@ -5,8 +5,13 @@
 #include <stdbool.h>
 #include <string.h>
 #include "usbd_cdc_if.h"
+#include "main.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_gpio.h"
 
+// Set to 1 to print on USB, if not connected will wait for the computer!
 #define PRINT_OUT 1
+
 #define GPSECHO 0
 
 static void setup(void);
@@ -98,7 +103,6 @@ static inline void floatToBytes(float value, uint8_t bytes[4])
 	memcpy(bytes, uni.arr, 4);
 }
 
-static void mot_up_down(void);
 static void radio_receive(void);
 static void radio_transmit(void);
 static void gps_printData(void);
@@ -109,10 +113,11 @@ static bool sd_begin(void);
 static bool gps_begin(void);
 static bool mpu_begin(void);
 static void dio0_IRQ(void);
+static void bmp_getData(void);
+static void gps_getData(void);
 
-static void setupPins(void);
 static void timingDebug(void);
 
-static void accelgyrocalMPU9250(float * dest1, float * dest2);
+static void algoGalgo(float yaw);
 
 #endif /* RUN_H_ */

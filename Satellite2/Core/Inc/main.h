@@ -61,6 +61,7 @@ SPI_HandleTypeDef* Get_SPI1_Instance(void);
 UART_HandleTypeDef* Get_UART3_Instance(void);
 RTC_HandleTypeDef* Get_RTC_Instance(void);
 TIM_HandleTypeDef* Get_TIM2_Instance(void);
+TIM_HandleTypeDef* Get_TIM3_Instance(void);
 TIM_HandleTypeDef* Get_TIM5_Instance(void);
 /* USER CODE END EFP */
 

@@ -9,11 +9,11 @@ mpu9250.c:128:6:MPU_readGyroData	24	static
 mpu9250.c:136:6:MPU_readMagData	24	static
 mpu9250.c:151:9:MPU_readTempData	16	static
 mpu9250.c:158:6:MPU_present	16	static
-mpu9250.c:174:6:MPU_init	24	static
+mpu9250.c:175:6:MPU_init	16	static
 mpu9250.c:256:6:AK8963_init	24	static
 mpu9250.c:277:6:MPU_reset	8	static
 mpu9250.c:284:6:MPU_calibrate	104	static
 mpu9250.c:431:6:MPU_SelfTest	136	static
 mpu9250.c:521:6:MPU_calibrateMag	64	static
-mpu9250.c:550:6:MadgwickQuaternionUpdate	216	static
-mpu9250.c:647:6:MahonyQuaternionUpdate	184	static
+mpu9250.c:550:6:MadgwickQuaternionUpdate	208	static
+mpu9250.c:644:6:MahonyQuaternionUpdate	176	static

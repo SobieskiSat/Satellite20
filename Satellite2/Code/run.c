@@ -1,3 +1,7 @@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// 		Main file of the user code
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 #include "run.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -16,6 +20,8 @@
 #include "mpu9250.h"
 
 BMP280 bmp280;
+float temperature;
+float pressure;
 
 SX1278 radio;
 uint8_t sendBuffer[SX1278_MAX_PACKET];
@@ -26,78 +32,83 @@ GPS gps;
 bool newIRQ;
 uint32_t timenow;
 
-float SelfTest[6];
-float MPU9250gyroBias[3];
-float MPU9250accelBias[3];
-float MPU9250magBias[3];      // Bias corrections for gyro and accelerometer
-float sum;
-uint32_t sumCount;
-uint32_t lastPrint;
+float lato, lono;
+
+uint32_t click;
+bool isClicked;
+bool flippo;
+
+bool justStarted;
 
 // Servo : TIM3->CCR3 (500;1000)
 
 static void setup(void)
 {
-	setupPins();
-
-	//while (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_SET);
+	while (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_SET);
 
 	HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_SET);
 	println("Hello world!!");	HAL_Delay(500);
 	HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
 
-	//if (bmp280_begin()) println("[BMP] joined the server!");
 	//if (sd_begin()) println("[SD] joined the server!");
-	//if (radio_begin()) println("[LoRa] joined the server!");
-	//enableMotors(); println("[MOT] joined the server!");
-	if (mpu_begin()) println("[MPU] joined the server!");
-	//if (gps_begin()) println("[GPS] joined the server!");
+	enableMotors(); println("[MOT] joined the server!");
 
+	/*
+	if (radio_begin()) println("[LoRa] joined the server!");
+	if (gps_begin()) println("[GPS] joined the server!");
+	if (bmp280_begin()) println("[BMP] joined the server!");
+
+	justStarted = true;
+	isClicked = false;
+	flippo = true;
+
+	TIM3->CCR4 = 990;
+	TIM3->CCR3 = 990;
+
+
+	  // Start servo1 timer
+	  HAL_TIM_PWM_Start(Get_TIM3_Instance(), TIM_CHANNEL_3);
+	  HAL_TIM_PWM_Start(Get_TIM3_Instance(), TIM_CHANNEL_4);
 	//ser1.ccr = &(TIM3->CCR3);
+	 */
 }
 
 static void loop(void)
 {
-	mpu_printData();
 	//if (sd_begin()) println("[SD] joined the server!");
 	//gps_printData();
 	//radio_receive();
-	//radio_transmit();
 	//mot_up_down();
+
+
+
+	/*
+	bmp_getData();
+	gps_getData();
+	//gps_printData();
+	radio_transmit();
+
+	if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET && !isClicked)
+	{
+		HAL_GPIO_WritePin(LEDC_GPIO_Port, LEDC_Pin, GPIO_PIN_SET);
+		isClicked = true;
+		flippo = false;
+		click = millis();
+	}
+
+	if (millis() - click >= 1000 * 45 && !flippo)
+	{
+		flippo = true;
+		TIM3->CCR3 = 500;
+		TIM3->CCR4 = 500;
+		HAL_GPIO_WritePin(LEDC_GPIO_Port, LEDC_Pin, GPIO_PIN_RESET);
+	}
+*/
 }
 
-static void mot_up_down(void)
-{
-	uint8_t i;
-	for (i = 0; i < 200; i++)
-	{
-		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
-		{
-			setMotors((float)i / 255, (float)i / 255);
-			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_SET);
-		}
-		else
-		{
-			haltMotors();
-			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
-		}
-	}
-	for (i = 200; i > 0; i--)
-	{
-		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET)
-		{
-			setMotors((float)i / 255, (float)i / 255);
-			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_SET);
-		}
-		else
-		{
-			haltMotors();
-			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
-		}
 
-		HAL_Delay(100);
-	}
-}
+
+
 static void radio_receive(void)
 {
 	uint8_t i;
@@ -154,8 +165,88 @@ static void radio_transmit(void)
  		SX1278_transmit(&radio, sendBuffer, message_length);
  		println("[LoRa] PACKET SENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 	}
+	else if (radio.useDio0IRQ)
+	{
+		if ((radio.pendingIRQ && HAL_GPIO_ReadPin(radio.dio0_port, radio.dio0) == GPIO_PIN_SET) || justStarted)
+		{
+			HAL_GPIO_TogglePin(LEDD_GPIO_Port, LEDD_Pin);
+			justStarted = false;
+			SX1278_tx_finish(&radio);
+			radio.pendingIRQ = false;
+
+			/*
+			memset(sendBuffer, 0x00, SX1278_MAX_PACKET);
+			message_length = 4 * 4; // 4 floaty
+			uint32_t temp = 0;
+			uint32_t tempmem[4] = {0};
+			temp = (uint32_t)(pressure * 1000000.0);
+			memcpy(tempmem, &temp, 8);
+			sendBuffer[0] = tempmem[0];
+			sendBuffer[1] = tempmem[1];
+			sendBuffer[2] = tempmem[2];
+			sendBuffer[3] = tempmem[3];
+
+			uint32_t temp1 = 0;
+			uint32_t tempmem1[4] = {0};
+			temp1 = (uint32_t)(temperature * 1000000.0);
+			memcpy(tempmem1, &temp1, 8);
+			sendBuffer[4] = tempmem1[0];
+			sendBuffer[5] = tempmem1[1];
+			sendBuffer[6] = tempmem1[2];
+			sendBuffer[7] = tempmem1[3];
+
+			uint32_t temp2 = 0;
+			uint32_t tempmem2[4] = {0};
+			temp2 = (uint32_t)(gps.longitudeDegrees * 100000.0);
+			memcpy(tempmem2, &temp2, 8);
+			sendBuffer[8] = tempmem2[0];
+			sendBuffer[9] = tempmem2[1];
+			sendBuffer[10] = tempmem2[2];
+			sendBuffer[11] = tempmem2[3];
+
+			uint32_t temp3 = 0;
+			uint32_t tempmem3[4] = {0};
+			temp3 = (uint32_t)(gps.latitudeDegrees * 100000.0);
+			memcpy(tempmem3, &temp3, 8);
+			sendBuffer[12] = tempmem3[0];
+			sendBuffer[13] = tempmem3[1];
+			sendBuffer[14] = tempmem3[2];
+			sendBuffer[15] = tempmem3[3];
+*/
+
+		 	print("Pressure: "); print_float(pressure); println(" ");
+		 	print("Temperature: "); print_float(temperature); println(" ");
+		 	print("Latitude: "); print_float(lato); println(" ");
+		 	print("Lonfitude: "); print_float(lono); println(" ");
+			message_length = sprintf(sendBuffer, "%f_%f_%f_%f", pressure, temperature, lato, lono);
+			println(sendBuffer);
+			SX1278_transmit(&radio, sendBuffer, message_length);
+		 	println("[LoRa] PACKET SENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		}
+	}
 }
 
+
+static void gps_getData(void)
+{
+	char c = GPS_read(&gps);
+	if (GPS_newNMEAreceived(&gps))
+	{
+		if (GPS_parse(&gps, GPS_lastNMEA(&gps)))
+		{
+			if (gps.latitudeDegrees != 0)
+			{
+				lato = gps.latitudeDegrees;
+			}
+			if (gps.longitudeDegrees != 0)
+			{
+				lono = gps.longitudeDegrees;
+			}
+			return;
+		}
+	}
+
+}
 static void gps_printData(void)
 {
 	// read data from the GPS in the 'main loop'
@@ -206,8 +297,16 @@ static void gps_printData(void)
 		{
 			print("Location: ");
 			print_float(gps.latitudeDegrees); print_char(gps.lat);
+			if (gps.latitudeDegrees != 0)
+			{
+				lato = gps.latitudeDegrees;
+			}
 			print(", ");
 			print_float(gps.longitudeDegrees); print_char(gps.lon);
+			if (gps.longitudeDegrees != 0)
+			{
+				lono = gps.longitudeDegrees;
+			}
 			print("Speed (knots): "); print_float(gps.speed);
 			print("\r\nAngle: "); print_float(gps.angle);
 			print("\r\nAltitude: "); print_float(gps.altitude);
@@ -215,97 +314,32 @@ static void gps_printData(void)
 		}
 	}
 }
-static void mpu_printData(void)
+
+static void bmp_getData(void)
 {
-	if (MPU_readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)
-	{  // check if data ready interrupt
-		MPU_readAccelData(accelCount);  // Read the x/y/z adc values
-
-		// Now we'll calculate the accleration value into actual g's
-		ax = (float)accelCount[0]*aRes - MPU9250accelBias[0];  // get actual g value, this depends on scale being set
-		ay = (float)accelCount[1]*aRes - MPU9250accelBias[1];
-		az = (float)accelCount[2]*aRes - MPU9250accelBias[2];
-
-		MPU_readGyroData(gyroCount);  // Read the x/y/z adc values
-
-		// Calculate the gyro value into actual degrees per second
-		gx = (float)gyroCount[0]*gRes;  // get actual gyro value, this depends on scale being set
-		gy = (float)gyroCount[1]*gRes;
-		gz = (float)gyroCount[2]*gRes;
-
-		MPU_readMagData(magCount);  // Read the x/y/z adc values
-
-		// Calculate the magnetometer values in milliGauss
-		// Include factory calibration per data sheet and user environmental corrections
-		mx = (float)magCount[0]*mRes*magCalibration[0] - MPU9250magBias[0];  // get actual magnetometer value, this depends on scale being set
-		my = (float)magCount[1]*mRes*magCalibration[1] - MPU9250magBias[1];
-		mz = (float)magCount[2]*mRes*magCalibration[2] - MPU9250magBias[2];
+	/*
+	while (!bmp280_read_float(&bmp280, &temperature, &pressure, &humidity))
+	{
+			size = sprintf((char *)Data,
+					"Temperature/pressure reading failed\n\r");
+			CDC_Transmit_FS(Data, size);
+			HAL_Delay(2000);
 	}
 
-	Now = micros();
-	deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
-	lastUpdate = Now;
-
-	sum += deltat; // sum for averaging filter update rate
-	sumCount++;
-
-	// Sensors x (y)-axis of the accelerometer/gyro is aligned with the y (x)-axis of the magnetometer;
-	// the magnetometer z-axis (+ down) is misaligned with z-axis (+ up) of accelerometer and gyro!
-	// We have to make some allowance for this orientation mismatch in feeding the output to the quaternion filter.
-	// For the MPU9250+MS5637 Mini breakout the +x accel/gyro is North, then -y accel/gyro is East. So if we want te quaternions properly aligned
-	// we need to feed into the Madgwick function Ax, -Ay, -Az, Gx, -Gy, -Gz, My, -Mx, and Mz. But because gravity is by convention
-	// positive down, we need to invert the accel data, so we pass -Ax, Ay, Az, Gx, -Gy, -Gz, My, -Mx, and Mz into the Madgwick
-	// function to get North along the accel +x-axis, East along the accel -y-axis, and Down along the accel -z-axis.
-	// This orientation choice can be modified to allow any convenient (non-NED) orientation convention.
-	// Pass gyro rate as rad/s
-	MadgwickQuaternionUpdate(-ax, ay, az, gx*PI/180.0f, -gy*PI/180.0f, -gz*PI/180.0f,  my,  -mx, mz);
-	//  MahonyQuaternionUpdate(-ax, ay, az, gx*pi/180.0f, -gy*pi/180.0f, -gz*pi/180.0f,  my,  -mx, mz);
-
-	// Serial print and/or display at 0.5 s rate independent of data rates
-	//delt_t = millis() - count;
-	//if (delt_t > 1000)
-	if (millis() - lastPrint > 10)
-	{ // update LCD once per half-second independent of read rate
-		/*
-		println("MPU9250: ");
-		print("ax = "); print_int((int)1000*ax);
-		print(" ay = "); print_int((int)1000*ay);
-		print(" az = "); print_int((int)1000*az); println(" mg");
-		print("gx = "); print_float(gx);
-		print(" gy = "); print_float(gy);
-		print(" gz = "); print_float(gz); println(" deg/s");
-		print("mx = "); print_int((int)mx);
-		print(" my = "); print_int((int)my);
-		print(" mz = "); print_int((int)mz); println(" mG");
-		 */
-		/*
-		print("q0 = "); print_float(q[0]);
-		print(" qx = "); print_float(q[1]);
-		print(" qy = "); print_float(q[2]);
-		print(" qz = "); print_float(q[3]); println("");
-		*/
-		tempCount = MPU_readTempData();  // Read the gyro adc values
-		temperature = ((float) tempCount) / 333.87 + 21.0; // Gyro chip temperature in degrees Centigrade
-		// Print temperature in degrees Centigrade
-
-
-		yaw   = atan2f(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);
-		pitch = -asinf(2.0f * (q[1] * q[3] - q[0] * q[2]));
-		roll  = atan2f(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
-		pitch *= 180.0f / PI;
-		yaw   *= 180.0f / PI;
-		//yaw   += 13.8f; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
-		if(yaw < 0) yaw   += 360.0f; // Ensure yaw stays between 0 and 360
-		roll  *= 180.0f / PI;
-
-		//print("Yaw: "); print_float(yaw); print(" , Pitch: "); print_float(pitch); print(" , Roll: "); print_float(roll); println("");
-		print_int(-360); print(" ");
-		print_float(yaw); print(" "); print_float(pitch); print(" "); print_float(roll); print(" ");
-		print_int(360); println("");
-
-		//print("MPU9250 Gyro temperature is ");  print_float(temperature);  println(" degrees C"); // Print T values to tenths of s degree C
-		lastPrint = millis();
+	size = sprintf((char *)Data,"Pressure: %.2f Pa, Temperature: %.2f C \n\r",
+			pressure, temperature);
+	CDC_Transmit_FS(Data, size);
+	if (bme280p) {
+		size = sprintf((char *)Data,", Humidity: %.2f\n", humidity);
+		CDC_Transmit_FS(Data, size);
 	}
+
+	else {
+		size = sprintf((char *)Data, "\n\r");
+		CDC_Transmit_FS(Data, size);
+	}
+	*/
+	bmp280_read_float(&bmp280, &temperature, &pressure);
 }
 
 static void dio0_IRQ(void)
@@ -333,7 +367,7 @@ static bool bmp280_begin(void)
 	while (!bmp280_init(&bmp280, &bmp280.params)) {
 		print("BMP280 initialization failed\n");
 
-		HAL_GPIO_TogglePin(LEDC_GPIO_Port, LEDC_Pin);
+		//HAL_GPIO_TogglePin(LEDC_GPIO_Port, LEDC_Pin);
 		HAL_Delay(500);
 		return false;
 	}
@@ -356,8 +390,8 @@ static bool radio_begin(void)
 
 	radio.config = sx1278_default_config;
 
-	//radio.useDio0IRQ = true; println("[LoRa] I am using DIO0 interrupt.");
-	radio.useDio0IRQ = false; println("[LoRa] I am not using DIO0 interrupt.");
+	radio.useDio0IRQ = true; println("[LoRa] I am using DIO0 interrupt.");
+	//radio.useDio0IRQ = false; println("[LoRa] I am not using DIO0 interrupt.");
 
 	uint8_t attempts = 0;
 
@@ -381,9 +415,9 @@ static bool radio_begin(void)
 }
 static bool sd_begin(void)
 {
-	HAL_Delay(1000);
+	//HAL_Delay(1000);
 	println("[SD] Joining the server...");
-	HAL_Delay(1000);
+	//HAL_Delay(1000);
 	if (SD_init() == FR_OK)
 	{
 		println("[SD] joined the server.");
@@ -432,24 +466,6 @@ static bool gps_begin(void)
 }
 
 
-static void setupPins(void)
-{
-	HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LEDC_GPIO_Port, LEDC_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, GPIO_PIN_RESET);
-	//HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_RESET);
-	//HAL_GPIO_WritePin(EN_R_GPIO_Port, EN_R_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(P1_GPIO_Port, P1_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(P2_GPIO_Port, P2_Pin, GPIO_PIN_RESET);
-	//HAL_GPIO_WritePin(P3_GPIO_Port, P3_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(P4_GPIO_Port, P4_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(P5_GPIO_Port, P5_Pin, GPIO_PIN_RESET);
-	//HAL_GPIO_WritePin(P6_GPIO_Port, P6_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(P7_GPIO_Port, P7_Pin, GPIO_PIN_RESET);
-}
 static void timingDebug(void)
 {
 	uint32_t start = 0;
@@ -479,58 +495,12 @@ static void timingDebug(void)
 	printv(printBuffer, printLen);
 }
 
-static bool mpu_begin(void)
+
+
+static void algoGalgo(float yaw)
 {
-	if (MPU_present())
-	{
-		MPU_SelfTest(SelfTest); // Start by performing self test and reporting values
-		println("MPU9250 Self Test:");
-		print("x-axis self test: acceleration trim within : "); print_float(SelfTest[0]); println("% of factory value");
-		print("y-axis self test: acceleration trim within : "); print_float(SelfTest[1]); println("% of factory value");
-		print("z-axis self test: acceleration trim within : "); print_float(SelfTest[2]); println("% of factory value");
-		print("x-axis self test: gyration trim within : "); print_float(SelfTest[3]); println("% of factory value");
-		print("y-axis self test: gyration trim within : "); print_float(SelfTest[4]); println("% of factory value");
-		print("z-axis self test: gyration trim within : "); print_float(SelfTest[5]); println("% of factory value");
-		HAL_Delay(1000);
+	float maxPower = 0.8;
+	// Center: 180
 
-		// get sensor resolutions, only need to do this once
-		MPU_getAres();
-		MPU_getGres();
-		MPU_getMres();
-
-		println(" Calibrate MPU9250 gyro and accel");
-		MPU_calibrate(MPU9250gyroBias, MPU9250accelBias); // Calibrate gyro and accelerometers, load biases in bias registers
-		println("accel biases (mg)");
-		print_float(1000.0 * MPU9250accelBias[0]); println("");
-		print_float(1000.0 * MPU9250accelBias[1]); println("");
-		print_float(1000.0 * MPU9250accelBias[2]); println("");
-		println("gyro biases (dps)");
-		print_float(MPU9250gyroBias[0]); println("");
-		print_float(MPU9250gyroBias[1]); println("");
-		print_float(MPU9250gyroBias[2]); println("");
-
-		HAL_Delay(1000);
-
-		MPU_init();
-		println("MPU9250 initialized for active data mode...."); // Initialize device for active mode read of acclerometer, gyroscope, and temperature
-
-		// Read the WHO_AM_I register of the magnetometer, this is a good test of communication
-		char d = MPU_readByte(AK8963_ADDRESS, AK8963_WHO_AM_I);  // Read WHO_AM_I register for AK8963
-		if (d == 0x48) println("[MAG] SUCCESSS!!!!");
-		HAL_Delay(1000);
-
-		// Get magnetometer calibration from AK8963 ROM
-		AK8963_init(magCalibration); println("AK8963 initialized for active data mode...."); // Initialize device for active mode read of magnetometer
-
-		MPU_calibrateMag(MPU9250magBias);
-		println("AK8963 mag biases (mG)");
-		print_float(MPU9250magBias[0]); println("");
-		print_float(MPU9250magBias[1]); println("");
-		print_float(MPU9250magBias[2]); println("");
-		HAL_Delay(2000); // add delay to see results before serial spew of data
-
-		print("[MAG] X-Axis sensitivity adjustment value "); print_float(magCalibration[0]); println("");
-		print("[MAG] Y-Axis sensitivity adjustment value "); print_float(magCalibration[1]); println("");
-		print("[MAG] Z-Axis sensitivity adjustment value "); print_float(magCalibration[2]); println("");
-	}
+	setMotors(yaw * maxPower * (1.0 / 360.0), (360.0 - yaw) * maxPower * (1.0 / 360.0));
 }

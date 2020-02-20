@@ -2,6 +2,8 @@
 "Code/Components/sd.o"
 "Code/Components/servo.o"
 "Code/Components/sx1278.o"
+"Code/Scripts/imuTest.o"
+"Code/Scripts/motorTest.o"
 "Code/Sensors/bmp280.o"
 "Code/Sensors/gps.o"
 "Code/Sensors/mpu9250.o"

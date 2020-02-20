@@ -161,8 +161,7 @@ bool bmp280_is_measuring(BMP280_HandleTypedef *dev);
  *  Humidity is optional and only read for the BME280, in percent relative
  *  humidity as a fixed point 22 bit interger and 10 bit fraction format.
  */
-bool bmp280_read_fixed(BMP280_HandleTypedef *dev, int32_t *temperature,
-                       uint32_t *pressure, uint32_t *humidity);
+bool bmp280_read_fixed(BMP280_HandleTypedef *dev, int32_t *temperature, uint32_t *pressure);
 
 /**
  * Read compensated temperature and pressure data:
@@ -171,8 +170,7 @@ bool bmp280_read_fixed(BMP280_HandleTypedef *dev, int32_t *temperature,
  *  Humidity is optional and only read for the BME280, in percent relative
  *  humidity.
  */
-bool bmp280_read_float(BMP280_HandleTypedef *dev, float *temperature,
-                       float *pressure, float *humidity);
+bool bmp280_read_float(BMP280_HandleTypedef *dev, float *temperature, float *pressure);
 
 
 #endif  // __BMP280_H__
