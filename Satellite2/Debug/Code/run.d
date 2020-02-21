@@ -44,21 +44,12 @@ Code/run.o: ../Code/run.c ../Code/run.h ../USB_DEVICE/App/usbd_cdc_if.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/bmp280.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sx1278.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sd.h \
- ../FATFS/App/fatfs.h ../Middlewares/Third_Party/FatFs/src/ff.h \
- ../Middlewares/Third_Party/FatFs/src/integer.h ../FATFS/Target/ffconf.h \
- ../FATFS/Target/bsp_driver_sd.h ../FATFS/Target/fatfs_platform.h \
- ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h \
- ../Middlewares/Third_Party/FatFs/src/diskio.h \
- ../Middlewares/Third_Party/FatFs/src/ff.h ../FATFS/Target/sd_diskio.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/clock.h \
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Scripts/Peripherials/imuTest.c \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/run.h \
- ../Code/config.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/gps.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/mpu9250.h
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/mpu9250.h \
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/clock.h \
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Scripts/Algorithms/algoGalgo.c
 
 ../Code/run.h:
 
@@ -156,40 +147,14 @@ Code/run.o: ../Code/run.c ../Code/run.h ../USB_DEVICE/App/usbd_cdc_if.h \
 
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/bmp280.h:
-
-C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sx1278.h:
-
-C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sd.h:
-
-../FATFS/App/fatfs.h:
-
-../Middlewares/Third_Party/FatFs/src/ff.h:
-
-../Middlewares/Third_Party/FatFs/src/integer.h:
-
-../FATFS/Target/ffconf.h:
-
-../FATFS/Target/bsp_driver_sd.h:
-
-../FATFS/Target/fatfs_platform.h:
-
-../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h:
-
-../Middlewares/Third_Party/FatFs/src/diskio.h:
-
-../Middlewares/Third_Party/FatFs/src/ff.h:
-
-../FATFS/Target/sd_diskio.h:
-
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/clock.h:
+C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Scripts/Peripherials/imuTest.c:
 
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/run.h:
 
-../Code/config.h:
-
-C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/gps.h:
-
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/mpu9250.h:
+
+C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/clock.h:
+
+C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Scripts/Algorithms/algoGalgo.c:

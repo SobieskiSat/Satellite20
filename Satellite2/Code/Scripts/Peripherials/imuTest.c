@@ -12,6 +12,7 @@
 #include "mpu9250.h"
 #include "clock.h"
 
+// Set to 1 to print:
 #define IMUTEST_PRINT_RAW 0		// raw data
 #define IMUTEST_PRINT_QUAT 0	// quaternions
 #define IMUTEST_PRINT_EULER 0	// euler angles
@@ -86,7 +87,7 @@ static void imuTest_getEuler()
 	roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
 	pitch *= 180.0f / PI;
 	yaw   *= 180.0f / PI;
-	yaw   -= 5.78f;
+	//yaw   -= 5.78f;
 	roll  *= 180.0f / PI;
 	if(yaw < 0) yaw   += 360.0f;
 }

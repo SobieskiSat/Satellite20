@@ -55,18 +55,17 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/bmp280.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sx1278.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sd.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/clock.h \
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Scripts/Peripherials/imuTest.c \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/run.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/config.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/gps.h \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/mpu9250.h \
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/clock.h \
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Scripts/Algorithms/algoGalgo.c \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.c \
  C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/config.h
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/config.h \
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/bmp280.h \
+ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sx1278.h
 
 ../Core/Inc/main.h:
 
@@ -190,26 +189,24 @@ C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/run.h:
 
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/bmp280.h:
-
-C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sx1278.h:
-
-C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sd.h:
-
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/clock.h:
+C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Scripts/Peripherials/imuTest.c:
 
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/run.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/config.h:
-
-C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/gps.h:
-
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/mpu9250.h:
+
+C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/clock.h:
+
+C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Scripts/Algorithms/algoGalgo.c:
 
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.c:
 
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/motors.h:
 
 C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/config.h:
+
+C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Sensors/bmp280.h:
+
+C:/Users/damia/Desktop/CanSat/soft/Satellite2/Code/Components/sx1278.h:

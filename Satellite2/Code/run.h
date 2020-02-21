@@ -103,21 +103,4 @@ static inline void floatToBytes(float value, uint8_t bytes[4])
 	memcpy(bytes, uni.arr, 4);
 }
 
-static void radio_receive(void);
-static void radio_transmit(void);
-static void gps_printData(void);
-static void mpu_printData(void);
-static bool bmp280_begin(void);
-static bool radio_begin(void);
-static bool sd_begin(void);
-static bool gps_begin(void);
-static bool mpu_begin(void);
-static void dio0_IRQ(void);
-static void bmp_getData(void);
-static void gps_getData(void);
-
-static void timingDebug(void);
-
-static void algoGalgo(float yaw);
-
 #endif /* RUN_H_ */
