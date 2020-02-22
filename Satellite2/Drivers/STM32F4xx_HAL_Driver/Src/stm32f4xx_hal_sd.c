@@ -711,7 +711,7 @@ HAL_StatusTypeDef HAL_SD_ReadBlocks(SD_HandleTypeDef *hsd, uint8_t *pData, uint3
       hsd->Context = SD_CONTEXT_NONE;
       return HAL_ERROR;
     }
-    else if(__HAL_SD_GET_FLAG(hsd, SDIO_FLAG_RXOVERR) && 0)
+    else if(__HAL_SD_GET_FLAG(hsd, SDIO_FLAG_RXOVERR))
     {
       /* Clear all the static flags */
       __HAL_SD_CLEAR_FLAG(hsd, SDIO_STATIC_FLAGS);
