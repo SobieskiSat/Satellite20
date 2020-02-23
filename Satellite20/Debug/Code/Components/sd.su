@@ -1,0 +1,12 @@
+run.h:32:20:println	24	static
+clock.h:11:24:millis	4	static
+clock.h:43:24:getTime	56	static
+sd.c:9:16:SD_setFileTime	40	static
+sd.c:23:9:SD_init	4160	static
+sd.c:42:9:SD_deinit	8	static
+sd.c:50:9:SD_newFile	4176	static
+sd.c:68:9:SD_clearFile	16	static
+sd.c:73:9:SD_deleteFile	16	static
+sd.c:79:9:SD_writeToFile	4168	static
+sd.c:93:9:SD_readFileLine	4176	static
+sd.c:110:9:SD_readFileLines	24	static
