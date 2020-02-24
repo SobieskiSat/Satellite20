@@ -1,9 +1,0 @@
-run.h:32:20:println	24	static
-run.h:51:20:printv	16	static
-motors.c:14:13:setMotors	16	static
-motors.c:26:13:haltMotors	4	static
-motors.c:35:13:enableMotors	8	static
-motors.c:56:13:disableMotors	8	static
-motors.c:63:13:setPwmFrequency	24	static
-motors.c:92:13:setMotorTimeout	16	static
-motors.c:100:13:motorTimeout	8	static
