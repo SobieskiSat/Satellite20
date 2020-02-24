@@ -10,6 +10,7 @@
 "Code/Scripts/Peripherials/radioTest.o"
 "Code/Scripts/Peripherials/sdTest.o"
 "Code/Scripts/Peripherials/servoTest.o"
+"Code/Scripts/transmitter.o"
 "Code/Sensors/bmp280.o"
 "Code/Sensors/gps.o"
 "Code/Sensors/mpu9250.o"

@@ -89,15 +89,16 @@ void SX1278_read_burst(SX1278* inst, uint8_t addr, uint8_t* buff, uint8_t len)
 
 bool SX1278_init(SX1278* inst)
 {
+	inst->active = false;
 	SX1278_reset(inst);
 
 	//unable to establish the connection with module
 	uint8_t recvVersion = SX1278_read_address(inst, REG_LR_VERSION);
-	printLen = sprintf(printBuffer, "Recv: %x\r\n", recvVersion);
-	printv(printBuffer, printLen);
+	//printLen = s//printf(//printBuffer, "Recv: %x\r\n", recvVersion);
+	//printv(//printBuffer, //printLen);
 	if (recvVersion != 0x12)
 	{
-		println("[LoRa] Abort: Unable to access version register, SPI not working!");
+		//println("[LoRa] Abort: Unable to access version register, SPI not working!");
 		return false;
 	}
 
@@ -118,8 +119,8 @@ bool SX1278_init(SX1278* inst)
 	SX1278_command(inst, LR_RegFrMsb, frf_bytes[2]);
 	SX1278_command(inst, LR_RegFrMid, frf_bytes[1]);
 	SX1278_command(inst, LR_RegFrLsb, frf_bytes[0]);
-	printLen = sprintf(printBuffer, "[LoRa] Frequency setting: %x_%x_%x\r\n", frf_bytes[2], frf_bytes[1], frf_bytes[0]);
-	printv(printBuffer, printLen);
+	//printLen = s//printf(//printBuffer, "[LoRa] Frequency setting: %x_%x_%x\r\n", frf_bytes[2], frf_bytes[1], frf_bytes[0]);
+	//printv(//printBuffer, //printLen);
 
 	SX1278_command(inst, LR_RegPaConfig, inst->config.power);	//Setting transmit power
 	SX1278_command(inst, LR_RegOcp, 0x2B);			// [was 0x0B] Over current protection set to 100mA
@@ -156,6 +157,7 @@ bool SX1278_init(SX1278* inst)
 
 	SX1278_standby(inst);
 
+	inst->active = true;
 	return true;
 }
 
@@ -164,7 +166,7 @@ bool SX1278_transmit(SX1278* inst, uint8_t* txBuffer, uint8_t length)
 	// check if the module is ready for the transmission
 	if (inst->mode == STANDBY)
 	{
-		println("[LoRa] Starting transmission...");
+		//println("[LoRa] Starting transmission...");
 		inst->txDone = false;
 		SX1278_tx_mode(inst);
 		SX1278_tx_input(inst, txBuffer, length);
@@ -173,12 +175,12 @@ bool SX1278_transmit(SX1278* inst, uint8_t* txBuffer, uint8_t length)
 		if (inst->useDio0IRQ)
 		{
 			//waiting for interrupt
-			println("[LoRa] Transmission pushed! Waiting for an interrupt...");
+			//println("[LoRa] Transmission pushed! Waiting for an interrupt...");
 			inst->pendingIRQ = true;
 		}
 		else
 		{
-			println("[LoRa] Transmission pushed!");
+			//println("[LoRa] Transmission pushed!");
 			//wait for dio0 pin to rise
 			while (HAL_GPIO_ReadPin(inst->dio0_port, inst->dio0) == GPIO_PIN_RESET);
 
@@ -189,7 +191,7 @@ bool SX1278_transmit(SX1278* inst, uint8_t* txBuffer, uint8_t length)
 	}
 	else
 	{
-		println("[LoRa] Cannot transmit...standby");
+		//println("[LoRa] Cannot transmit...standby");
 		return false;
 	}
 }
@@ -199,19 +201,19 @@ bool SX1278_receive(SX1278* inst)
 	// [!!] writes data to the inst->rxBuffer
 	if (inst->mode == STANDBY)
 	{
-		println("[LoRa] Starting receiving...");
+		//println("[LoRa] Starting receiving...");
 		SX1278_rx_mode(inst);
 
 		if (inst->useDio0IRQ)
 		{
 			//waiting for interrupt
-			println("[LoRa] Receiver set! Waiting for an interrupt...");
+			//println("[LoRa] Receiver set! Waiting for an interrupt...");
 			inst->pendingIRQ = true;
 		}
 		else
 		{
 			//wait for dio0 pin to rise
-			println("[LoRa] Waiting for DIO0");
+			//println("[LoRa] Waiting for DIO0");
 			uint32_t recvStart = millis();
 			while (HAL_GPIO_ReadPin(inst->dio0_port, inst->dio0) == GPIO_PIN_RESET)
 			{
@@ -222,7 +224,7 @@ bool SX1278_receive(SX1278* inst)
 				}
 			}
 
-			println("\033c");
+			//println("\033c");
 
 			SX1278_rx_get_packet(inst);
 			return inst->newPacket;
@@ -232,7 +234,7 @@ bool SX1278_receive(SX1278* inst)
 	}
 	else
 	{
-		println("[LoRa] Cannot receive...standby");
+		//println("[LoRa] Cannot receive...standby");
 		return false;
 	}
 }
@@ -258,8 +260,8 @@ bool SX1278_tx_finish(SX1278* inst)
 	SX1278_clearLoRaIrq(inst);
 	SX1278_standby(inst);
 
-	printLen = sprintf(printBuffer, "[LoRa] Transmission finished! IRQ status: %d (<-should be 8)\r\n", inst->irqStatus);
-	printv(printBuffer, printLen);
+	//printLen = s//printf(//printBuffer, "[LoRa] Transmission finished! IRQ status: %d (<-should be 8)\r\n", inst->irqStatus);
+	//printv(//printBuffer, //printLen);
 	return true;
 }
 
@@ -296,17 +298,17 @@ bool SX1278_rx_get_packet(SX1278* inst)
 
 	if (inst->rxTimeout)
 	{
-		printLen = sprintf(printBuffer, "[LoRa] Receive timeout! Nothing to listen to.\r\n");
+		//printLen = s//printf(//printBuffer, "[LoRa] Receive timeout! Nothing to listen to.\r\n");
 	}
 	else if (inst->crcError && !LR_VALIDATE_CRCERROR)
 	{
-		printLen = sprintf(printBuffer, "[LoRa] CRC error occured. Packet discarded!\r\n");
+		//printLen = s//printf(//printBuffer, "[LoRa] CRC error occured. Packet discarded!\r\n");
 	}
 	else
 	{
-		printLen = sprintf(printBuffer, "[LoRa] Valid packet received!\r\n");
+		//printLen = s//printf(//printBuffer, "[LoRa] Valid packet received!\r\n");
 	}
-	printv(printBuffer, printLen);
+	//printv(//printBuffer, //printLen);
 
 	return inst->newPacket;
 }
@@ -315,7 +317,7 @@ bool SX1278_rx_get_packet(SX1278* inst)
 
 void SX1278_tx_mode(SX1278* inst)
 {
-	println("[LoRa] Goes into Transmit mode.");
+	//println("[LoRa] Goes into Transmit mode.");
 	uint8_t addr;
 
 	SX1278_clearLoRaIrq(inst);
@@ -333,7 +335,7 @@ void SX1278_tx_mode(SX1278* inst)
 void SX1278_rx_mode(SX1278* inst)
 {
 	SX1278_standby(inst);
-	println("[LoRa] Goes into Receive mode.");
+	//println("[LoRa] Goes into Receive mode.");
 	uint8_t addr;
 
 	SX1278_command(inst, REG_LR_DIOMAPPING1, 0x01);	//DIO=00, DIO1=00,DIO2=00, DIO3=01
@@ -350,25 +352,25 @@ void SX1278_rx_mode(SX1278* inst)
 	inst->newPacket = false;
 	inst->rxDone = false;
 	inst->mode = RX;
-	println("[LoRa] Finished setting RX mode.");
+	//println("[LoRa] Finished setting RX mode.");
 }
 
 void SX1278_sleep(SX1278* inst)
 {
-	println("[LoRa] Goes into Sleep mode.");
+	//println("[LoRa] Goes into Sleep mode.");
 	SX1278_command(inst, LR_RegOpMode, 0x08);
 	inst->mode = SLEEP;
 }
 
 void SX1278_standby(SX1278* inst)
 {
-	println("[LoRa] Goes into Standby mode.");
+	//println("[LoRa] Goes into Standby mode.");
 	SX1278_command(inst, LR_RegOpMode, 0x09);
 	inst->mode = STANDBY;
 }
 
 void SX1278_reset(SX1278* inst) {
-	println("[LoRa] Resetting...");
+	//println("[LoRa] Resetting...");
 	inst->newPacket = true;
 	inst->rxTimeout = false;
 	inst->rxDone = false;

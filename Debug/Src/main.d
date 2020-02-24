@@ -45,9 +45,8 @@ Src/main.o: ../Src/main.c ../Inc/main.h \
  ../Middlewares/Third_Party/FatFs/src/ff.h ../Inc/sd_diskio.h \
  ../Inc/usb_device.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h \
- ../Inc/usbd_conf.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/run.c \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/run.h \
+ ../Inc/usbd_conf.h C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.c \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h \
  ../Inc/usbd_cdc_if.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
@@ -55,14 +54,11 @@ Src/main.o: ../Src/main.c ../Inc/main.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Components/motors.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Scripts/Peripherials/imuTest.c \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/run.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Sensors/mpu9250.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Components/clock.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Scripts/Algorithms/algoGalgo.c \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Scripts/Peripherials/sdTest.c \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Components/sd.h
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/transmitter.c \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h
 
 ../Inc/main.h:
 
@@ -170,9 +166,9 @@ Src/main.o: ../Src/main.c ../Inc/main.h \
 
 ../Inc/usbd_conf.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/run.c:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.c:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/run.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
 
 ../Inc/usbd_cdc_if.h:
 
@@ -188,18 +184,12 @@ C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/run.h:
 
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Components/motors.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/transmitter.c:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Scripts/Peripherials/imuTest.c:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/run.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Sensors/mpu9250.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Components/clock.h:
-
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Scripts/Algorithms/algoGalgo.c:
-
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Scripts/Peripherials/sdTest.c:
-
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Components/sd.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h:

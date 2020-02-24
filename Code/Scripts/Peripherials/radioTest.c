@@ -47,7 +47,7 @@ static bool radioTest_begin(void)
 	{
 		println("Player [LoRa] could not join the server!");
 		attempts++;
-		if (attempts >= 1000)
+		if (attempts >= 5)
 		{
 			println("[LoRa] Too many attempts, aborting...");
 			return false;

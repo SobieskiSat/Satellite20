@@ -20,6 +20,7 @@ SUBDIRS := \
 Code/Components \
 Code/Scripts/Algorithms \
 Code/Scripts/Peripherials \
+Code/Scripts \
 Code/Sensors \
 Code \
 Drivers/STM32F4xx_HAL_Driver/Src \
