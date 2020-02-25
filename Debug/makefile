@@ -15,8 +15,10 @@ RM := rm -rf
 -include Middlewares/ST/STM32_USB_Device_Library/Core/Src/subdir.mk
 -include Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/subdir.mk
 -include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
+-include Code/Utilities/subdir.mk
 -include Code/Sensors/subdir.mk
 -include Code/Scripts/Peripherials/subdir.mk
+-include Code/Scripts/FunctionalTests/subdir.mk
 -include Code/Scripts/Algorithms/subdir.mk
 -include Code/Scripts/subdir.mk
 -include Code/Components/subdir.mk
@@ -51,7 +53,7 @@ all: Satellite20.elf secondary-outputs
 
 # Tool invocations
 Satellite20.elf: $(OBJS) $(USER_OBJS) C:\Users\damia\Desktop\CanSat\Satellite20\STM32F405RGTX_FLASH.ld
-	arm-none-eabi-gcc -o "Satellite20.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\damia\Desktop\CanSat\Satellite20\STM32F405RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Satellite20.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "Satellite20.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\damia\Desktop\CanSat\Satellite20\STM32F405RGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Satellite20.map" -Wl,--gc-sections -static -u_printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

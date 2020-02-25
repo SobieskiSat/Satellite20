@@ -220,6 +220,7 @@ bool SX1278_receive(SX1278* inst)
 				if (millis() - recvStart >= inst->config.rxTimeoutSymb)
 				{
 					SX1278_rx_get_packet(inst);
+					inst->rxTimeout = true;
 					return false;
 				}
 			}
@@ -338,9 +339,9 @@ void SX1278_rx_mode(SX1278* inst)
 	//println("[LoRa] Goes into Receive mode.");
 	uint8_t addr;
 
+	SX1278_clearLoRaIrq(inst);
 	SX1278_command(inst, REG_LR_DIOMAPPING1, 0x01);	//DIO=00, DIO1=00,DIO2=00, DIO3=01
 	SX1278_command(inst, LR_RegIrqFlagsMask, 0x1F);	//Open RxDone, RxTimeout, crcError interrupt
-	SX1278_clearLoRaIrq(inst);
 
 	addr = SX1278_read_address(inst, LR_RegFifoRxBaseAddr);	//read rx_fifo beginning adress in memory
 	SX1278_command(inst, LR_RegFifoAddrPtr, addr);			//set fifo pointer there

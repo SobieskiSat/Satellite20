@@ -48,7 +48,7 @@ Code/Scripts/Peripherials/radioTest.o: \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/clock.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h
 
@@ -152,7 +152,7 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
 
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/clock.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
 

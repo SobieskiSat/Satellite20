@@ -59,7 +59,8 @@ static void gpsTest_printData(void)
 	char c = GPS_read(&gps);
 	// if you want to debug, this is a good time to do it!
 	char ca[1] = {c};
-	if (GPSECHO && c) print(ca);
+	//if (GPSECHO && c) print(ca);
+	print(ca);
 	// if a sentence is received, we can check the checksum, parse it...
 	if (GPS_newNMEAreceived(&gps))
 	{

@@ -49,29 +49,32 @@ static bool transmitter_begin(void)
 
 static void transmitter_loop(uint8_t* buf, uint8_t len)
 {
-	if (radio.useDio0IRQ)
+	if (radio.active)
 	{
-		// manually check for interrupt
-		if (firstTransmission || (radio.pendingIRQ && HAL_GPIO_ReadPin(radio.dio0_port, radio.dio0) == GPIO_PIN_SET))
+		if (radio.useDio0IRQ)
 		{
-			if (TRANSMITTER_DEBUG) println("[LoRa] Transmission finished.");
-			if (!firstTransmission) SX1278_dio0_IRQ(&radio);
-			if (TRANSMITTER_PRINT_PACKET)
+			// manually check for interrupt
+			if (firstTransmission || (radio.pendingIRQ && HAL_GPIO_ReadPin(radio.dio0_port, radio.dio0) == GPIO_PIN_SET))
 			{
-				printLen = sprintf(printBuffer, "[LoRa] Input packet length: %d, content: [", len);
-				printv(printBuffer, printLen);
-				printv(buf, len);
-				println("]");
+				if (TRANSMITTER_DEBUG) println("[LoRa] Transmission finished.");
+				if (!firstTransmission) SX1278_dio0_IRQ(&radio);
+				if (TRANSMITTER_PRINT_PACKET)
+				{
+					printLen = sprintf(printBuffer, "[LoRa] Input packet length: %d, content: [", len);
+					printv(printBuffer, printLen);
+					printv(buf, len);
+					println("]");
+				}
+				SX1278_transmit(&radio, buf, len);
+				firstTransmission = false;
+				HAL_GPIO_TogglePin(LEDD_GPIO_Port, LEDD_Pin);
+				if (TRANSMITTER_DEBUG) println("[LoRa] Packet pushed!");
 			}
-			SX1278_transmit(&radio, buf, len);
-			firstTransmission = false;
-			HAL_GPIO_TogglePin(LEDD_GPIO_Port, LEDD_Pin);
-			if (TRANSMITTER_DEBUG) println("[LoRa] Packet pushed!");
 		}
-	}
-	else
-	{
-		SX1278_transmit(&radio, buf, len);
-		if (TRANSMITTER_DEBUG) println("[LoRa] Transmission finished.");
+		else
+		{
+			SX1278_transmit(&radio, buf, len);
+			if (TRANSMITTER_DEBUG) println("[LoRa] Transmission finished.");
+		}
 	}
 }

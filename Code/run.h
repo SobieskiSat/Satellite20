@@ -12,7 +12,7 @@
 // Set to 1 to print on USB, if not connected will wait for the computer!
 #define PRINT_OUT 1
 
-#define GPSECHO 0
+#define GPSECHO 1
 
 static void setup(void);
 static void loop(void);

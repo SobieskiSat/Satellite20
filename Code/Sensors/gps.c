@@ -15,13 +15,14 @@ static bool strStartsWith(const char* str, const char* prefix);
 
 /**************************************************************************/
 /*!
-		@brief How many bytes are available to read - part of 'Print'-class
+		@brief How many bytes are available to read - part of '//print'-class
 	 functionality
 		@return Bytes available, 0 if none
 */
 /**************************************************************************/
 bool GPS_available(GPS* inst)
 {
+	// @@@@@@@@@@@@@@@@@@@@@@@@@ not exactly that
 	if (inst->paused) return 0;
 
 	if (HAL_UART_GetState(inst->uart) == HAL_UART_STATE_READY) return 1;
@@ -31,7 +32,7 @@ bool GPS_available(GPS* inst)
 
 /**************************************************************************/
 /*!
-		@brief Write a byte to the underlying transport - part of 'Print'-class
+		@brief Write a byte to the underlying transport - part of '//print'-class
 	 functionality
 		@param c A single byte to send
 		@return Bytes written - 1 on success, 0 on failure
@@ -57,7 +58,7 @@ bool GPS_write(GPS* inst, uint8_t c)
 /**************************************************************************/
 char GPS_read(GPS* inst)
 {
-	//println("[GPS] read()");
+	////println("[GPS] read()");
 	static uint32_t firstChar = 0; // first character received in current sentence
 	uint32_t tStart = millis();		// as close as we can get to time char was sent
 	char c = 0;
@@ -65,10 +66,11 @@ char GPS_read(GPS* inst)
 
 	if (inst->paused) return c;
 
-	// code ~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$#################3
-	//println("[GPS] starting receiving");
-	HAL_UART_Receive(inst->uart, ca, 1, 50);
-	//println("[GPS] finished receiving");
+	HAL_StatusTypeDef status = HAL_OK;
+	status = HAL_UART_Receive(inst->uart, ca, 1, 50);
+	//print("Status: ");
+	//print_int(status);
+	//println("");
 	c = (char)ca[0];
 
 	inst->currentline[inst->lineidx++] = c;
@@ -89,9 +91,9 @@ char GPS_read(GPS* inst)
 			inst->lastline = inst->line2;
 		}
 
-		// Serial.println("----");
-		// Serial.println((char* )lastline);
-		// Serial.println("----");
+		// Serial.//println("----");
+		// Serial.//println((char* )lastline);
+		// Serial.//println("----");
 		inst->lineidx = 0;
 		inst->recvdflag = true;
 		inst->recvdTime = millis(); // time we got the end of the string
@@ -103,9 +105,9 @@ char GPS_read(GPS* inst)
 	if (firstChar == 0) firstChar = tStart;
 
 	//wait for finished transmission
-	//println("[GPS] read() ... waiting");
+	////println("[GPS] read() ... waiting");
 	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);
-	//println("[GPS] finished");
+	////println("[GPS] finished");
 	return c;
 }
 
@@ -114,10 +116,11 @@ char GPS_read(GPS* inst)
 		@brief Initialization code used by all constructor types
 */
 /**************************************************************************/
-void GPS_init(GPS* inst)
+bool GPS_init(GPS* inst)
 {
 	// UART instance, code ##########################$$$$$$$$$$$$$$$$$$$$$$$$$$$$$@@@@@@@@@@@@@@
-	println("[GPS] init()");
+	//println("[GPS] init()");
+	inst->active = false;
 	inst->recvdflag = false;
 	inst->inStandbyMode = false;
 	inst->paused = false;
@@ -192,7 +195,30 @@ void GPS_init(GPS* inst)
 	//GPS_standby(inst);
 	//GPS_wakeup(inst);
 
-	println("[GPS] End init()");
+	GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_ALLDATA);
+	GPS_sendCommand(inst, PMTK_SET_NMEA_UPDATE_5HZ);
+
+	HAL_Delay(1000);
+
+	GPS_sendCommand(inst, PMTK_Q_RELEASE);
+	HAL_Delay(10);
+
+	uint32_t timeout = millis();
+
+	while (millis() - timeout >= 1000)
+	{
+		GPS_read(inst);
+		if (GPS_newNMEAreceived(inst))
+		{
+			if (GPS_lastNMEA(inst) == PMTK_Q_RELEASE_RESPONSE)
+			{
+				inst->active = true;
+				return true;
+				//println("[GPS] End init()");
+			}
+		}
+	}
+	return false;
 }
 
 /**************************************************************************/
@@ -203,13 +229,13 @@ void GPS_init(GPS* inst)
 /**************************************************************************/
 void GPS_sendCommand(GPS* inst, char* str)
 {
-	println("[GPS] sendCommand()");
-	// NOT THIS PRINTLN, code !!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@#################$$$$$$$$$$$$$$$$$$$$$$$$$$
+	//println("[GPS] sendCommand()");
+	// NOT THIS //printLN, code !!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@#################$$$$$$$$$$$$$$$$$$$$$$$$$$
 	HAL_UART_Transmit(inst->uart, (uint8_t*)str, strlen(str), HAL_MAX_DELAY);
-	println("[GPS] sendCommand()... waiting");
+	//println("[GPS] sendCommand()... waiting");
 	// wait for finished transmission
 	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);
-	println("[GPS] finished");
+	//println("[GPS] finished");
 }
 
 
@@ -963,7 +989,7 @@ void GPS_resetSentTime(GPS* inst) { inst->sentTime = millis(); }
 		the %f floating point formatter in sprintf(), and will return NULL.
 
 		build() adds Carriage Return and Line Feed to sentences to conform to
-		NMEA-183, so send your output with a print, not a println.
+		NMEA-183, so send your output with a //print, not a //println.
 
 		Some of the data in these test sentences may be arbitrary, e.g. for the
 		TXT sentence which has a more complicated protocol for multiple lines

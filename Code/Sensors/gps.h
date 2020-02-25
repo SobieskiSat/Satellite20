@@ -70,6 +70,7 @@ position fix rate commands below too. */
 #define PMTK_AWAKE "$PMTK010,002*2D"             // Wake up
 
 #define PMTK_Q_RELEASE "$PMTK605*31" // ask for the release and version
+#define PMTK_Q_RELEASE_RESPONSE "$..." // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ << add that
 
 #define PGCMD_ANTENNA "$PGCMD,33,1*6C" // request for updates on antenna status
 #define PGCMD_NOANTENNA "$PGCMD,33,0*6D" // don't show antenna status messages
@@ -182,11 +183,12 @@ typedef struct
 	uint32_t recvdTime; // millis() when last full sentence received
 	uint32_t sentTime; // millis() when first character of last full sentence received
 	bool paused;
+	bool active;
 
 } GPS;
 
 bool GPS_begin(GPS* inst, uint32_t baud_or_i2caddr);
-void GPS_init(GPS* inst);
+bool GPS_init(GPS* inst);
 
 char* GPS_lastNMEA(GPS* inst);
 bool GPS_newNMEAreceived(GPS* inst);

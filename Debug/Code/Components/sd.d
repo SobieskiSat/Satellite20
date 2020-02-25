@@ -43,8 +43,8 @@ Code/Components/sd.o: ../Code/Components/sd.c ../Code/Components/sd.h \
  ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h \
  ../Middlewares/Third_Party/FatFs/src/diskio.h \
  ../Middlewares/Third_Party/FatFs/src/ff.h ../Inc/sd_diskio.h \
- ../Code/Components/clock.h ../Inc/main.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h \
+ ../Inc/main.h C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h \
  ../Inc/usbd_cdc_if.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
@@ -154,7 +154,7 @@ Code/Components/sd.o: ../Code/Components/sd.c ../Code/Components/sd.h \
 
 ../Inc/sd_diskio.h:
 
-../Code/Components/clock.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h:
 
 ../Inc/main.h:
 

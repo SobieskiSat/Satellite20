@@ -82,6 +82,10 @@ typedef struct {
     int16_t  dig_P8;
     int16_t  dig_P9;
 
+    uint32_t lastUpdate;
+    float pressure, temperature;
+    bool active;
+
 } BMP280;
 
 bool bmp280_init(BMP280 *inst, BMP280_config *params);
@@ -89,6 +93,7 @@ bool bmp280_is_measuring(BMP280 *inst);
 bool bmp280_read_fixed(BMP280 *inst, int32_t *temperature, uint32_t *pressure);
 bool bmp280_read_float(BMP280 *inst, float *temperature, float *pressure);
 
+bool bmp280_update(BMP280 *inst);
 
 #define BMP280_I2C_ADDRESS_0  0x76
 #define BMP280_I2C_ADDRESS_1  0x77

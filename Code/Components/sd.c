@@ -5,32 +5,34 @@
 #include "stm32f4xx_hal.h"
 #include "clock.h"
 #include "run.h"
+#include "main.h"
+#include "ff.h"
 
-static FRESULT SD_setFileTime(char* path, DateTime* dateTime)
+FRESULT SD_setFileTime(char* patho, DateTime* dateTime)
 {
-    FILINFO info;
+    FILINFO infoo;
 
-    // fatfs counts date from 1980, +20 to year needed
-    info.fdate = (WORD)(((dateTime->year + 20) << 9) | (dateTime->month << 5) | (dateTime->dayM));
-    // fatfs stores seconds as 0:30, /2 division needed
-    info.ftime = (WORD)((dateTime->hour << 11) | (dateTime->minute << 5) | (dateTime->second / 2));
+    // fatfso counts date from 1980, +20 to year needed
+    infoo.fdate = (WORD)(((dateTime->year + 20) << 9) | (dateTime->month << 5) | (dateTime->dayM));
+    // fatfso stores seconds as 0:30, /2 division needed
+    infoo.ftime = (WORD)((dateTime->hour << 11) | (dateTime->minute << 5) | (dateTime->second / 2));
 
-    //return f_utime(path, &info);
+    //f_utime((const TCHAR*)patho, &infoo); // << 	WHY ISNT THIS WORKING...../.......
     return FR_OK;
 }
 
 
 FRESULT SD_init()
 {
+
 	if (BSP_SD_Init() != MSD_OK) return FR_NOT_READY;
 
 	if (FATFS_UnLinkDriver(SDPath) != 0) return FR_NOT_READY;
 
 	if (FATFS_LinkDriver(&SD_Driver, SDPath) != 0) return FR_NOT_READY;
 
-	f_mount(0, SDPath, 1);
-	FATFS fs;
-	FRESULT mountStatus = f_mount(&fs, SDPath, 1);
+	f_mount(0, SDPath, 0);
+	FRESULT mountStatus = f_mount(&fso, SDPath, 0);
 	if (mountStatus != FR_OK)
 	{
 		f_mount(0, SDPath, 0);
@@ -41,30 +43,30 @@ FRESULT SD_init()
 }
 FRESULT SD_deinit()
 {
-	if (FATFS_UnLinkDriver(SDPath) != 0) return FR_NOT_READY;
-	f_mount(0, SDPath, 1);
+	//if (FATFS_UnLinkDriver(SDPath) != 0) return FR_NOT_READY;
+	f_mount(0, SDPath, 0);
 
 	return FR_OK;
 }
 
 FRESULT SD_newFile(char* path)
 {
-	FIL file;
-	FRESULT status;
 	println("[SD] Before open.");
-	status = f_open(&file, path, FA_WRITE | FA_CREATE_NEW);
-	if (status != FR_OK)
+	stato = f_open(&fileo, path, FA_WRITE | FA_CREATE_NEW);
+	if (stato != FR_OK)
 	{
-		//f_mount(0, SDPath, 0);
-		return status;
+		f_mount(0, SDPath, 0);
+		return stato;
 	}
+
 
 	DateTime now = getTime();
 	println("[SD] Time get!");
 	SD_setFileTime(path, &now);
 	println("[SD] Time set!");
-	f_close(&file);
-	return status;
+
+	f_close(&fileo);
+	return stato;
 }
 FRESULT SD_clearFile(char* path)
 {
@@ -79,34 +81,32 @@ FRESULT SD_deleteFile(char* path)
 
 FRESULT SD_writeToFile(char* path, char* content)
 {
-	FIL file;
-	FRESULT status;
-	status = f_open(&file, path, FA_OPEN_EXISTING | FA_READ);
-	if (status != FR_OK) return status;
+	stato = f_open(&fileo, path,  FA_WRITE | FA_OPEN_APPEND);
+	println("openo");
+	if (stato != FR_OK) return stato;
 
-	UINT testByte = 0x00;
-	status = f_write(&file, content, strlen(content), &testByte);
-	if (status != FR_OK) return status;
+	println("writeno");
+	stato = f_write(&fileo, content, strlen(content), &testByteo);
+	if (stato != FR_OK) return stato;
 
-	return f_close(&file);
+	println("closeno");
+	return f_close(&fileo);
 }
 
 FRESULT SD_readFileLine(char* path, uint32_t lineIndex, char* buffer)
 {
-	FIL file;
-	FRESULT status;
-	status = f_open(&file, path, FA_OPEN_EXISTING | FA_READ);
-	if (status != FR_OK)
+	stato = f_open(&fileo, path, FA_OPEN_EXISTING | FA_READ);
+	if (stato != FR_OK)
 	{
 		//f_mount(0, SDPath, 0);
-		return status;
+		return stato;
 	}
 
 	//########################
 	// to implement
 	//########################
 
-	return f_close(&file);
+	return f_close(&fileo);
 }
 FRESULT SD_readFileLines(char* path, uint32_t lineIndex, uint32_t lineCount, char* buffer)
 {
@@ -114,4 +114,10 @@ FRESULT SD_readFileLines(char* path, uint32_t lineIndex, uint32_t lineCount, cha
 	// to implement
 	//########################
 	return FR_OK;
+}
+
+FRESULT SD_newDirectory(char* path)
+{
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ implement: tree -> multiple '/'
+	return f_mkdir(path);
 }

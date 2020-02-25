@@ -5,6 +5,12 @@
 #include <string.h>
 #include "fatfs.h"
 #include "stm32f4xx_hal.h"
+#include "clock.h"
+
+FATFS fso;
+FIL fileo;
+UINT testByteo;
+FRESULT stato;
 
 FRESULT SD_init();
 FRESULT SD_deinit();
@@ -14,6 +20,10 @@ FRESULT SD_clearFile(char* path);
 FRESULT SD_deleteFile(char* path);
 
 FRESULT SD_writeToFile(char* path, char* content);
+
+FRESULT SD_setFileTime(char* patho, DateTime* dateTime);
+
+FRESULT SD_newDirectory(char* path);
 
 //########################
 // to implement

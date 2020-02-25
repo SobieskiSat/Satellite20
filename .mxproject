@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/damia/Desktop/CanSat/soft/Satellite20/Inc
+HeaderPath=C:/Users/damia/Desktop/CanSat/Satellite20/Inc
 HeaderFiles=stm32f4xx_it.h;stm32f4xx_hal_conf.h;main.h;ffconf.h;bsp_driver_sd.h;sd_diskio.h;fatfs.h;fatfs_platform.h;usb_device.h;usbd_conf.h;usbd_desc.h;usbd_cdc_if.h;
-SourcePath=C:/Users/damia/Desktop/CanSat/soft/Satellite20/Src
+SourcePath=C:/Users/damia/Desktop/CanSat/Satellite20/Src
 SourceFiles=stm32f4xx_it.c;stm32f4xx_hal_msp.c;main.c;bsp_driver_sd.c;sd_diskio.c;fatfs.c;fatfs_platform.c;usb_device.c;usbd_conf.c;usbd_desc.c;usbd_cdc_if.c;
 
 [PreviousLibFiles]

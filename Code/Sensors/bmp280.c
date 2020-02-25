@@ -49,6 +49,7 @@ static bool read_calibration_data(BMP280 *inst)
 
 bool bmp280_init(BMP280 *inst, BMP280_config *params)
 {
+	inst->active = false;
 	if (inst->addr != BMP280_I2C_ADDRESS_0 && inst->addr != BMP280_I2C_ADDRESS_1) return false;
 	if (read_data(inst, BMP280_REG_ID, &inst->id, 1)) return false;
 	if (inst->id != BMP280_CHIP_ID) return false;
@@ -75,6 +76,7 @@ bool bmp280_init(BMP280 *inst, BMP280_config *params)
 
 	if (write_register8(inst, BMP280_REG_CTRL, ctrl)) return false;
 
+	inst->active = true;
 	return true;
 }
 
@@ -168,4 +170,10 @@ bool bmp280_read_float(BMP280 *inst, float *temperature, float *pressure)
 	}
 
 	return false;
+}
+
+bool bmp280_update(BMP280 *inst)
+{
+	// uneccessary, to change
+	return bmp280_read_float(inst, &(inst->temperature), &(inst->pressure));
 }

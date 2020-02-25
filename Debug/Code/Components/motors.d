@@ -38,10 +38,10 @@ Code/Components/motors.o: ../Code/Components/motors.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h ../Inc/main.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/config.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Sensors/bmp280.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Components/sx1278.h \
- C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/run.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h \
  ../Inc/usbd_cdc_if.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
@@ -131,13 +131,13 @@ Code/Components/motors.o: ../Code/Components/motors.c \
 
 ../Inc/main.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/config.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Sensors/bmp280.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/Components/sx1278.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
 
-C:/Users/damia/Desktop/CanSat/soft/Satellite20/Code/run.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
 
 ../Inc/usbd_cdc_if.h:
 

@@ -54,11 +54,16 @@ Src/main.o: ../Src/main.c ../Inc/main.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/transmitter.c \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/sdTest.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sd.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/logger.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h
 
 ../Inc/main.h:
 
@@ -184,12 +189,22 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
 
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:
 
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/transmitter.c:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/sdTest.c:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
 
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h:
 
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sd.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/logger.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:

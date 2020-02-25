@@ -10,10 +10,8 @@
 #include "stm32f4xx_hal_i2c.h"
 #include "stm32f4xx_hal_gpio.h"
 
-#include "transmitter.c"
-
-uint8_t message[256];
-uint8_t message_len;
+#include "Peripherials/sdTest.c"
+#include "logger.h"
 
 static void setup(void)
 {
@@ -24,12 +22,11 @@ static void setup(void)
 	println("Hello world!!");	HAL_Delay(500);
 	HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
 
-	if (transmitter_begin()) println("Radio init success!");
-
-	message_len = sprintf(message, "Cats can have little a salami.");
+	if (sdTest_begin()) println("SD success!!!!");
+	log_new();
 }
 
 static void loop(void)
 {
-	transmitter_loop(message, message_len);
+	sdTest_loop();
 }

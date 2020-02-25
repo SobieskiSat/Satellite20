@@ -19,9 +19,11 @@ OBJCOPY_BIN :=
 SUBDIRS := \
 Code/Components \
 Code/Scripts/Algorithms \
+Code/Scripts/FunctionalTests \
 Code/Scripts/Peripherials \
 Code/Scripts \
 Code/Sensors \
+Code/Utilities \
 Code \
 Drivers/STM32F4xx_HAL_Driver/Src \
 Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src \
