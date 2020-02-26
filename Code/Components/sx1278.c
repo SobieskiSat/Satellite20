@@ -247,6 +247,8 @@ void SX1278_tx_input(SX1278* inst, uint8_t* txBuffer, uint8_t length)
 	SX1278_command(inst, LR_RegPayloadLength, length);	//(this register must difine when the data long of one byte in SF is 6)
 	SX1278_command_burst(inst, 0x00, txBuffer, length);
 
+	sprintf(inst->lastPacket, (char*)txBuffer);
+
 	inst->txLen = length;
 }
 void SX1278_tx_push(SX1278* inst)
@@ -296,6 +298,10 @@ bool SX1278_rx_get_packet(SX1278* inst)
 	inst->rxLen = packet_size;
 	SX1278_clearLoRaIrq(inst);
 	SX1278_standby(inst);
+
+
+	sprintf(inst->lastPacket, (char*)inst->rxBuffer);
+
 
 	if (inst->rxTimeout)
 	{

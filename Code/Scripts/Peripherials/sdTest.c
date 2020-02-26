@@ -18,7 +18,6 @@ bool sdActive;
 
 static bool sdTest_begin(void)
 {
-
 	if (SD_init() == FR_OK)
 	{
 		println("[SD] Detected");
@@ -39,7 +38,11 @@ static bool sdTest_begin(void)
 			if (status) println("[SD] Content writing successful!");
 			else println("[SD] Content writing unsuccessful!");
 		}
-		else println("unsuccessful :(");
+		else
+		{
+			println("unsuccessful :(");
+			return false;
+		}
 	}
 	else
 	{
@@ -58,7 +61,6 @@ static void sdTest_loop(void)
 	char buf[20];
 
 	sprintf((char*)buf, "hamood hadibi!!!!\r\n");
-
 
 	print("Init:"); print_int(SD_init()); println("");
 	f_mkdir("/HAM");

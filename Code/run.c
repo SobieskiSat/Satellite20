@@ -12,16 +12,15 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "motors.h"
-#include "Peripherials/imuTest.c"
+#include "Peripherials/sdTest.c"
+#include "logger.h"
 
-#include "Algorithms/algoGalgo.c"
+//#include "transmitter.c"
+//#include "receiver.c"
+#include "sensing.c"
+#include "Peripherials/motorTest.c"
 
-uint32_t lastMotUpdate;
-uint32_t lastMotUpdate2;
-
-float target_yaw;
-time_t t;
+uint32_t lastSave;
 
 static void setup(void)
 {
@@ -32,38 +31,26 @@ static void setup(void)
 	println("Hello world!!");	HAL_Delay(500);
 	HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
 
-	if (imuTest_begin()) println("[IMU] Init successful!");
 
-	enableMotors(); println("[MOT] Motors enabled!");
-	lastMotUpdate = millis();
-	lastMotUpdate2 = millis();
+	if (sdTest_begin()) println("SD card is working!");
+	log_new();
+	SD_init();
 
-	yaw_last_error=0.0;
-	target_yaw=180.0;
+	//if (transmitter_begin()) println("Radio is working!");
+	//if (receiver_begin()) println("Radio is working!");
 
-	srand((unsigned) time(&t));
+	sensing_begin();
+
 }
 
 static void loop(void)
 {
-	imuTest_getData();		// get data from IMU
-	imuTest_quatUpdate();	// compute data received
-
-
-/*	if (millis() - lastMotUpdate2 >= 2000)	// every 10ms get Euler angles and run motor alogrithm
+	if (millis() - lastSave >= 1000)
 	{
-		target_yaw=rand()%360; // losowo
-		//target_yaw=fmod(target_yaw+1.0, 360);
-
-
-		lastMotUpdate2 = millis();
+		log_save();
+		lastSave = millis();
 	}
-*/
-	if (millis() - lastMotUpdate >= 10)	// every 10ms get Euler angles and run motor alogrithm
-	{
-		imuTest_getEuler();
-		algoGalgo(yaw, target_yaw);
-		lastMotUpdate = millis();
-	}
+
+	sensing_loop();
 
 }

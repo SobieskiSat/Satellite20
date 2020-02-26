@@ -3,6 +3,7 @@
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 #include "run.h"
+#include <stdbool.h>
 #include "sx1278.h"
 #include "config.h"
 #include "stm32f4xx_hal.h"
@@ -47,7 +48,7 @@ static bool transmitter_begin(void)
 	firstTransmission = true;
 }
 
-static void transmitter_loop(uint8_t* buf, uint8_t len)
+static bool transmitter_loop(uint8_t* buf, uint8_t len)
 {
 	if (radio.active)
 	{
@@ -69,12 +70,16 @@ static void transmitter_loop(uint8_t* buf, uint8_t len)
 				firstTransmission = false;
 				HAL_GPIO_TogglePin(LEDD_GPIO_Port, LEDD_Pin);
 				if (TRANSMITTER_DEBUG) println("[LoRa] Packet pushed!");
+				return true;
 			}
+			else return false;
 		}
 		else
 		{
 			SX1278_transmit(&radio, buf, len);
 			if (TRANSMITTER_DEBUG) println("[LoRa] Transmission finished.");
+			return true;
 		}
 	}
+	return false;
 }

@@ -166,6 +166,8 @@ bool bmp280_read_float(BMP280 *inst, float *temperature, float *pressure)
 		*temperature = (float) fixed_temperature / 100;
 		*pressure = (float) fixed_pressure / 256;
 
+		inst->temperature = *temperature;
+		inst->pressure = *pressure;
 		return true;
 	}
 
@@ -175,5 +177,7 @@ bool bmp280_read_float(BMP280 *inst, float *temperature, float *pressure)
 bool bmp280_update(BMP280 *inst)
 {
 	// uneccessary, to change
-	return bmp280_read_float(inst, &(inst->temperature), &(inst->pressure));
+	float te;
+	float pre;
+	return bmp280_read_float(inst, &te, &pre);
 }

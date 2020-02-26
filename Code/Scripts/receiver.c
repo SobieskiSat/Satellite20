@@ -3,6 +3,7 @@
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 #include "run.h"
+#include <stdbool.h>
 #include "sx1278.h"
 #include "config.h"
 #include "stm32f4xx_hal.h"
@@ -11,27 +12,27 @@
 #define RECEIVER_DEBUG 1
 #define RECEIVER_PRINT_PACKET 1
 
-SX1278 radio;
+SX1278 recradio;
 bool firstReception;
 
 static bool receiver_begin(void)
 {
-	radio.reset = LR_RESET_Pin;
-	radio.dio0 = LR_DIO0_Pin;
-	radio.nss = LR_NSS_Pin;
-	radio.rxtim = LR_TIM_Pin;
-	radio.reset_port = LR_RESET_GPIO_Port;
-	radio.dio0_port = LR_DIO0_GPIO_Port;
-	radio.nss_port = LR_NSS_GPIO_Port;
-	radio.rxtim_port = LR_TIM_GPIO_Port;
-	radio.spi = Get_SPI1_Instance();
-	radio.config = sx1278_default_config;
+	recradio.reset = LR_RESET_Pin;
+	recradio.dio0 = LR_DIO0_Pin;
+	recradio.nss = LR_NSS_Pin;
+	recradio.rxtim = LR_TIM_Pin;
+	recradio.reset_port = LR_RESET_GPIO_Port;
+	recradio.dio0_port = LR_DIO0_GPIO_Port;
+	recradio.nss_port = LR_NSS_GPIO_Port;
+	recradio.rxtim_port = LR_TIM_GPIO_Port;
+	recradio.spi = Get_SPI1_Instance();
+	recradio.config = sx1278_default_config;
 
-	radio.useDio0IRQ = true;
+	recradio.useDio0IRQ = true;
 
 	uint8_t attempts = 0;
 
-	while (!SX1278_init(&radio))
+	while (!SX1278_init(&recradio))
 	{
 		HAL_Delay(500);
 		if (RECEIVER_DEBUG) println("[LoRa] Init unsuccessful, retrying...");
@@ -47,43 +48,46 @@ static bool receiver_begin(void)
 	firstReception = true;
 }
 
-static void receiver_loop()
+static bool receiver_loop()
 {
-	if (radio.active)
+	if (recradio.active)
 	{
-		if (radio.useDio0IRQ)
+		if (recradio.useDio0IRQ)
 		{
 			// manually check for interrupt
-			if (firstReception || (radio.pendingIRQ && HAL_GPIO_ReadPin(radio.dio0_port, radio.dio0) == GPIO_PIN_SET))
+			if (firstReception || (recradio.pendingIRQ && HAL_GPIO_ReadPin(recradio.dio0_port, recradio.dio0) == GPIO_PIN_SET))
 			{
 				if (RECEIVER_DEBUG) println("[LoRa] Packet received!");
-				if (!firstReception) SX1278_dio0_IRQ(&radio);
+				if (!firstReception) SX1278_dio0_IRQ(&recradio);
 
-				if (radio.newPacket)
+				if (recradio.newPacket)
 				{
 					if (RECEIVER_PRINT_PACKET)
 					{
-						printLen = sprintf(printBuffer, "[LoRa] Packet length: %d, rssi: %d, content: [", radio.rxLen, radio.rssi);
+						printLen = sprintf(printBuffer, "[LoRa] Packet length: %d, rssi: %d, content: [", recradio.rxLen, recradio.rssi);
 						printv(printBuffer, printLen);
-						printv(radio.rxBuffer, radio.rxLen);
+						printv(recradio.rxBuffer, recradio.rxLen);
 						println("]");
 					}
 				}
-				else if (radio.rxTimeout)
+				else if (recradio.rxTimeout)
 				{
 					println("[LoRa] Receive timeout.");
 				}
-				SX1278_receive(&radio);
+				SX1278_receive(&recradio);
 
 				firstReception = false;
 				HAL_GPIO_TogglePin(LEDC_GPIO_Port, LEDC_Pin);
 				if (RECEIVER_DEBUG) println("[LoRa] Waiting for packet...");
+				return true && !recradio.rxTimeout;
 			}
 		}
 		else
 		{
-			SX1278_receive(&radio);
+			SX1278_receive(&recradio);
 			if (RECEIVER_DEBUG) println("[LoRa] Packet received.");
+			return true;
 		}
 	}
+	return false;
 }

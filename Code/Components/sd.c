@@ -51,8 +51,7 @@ FRESULT SD_deinit()
 
 FRESULT SD_newFile(char* path)
 {
-	println("[SD] Before open.");
-	stato = f_open(&fileo, path, FA_WRITE | FA_CREATE_NEW);
+	stato = f_open(&fileo, path, FA_CREATE_ALWAYS);
 	if (stato != FR_OK)
 	{
 		f_mount(0, SDPath, 0);
@@ -60,10 +59,8 @@ FRESULT SD_newFile(char* path)
 	}
 
 
-	DateTime now = getTime();
-	println("[SD] Time get!");
-	SD_setFileTime(path, &now);
-	println("[SD] Time set!");
+	//DateTime now = getTime();
+	//SD_setFileTime(path, &now);
 
 	f_close(&fileo);
 	return stato;
@@ -78,18 +75,14 @@ FRESULT SD_deleteFile(char* path)
 	return f_unlink(path);
 }
 
-
 FRESULT SD_writeToFile(char* path, char* content)
 {
 	stato = f_open(&fileo, path,  FA_WRITE | FA_OPEN_APPEND);
-	println("openo");
 	if (stato != FR_OK) return stato;
 
-	println("writeno");
 	stato = f_write(&fileo, content, strlen(content), &testByteo);
 	if (stato != FR_OK) return stato;
 
-	println("closeno");
 	return f_close(&fileo);
 }
 

@@ -205,16 +205,19 @@ bool GPS_init(GPS* inst)
 
 	uint32_t timeout = millis();
 
-	while (millis() - timeout >= 1000)
+	while (millis() - timeout <= 1000)
 	{
 		GPS_read(inst);
 		if (GPS_newNMEAreceived(inst))
 		{
-			if (GPS_lastNMEA(inst) == PMTK_Q_RELEASE_RESPONSE)
+			// not exact, but works now
+			if (GPS_lastNMEA(inst)[0] == '$' && GPS_lastNMEA(inst)[1] == 'G')
 			{
 				inst->active = true;
+
+				GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_ALLDATA);
+				GPS_sendCommand(inst, PMTK_SET_NMEA_UPDATE_5HZ);
 				return true;
-				//println("[GPS] End init()");
 			}
 		}
 	}

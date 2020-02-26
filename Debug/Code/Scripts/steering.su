@@ -9,5 +9,6 @@ imuTest.c:85:13:imuTest_getEuler	16	static
 imuTest.c:96:13:imuTest_printData	8	static
 imuTest.c:138:13:imuTest_begin	24	static
 imuTest.c:234:13:imuTest_loop	8	static
-sensing.c:28:13:sensing_begin	16	static
-sensing.c:74:13:sensing_loop	24	static
+algoGalgo.c:15:13:algoGalgo	64	static
+steering.c:26:13:steering_begin	8	static
+steering.c:40:13:steering_loop	8	static

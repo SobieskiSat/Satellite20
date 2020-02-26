@@ -181,9 +181,9 @@ void SystemClock_Config(void)
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
   /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 6;
@@ -208,7 +208,7 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-  PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+  PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -261,9 +261,6 @@ static void MX_RTC_Init(void)
 
   /* USER CODE END RTC_Init 0 */
 
-  RTC_TimeTypeDef sTime = {0};
-  RTC_DateTypeDef sDate = {0};
-
   /* USER CODE BEGIN RTC_Init 1 */
 
   /* USER CODE END RTC_Init 1 */
@@ -277,31 +274,6 @@ static void MX_RTC_Init(void)
   hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
   hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
   if (HAL_RTC_Init(&hrtc) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /* USER CODE BEGIN Check_RTC_BKUP */
-    
-  /* USER CODE END Check_RTC_BKUP */
-
-  /** Initialize RTC and set the Time and Date 
-  */
-  sTime.Hours = 22;
-  sTime.Minutes = 18;
-  sTime.Seconds = 0;
-  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sDate.WeekDay = RTC_WEEKDAY_TUESDAY;
-  sDate.Month = RTC_MONTH_FEBRUARY;
-  sDate.Date = 25;
-  sDate.Year = 20;
-
-  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK)
   {
     Error_Handler();
   }
@@ -530,7 +502,7 @@ static void MX_TIM5_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM2;
-  sConfigOC.Pulse = 0;
+  sConfigOC.Pulse = 100;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim5, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)

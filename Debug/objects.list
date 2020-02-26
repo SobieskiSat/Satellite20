@@ -13,6 +13,7 @@
 "Code/Scripts/Peripherials/servoTest.o"
 "Code/Scripts/receiver.o"
 "Code/Scripts/sensing.o"
+"Code/Scripts/steering.o"
 "Code/Scripts/transmitter.o"
 "Code/Sensors/bmp280.o"
 "Code/Sensors/gps.o"

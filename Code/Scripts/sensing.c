@@ -9,11 +9,19 @@
 
 #include "gps.h"
 #include "bmp280.h"
+#include "logger.h"
+#include "mpu9250.h"
+
+#include "Peripherials/imuTest.c"
 
 #define SENSING_DEBUG 1
+#define SENSING_PRINT_DATA 1
 
 GPS gps;
 BMP280 bmp;
+uint32_t lastDataPrint;
+uint32_t lastBmpLog;
+uint32_t lastImuLog;
 // IMU
 // (SPS)
 
@@ -52,16 +60,70 @@ static bool sensing_begin(void)
 		}
 	}
 
+	if (imuTest_begin()) println("[IMU] Init successful!");
+
+	if (SENSING_DEBUG)
+	{
+		println("Sensor init summary:");
+		print("GPS - "); gps.active ? println("active") : println("not active");
+		print("BMP - "); bmp.active ? println("active") : println("not active");
+		print("IMU - "); imuActive ? println("active") : println("not active");
+	}
 }
 
 static void sensing_loop(void)
 {
 	if (gps.active)
 	{
-		char c = GPS_read(&gps);
+		GPS_read(&gps);
 		if (GPS_newNMEAreceived(&gps))
 		{
+			//println(GPS_lastNMEA(&gps));
+			if (gps.fix) log_gps(&gps);
 			GPS_parse(&gps, GPS_lastNMEA(&gps));
 		}
+	}
+
+	if (bmp.active)
+	{
+		bmp280_update(&bmp);
+		if (millis() - lastBmpLog >= 100)
+		{
+			log_bmp(&bmp);
+			lastBmpLog = millis();
+		}
+	}
+
+	if (imuActive)
+	{
+		imuTest_getData();		// get data from IMU
+		imuTest_quatUpdate();	// compute data received
+
+		if (millis() - lastImuLog >= 100)
+		{
+			imuTest_getEuler();
+			float eulers[3] = {yaw, pitch, roll};
+			log_imu(eulers);
+		}
+
+	}
+
+	if (millis() - lastDataPrint >= 1000 && SENSING_PRINT_DATA)
+	{
+		if (bmp.active)
+		{
+			print("Pressure: "); print_float(bmp.pressure); println("");
+			print("Temperature: "); print_float(bmp.temperature); println("");
+		}
+		if (gps.active)
+		{
+			if (gps.fix)
+			{
+				print("Latitude: "); print_float(gps.latitudeDegrees); println("");
+				print("Longitude: "); print_float(gps.longitudeDegrees); println("");
+			}
+			else println("GPS has no fix!");
+		}
+		lastDataPrint = millis();
 	}
 }

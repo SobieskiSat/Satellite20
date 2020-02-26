@@ -8,4 +8,4 @@ bmp280.c:97:23:compensate_temperature	32	static
 bmp280.c:116:24:compensate_pressure	72	static
 bmp280.c:141:6:bmp280_read_fixed	48	static
 bmp280.c:160:6:bmp280_read_float	32	static
-bmp280.c:175:6:bmp280_update	16	static
+bmp280.c:177:6:bmp280_update	24	static

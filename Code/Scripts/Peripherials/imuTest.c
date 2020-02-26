@@ -32,6 +32,8 @@ uint32_t lastCompute;
 float a12, a22, a31, a32, a33;            // rotation matrix coefficients for Euler angles and gravity components
 float lin_ax, lin_ay, lin_az;             // linear acceleration (acceleration with gravity component subtracted)
 
+bool imuActive;
+
 static bool imuTest_getData(void)
 {
 	if (MPU_readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)	// check if data ready interrupt
@@ -135,6 +137,8 @@ static void imuTest_printData(void)
 
 static bool imuTest_begin(void)
 {
+	imuActive = false;
+
 	println("imuTest start!");
 	GyroMeasError = PI * (60.0f / 180.0f);
 	beta = sqrt(3.0f / 4.0f) * GyroMeasError;
@@ -224,6 +228,7 @@ static bool imuTest_begin(void)
 
 
 		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
+		imuActive = true;
 	}
 }
 static bool imuTest_loop(void)

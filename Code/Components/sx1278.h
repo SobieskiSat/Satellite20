@@ -51,6 +51,7 @@ typedef struct
 	uint8_t txLen;
 	uint8_t rxLen;
 	uint8_t rxBuffer[SX1278_MAX_PACKET];
+	uint8_t lastPacket[SX1278_MAX_PACKET];
 
 	bool active;
 
