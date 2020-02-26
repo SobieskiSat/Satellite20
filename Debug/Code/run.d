@@ -61,10 +61,12 @@ Code/run.o: ../Code/run.c ../Code/run.h ../Inc/usbd_cdc_if.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/sensing.c \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/transmitter.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/sensing.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/imuTest.c \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/motorTest.c
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/motorTest.c \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Algorithms/algoGalgo.c
 
 ../Code/run.h:
 
@@ -204,10 +206,14 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
 
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/sensing.c:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/transmitter.c:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/sensing.c:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/imuTest.c:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/motorTest.c:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Algorithms/algoGalgo.c:

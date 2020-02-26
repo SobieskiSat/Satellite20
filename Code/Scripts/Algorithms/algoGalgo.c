@@ -9,7 +9,9 @@
 #include <stdio.h>
 #include <math.h>
 #include "motors.h"
+#include "clock.h"
 
+uint32_t lastAlgo;
 float yaw_last_error;
 
 static void algoGalgo(float yaw, float target_yaw)
@@ -41,7 +43,7 @@ static void algoGalgo(float yaw, float target_yaw)
 	float pid_p, pid_i, pid_d;
 
 	pid_p=kp*error;
-	pid_d=kd*((error-yaw_last_error)/10);
+	pid_d=kd*((error-yaw_last_error)/(millis() - lastAlgo));
 //	pid_i=pid_i+(ki*error);
 
 
@@ -76,4 +78,5 @@ static void algoGalgo(float yaw, float target_yaw)
 	else HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
 
 	yaw_last_error=error;
+	lastAlgo = millis();
 }

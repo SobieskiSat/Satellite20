@@ -1,1 +1,2 @@
-algoGalgo.c:15:13:algoGalgo	64	static
+clock.h:11:24:millis	4	static
+algoGalgo.c:17:13:algoGalgo	72	static

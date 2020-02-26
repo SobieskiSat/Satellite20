@@ -104,6 +104,7 @@ static void sensing_loop(void)
 			imuTest_getEuler();
 			float eulers[3] = {yaw, pitch, roll};
 			log_imu(eulers);
+			lastImuLog = millis();
 		}
 
 	}

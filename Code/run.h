@@ -10,7 +10,7 @@
 #include "stm32f4xx_hal_gpio.h"
 
 // Set to 1 to print on USB, if not connected will wait for the computer!
-#define PRINT_OUT 1
+#define PRINT_OUT 0
 
 #define GPSECHO 1
 

@@ -1,12 +1,15 @@
 run.h:22:20:print	16	static
-run.h:32:20:println	24	static
+run.h:32:20:println	16	static
+run.h:51:20:printv	16	static
 run.h:61:20:print_int	16	static
-run.h:72:20:print_float	24	static
+run.h:72:20:print_float	16	static
 clock.h:10:24:micros	4	static
 clock.h:11:24:millis	4	static
 clock.h:43:24:getTime	56	static
 sdTest.c:19:13:sdTest_begin	88	static
 sdTest.c:58:13:sdTest_loop	56	static
+transmitter.c:18:13:transmitter_begin	16	static
+transmitter.c:51:13:transmitter_loop	16	static
 imuTest.c:37:13:imuTest_getData	8	static
 imuTest.c:67:13:imuTest_quatUpdate	8	static
 imuTest.c:85:13:imuTest_getEuler	16	static
@@ -17,5 +20,6 @@ sensing.c:28:13:sensing_begin	16	static
 sensing.c:74:13:sensing_loop	24	static
 motorTest.c:16:13:motorTest_begin	8	static
 motorTest.c:24:13:mot_up_down	16	static
-run.c:25:13:setup	8	static
-run.c:46:13:loop	8	static
+algoGalgo.c:17:13:algoGalgo	72	static
+run.c:28:13:setup	8	static
+run.c:54:13:loop	40	static
