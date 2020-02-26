@@ -80,3 +80,26 @@ static void algoGalgo(float yaw, float target_yaw)
 	yaw_last_error=error;
 	lastAlgo = millis();
 }
+
+static float bearing(float lat,float lon,float lat2,float lon2){
+
+	//lat = your current gps latitude.
+	//lon = your current gps longitude.
+	//lat2 = your destiny gps latitude.
+	//lon2 = your destiny gps longitude.
+
+    float teta1 = lat*M_PI/180;
+    float teta2 = lat2*M_PI/180;
+    float delta1 = (lat2-lat)*M_PI/180;
+    float delta2 = (lon2-lon)*M_PI/180;
+
+    //==================Heading Formula Calculation================//
+
+    float y = sin(delta2) * cos(teta2);
+    float x = cos(teta1)*sin(teta2) - sin(teta1)*cos(teta2)*cos(delta2);
+    float brng = atan2(y,x);
+    brng = brng*180/M_PI;// radians to degrees
+    brng = fmod((brng + 360), 360);
+   // std::cout<< brng;
+    return brng;
+    }

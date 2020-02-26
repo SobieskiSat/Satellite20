@@ -24,6 +24,8 @@
 uint32_t lastSave;
 uint32_t lastMotUpdate;
 float target_yaw;
+float target_lat;
+float target_lon;
 
 static void setup(void)
 {
@@ -43,8 +45,10 @@ static void setup(void)
 	//if (receiver_begin()) println("Radio is working!");
 
 	sensing_begin();
+	target_lat = 20.0;
+	target_lon = 30.0;
+	target_yaw = 180.0; //statyczne 180.0
 
-	target_yaw = 180;
 	while (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_SET);
 	enableMotors(); println("[MOT] Motors enabled!");
 
@@ -72,8 +76,11 @@ static void loop(void)
 
 	if (millis() - lastMotUpdate >= 10)	// every 10ms get Euler angles and run motor alogrithm
 	{
+
 		imuTest_getEuler();
-		algoGalgo(yaw, target_yaw);
+		float brng = bearing(gps.latitudeDegrees, gps.longitudeDegrees, target_lat, target_lon);
+	//	algoGalgo(yaw, brng); // target_yaw wyliczane z pozycji anteny;
+		algoGalgo(yaw, target_yaw); //statyczny target_yaw
 		print_float(yaw); println("");
 		lastMotUpdate = millis();
 	}
