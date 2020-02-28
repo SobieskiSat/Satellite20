@@ -16,7 +16,7 @@ char directoryName[32];
 char directoryNameCopy[32];
 char openedPath[32];
 char timestamp[32];
-char tempBuffer[1024];
+char tempBuffer[4096];
 
 void log_new();
 char logBuffer[1024];
@@ -39,7 +39,7 @@ char motBuffer[1024];
 uint16_t motBufferIndex;
 void log_mot(float left, float right);
 
-char radioBuffer[1024];
+char radioBuffer[4096];
 uint16_t radioBufferIndex;
 void log_radio(SX1278* radio, bool transmit);
 

@@ -104,7 +104,7 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     */
     GPIO_InitStruct.Pin = SCL_Pin|SDA_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -458,7 +458,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
     PB0     ------> TIM3_CH3
     PB1     ------> TIM3_CH4 
     */
-    GPIO_InitStruct.Pin = P6_Pin|P7B1_Pin;
+    GPIO_InitStruct.Pin = P6_Pin|P3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

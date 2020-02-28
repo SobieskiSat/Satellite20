@@ -11,6 +11,7 @@
 "Code/Scripts/Peripherials/radioTest.o"
 "Code/Scripts/Peripherials/sdTest.o"
 "Code/Scripts/Peripherials/servoTest.o"
+"Code/Scripts/duplex.o"
 "Code/Scripts/receiver.o"
 "Code/Scripts/sensing.o"
 "Code/Scripts/steering.o"

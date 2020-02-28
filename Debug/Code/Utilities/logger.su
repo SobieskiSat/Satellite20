@@ -3,8 +3,8 @@ clock.h:43:24:getTime	56	static
 logger.c:13:6:log_new	32	static
 logger.c:41:6:log_save	8	static
 logger.c:98:6:log_print	16	static
-logger.c:107:6:log_bmp	40	static
-logger.c:120:6:log_gps	40	static
-logger.c:133:6:log_imu	48	static
-logger.c:147:6:log_mot	40	static
-logger.c:160:6:log_radio	16	static
+logger.c:109:6:log_bmp	40	static
+logger.c:122:6:log_gps	40	static
+logger.c:135:6:log_imu	48	static
+logger.c:149:6:log_mot	40	static
+logger.c:162:6:log_radio	16	static

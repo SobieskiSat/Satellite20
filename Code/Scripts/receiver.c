@@ -55,7 +55,7 @@ static bool receiver_loop()
 		if (recradio.useDio0IRQ)
 		{
 			// manually check for interrupt
-			if (firstReception || (recradio.pendingIRQ && HAL_GPIO_ReadPin(recradio.dio0_port, recradio.dio0) == GPIO_PIN_SET))
+			if (firstReception || (recradio.pendingIRQ && HAL_GPIO_ReadPin(recradio.dio0_port, recradio.dio0) == GPIO_PIN_SET) || SX1278_intTimeout(&recradio))
 			{
 				if (RECEIVER_DEBUG) println("[LoRa] Packet received!");
 				if (!firstReception) SX1278_dio0_IRQ(&recradio);

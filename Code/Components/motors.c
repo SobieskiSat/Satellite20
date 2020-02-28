@@ -13,14 +13,17 @@
 
 void setMotors(float dutyL, float dutyR)
 {
-	TIM5->CCR2 = (uint32_t)((float)TIM5->ARR * (1 - dutyL));
-	TIM5->CCR4 = (uint32_t)((float)TIM5->ARR * (1 - dutyR));
-	TIM5->CNT = 0;
+	if (motorsEnabled)
+	{
+		TIM5->CCR2 = (uint32_t)((float)TIM5->ARR * (1 - dutyL));
+		TIM5->CCR4 = (uint32_t)((float)TIM5->ARR * (1 - dutyR));
+		TIM5->CNT = 0;
 
-	TIM4->CNT = 0;	// reset timer counter -> clears motor timeout
+		TIM4->CNT = 0;	// reset timer counter -> clears motor timeout
 
-	HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, GPIO_PIN_SET);
+	}
 }
 
 void haltMotors(void)
@@ -34,30 +37,39 @@ void haltMotors(void)
 
 void enableMotors(void)
 {
-	haltMotors();
+	if (!motorsEnabled)
+	{
+		haltMotors();
+		motorsEnabled = true;
 
-	//MAX_PWM_FREQ = 42000000 / (2 * PWM_RESOLUTION); // 82031 Hz for 256 resolution
-	//setPwmFrequency(MAX_PWM_FREQ);
+		//MAX_PWM_FREQ = 42000000 / (2 * PWM_RESOLUTION); // 82031 Hz for 256 resolution
+		//setPwmFrequency(MAX_PWM_FREQ);
 
-	motL_forward = true;
-	motR_forward = true;
+		motL_forward = true;
+		motR_forward = true;
 
-	// flip direction based on config
-	HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, motL_forward ^ MOTOR_L_DIR);
-	HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, motR_forward ^ MOTOR_R_DIR);
+		// flip direction based on config
+		HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, motL_forward ^ MOTOR_L_DIR);
+		HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, motR_forward ^ MOTOR_R_DIR);
 
-	HAL_TIM_PWM_Start(Get_TIM5_Instance(), TIM_CHANNEL_2);
-	HAL_TIM_PWM_Start(Get_TIM5_Instance(), TIM_CHANNEL_4);
+		HAL_TIM_PWM_Start(Get_TIM5_Instance(), TIM_CHANNEL_2);
+		HAL_TIM_PWM_Start(Get_TIM5_Instance(), TIM_CHANNEL_4);
 
-	haltMotors();
-	println("[MOT] MOTORS ENABLED!!");
+		haltMotors();
+		println("[MOT] MOTORS ENABLED!!");
+	}
 }
 
 void disableMotors(void)
 {
-	haltMotors();
-	HAL_TIM_PWM_Stop(Get_TIM5_Instance(), TIM_CHANNEL_2);
-	HAL_TIM_PWM_Stop(Get_TIM5_Instance(), TIM_CHANNEL_4);
+	if (motorsEnabled)
+	{
+		haltMotors();
+		motorsEnabled = false;
+		HAL_TIM_PWM_Stop(Get_TIM5_Instance(), TIM_CHANNEL_2);
+		HAL_TIM_PWM_Stop(Get_TIM5_Instance(), TIM_CHANNEL_4);
+		println("[MOT] Motors DISABLED!!!!!!!1");
+	}
 }
 
 void setPwmFrequency(uint32_t f_hz)

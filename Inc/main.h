@@ -100,8 +100,8 @@ TIM_HandleTypeDef* Get_TIM5_Instance(void);
 #define LR_RESET_GPIO_Port GPIOC
 #define P6_Pin GPIO_PIN_0
 #define P6_GPIO_Port GPIOB
-#define P7B1_Pin GPIO_PIN_1
-#define P7B1_GPIO_Port GPIOB
+#define P3_Pin GPIO_PIN_1
+#define P3_GPIO_Port GPIOB
 #define GPS_RX_Pin GPIO_PIN_10
 #define GPS_RX_GPIO_Port GPIOB
 #define GPS_TX_Pin GPIO_PIN_11

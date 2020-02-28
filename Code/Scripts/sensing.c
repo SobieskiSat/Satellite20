@@ -22,25 +22,13 @@ BMP280 bmp;
 uint32_t lastDataPrint;
 uint32_t lastBmpLog;
 uint32_t lastImuLog;
+uint32_t lastBmpRead;
 // IMU
 // (SPS)
 
 static bool sensing_begin(void)
 {
 	uint8_t attempts = 0;
-	gps.uart = Get_UART3_Instance();
-	while (!GPS_init(&gps))
-	{
-		HAL_Delay(500);
-		if (SENSING_DEBUG) println("[GPS] Init unsuccessful, retrying...");
-		attempts++;
-
-		if (attempts >= 5)
-		{
-			if (SENSING_DEBUG) println("[GPS] Too many attempts, GPS is not active!");
-			break;
-		}
-	}
 
 	attempts = 0;
 	bmp.params = bmp280_default_config;
@@ -56,11 +44,31 @@ static bool sensing_begin(void)
 		if (attempts >= 5)
 		{
 			if (SENSING_DEBUG) println("[BMP] Too many attempts, BMP is not active!");
+			//log_print("Unable to init BMP");
 			break;
 		}
 	}
 
-	if (imuTest_begin()) println("[IMU] Init successful!");
+	imuTest_begin();
+	//if (imuTest_begin()) { println("[IMU] Init successful!"); log_print("IMU init success"); }
+	//	else { log_print("Unable to init IMU"); }
+
+
+	attempts = 0;
+	gps.uart = Get_UART3_Instance();
+	while (!GPS_init(&gps))
+	{
+		HAL_Delay(500);
+		if (SENSING_DEBUG) println("[GPS] Init unsuccessful, retrying...");
+		attempts++;
+
+		if (attempts >= 5)
+		{
+			if (SENSING_DEBUG) println("[GPS] Too many attempts, GPS is not active!");
+			//log_print("Unable to init GPS");
+			break;
+		}
+	}
 
 	if (SENSING_DEBUG)
 	{
@@ -73,6 +81,7 @@ static bool sensing_begin(void)
 
 static void sensing_loop(void)
 {
+
 	if (gps.active)
 	{
 		GPS_read(&gps);
@@ -84,15 +93,19 @@ static void sensing_loop(void)
 		}
 	}
 
-	if (bmp.active)
+	if (bmp.active && millis() - lastBmpRead >= 50)
 	{
+
+		//bmp280_read_float(&bmp, tee, pee);
 		bmp280_update(&bmp);
+		lastBmpRead = millis();
 		if (millis() - lastBmpLog >= 100)
 		{
 			log_bmp(&bmp);
 			lastBmpLog = millis();
 		}
 	}
+
 
 	if (imuActive)
 	{
@@ -109,6 +122,7 @@ static void sensing_loop(void)
 
 	}
 
+
 	if (millis() - lastDataPrint >= 1000 && SENSING_PRINT_DATA)
 	{
 		if (bmp.active)
@@ -120,10 +134,15 @@ static void sensing_loop(void)
 		{
 			if (gps.fix)
 			{
+				HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_SET);
 				print("Latitude: "); print_float(gps.latitudeDegrees); println("");
 				print("Longitude: "); print_float(gps.longitudeDegrees); println("");
 			}
-			else println("GPS has no fix!");
+			else
+			{
+				HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
+				println("GPS has no fix!");
+			}
 		}
 		lastDataPrint = millis();
 	}

@@ -44,6 +44,7 @@ typedef struct
 	bool crcError;
 	int rssi;
 	bool newPacket;
+	uint32_t rxStart;
 
 	bool useDio0IRQ;
 	bool pendingIRQ;
@@ -51,7 +52,7 @@ typedef struct
 	uint8_t txLen;
 	uint8_t rxLen;
 	uint8_t rxBuffer[SX1278_MAX_PACKET];
-	uint8_t lastPacket[SX1278_MAX_PACKET];
+	uint8_t txBuffer[SX1278_MAX_PACKET];
 
 	bool active;
 
@@ -78,6 +79,7 @@ void SX1278_update_IRQ_status(SX1278* inst);
 void SX1278_clearLoRaIrq(SX1278* inst);
 
 int SX1278_getRSSI(SX1278* inst);
+bool SX1278_intTimeout(SX1278* inst);
 
 #define SX1278_DEFAULT_TIMEOUT	3000
 

@@ -64,7 +64,7 @@ Src/main.o: ../Src/main.c ../Inc/main.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/transmitter.c \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/duplex.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/sensing.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/imuTest.c \
@@ -215,7 +215,7 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
 
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/transmitter.c:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/duplex.c:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
 

@@ -172,7 +172,7 @@ static bool imuTest_begin(void)
 
 	if (MPU_present())
 	{
-		HAL_Delay(1000);
+		HAL_Delay(100);
 		MPU_SelfTest(SelfTest); // Start by performing self test and reporting values
 		println("MPU9250 Self Test:");
 		print("x-axis self test: acceleration trim within : "); print_float(SelfTest[0]); println("% of factory value");
@@ -229,7 +229,9 @@ static bool imuTest_begin(void)
 
 		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
 		imuActive = true;
+		return true;
 	}
+	return false;
 }
 static bool imuTest_loop(void)
 {

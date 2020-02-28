@@ -209,6 +209,7 @@ bool SX1278_receive(SX1278* inst)
 			//waiting for interrupt
 			//println("[LoRa] Receiver set! Waiting for an interrupt...");
 			inst->pendingIRQ = true;
+			inst->rxStart = millis();
 		}
 		else
 		{
@@ -247,8 +248,12 @@ void SX1278_tx_input(SX1278* inst, uint8_t* txBuffer, uint8_t length)
 	SX1278_command(inst, LR_RegPayloadLength, length);	//(this register must difine when the data long of one byte in SF is 6)
 	SX1278_command_burst(inst, 0x00, txBuffer, length);
 
-	sprintf(inst->lastPacket, (char*)txBuffer);
-
+	//sprintf(inst->lastPacket, (char*)txBuffer);
+	uint8_t l;
+	for (l = 0; l < length; l++)
+	{
+		inst->txBuffer[l] = txBuffer[l];
+	}
 	inst->txLen = length;
 }
 void SX1278_tx_push(SX1278* inst)
@@ -293,14 +298,14 @@ bool SX1278_rx_get_packet(SX1278* inst)
 
 	SX1278_read_burst(inst, 0x00, inst->rxBuffer, packet_size);
 
-	inst->newPacket = (!inst->rxTimeout && !(inst->crcError && !LR_VALIDATE_CRCERROR));
+	inst->newPacket = inst->rxDone && !inst->rxTimeout && !(inst->crcError && !LR_VALIDATE_CRCERROR);
 	inst->rssi = SX1278_getRSSI(inst);
 	inst->rxLen = packet_size;
 	SX1278_clearLoRaIrq(inst);
 	SX1278_standby(inst);
 
 
-	sprintf(inst->lastPacket, (char*)inst->rxBuffer);
+	//sprintf(inst->lastPacket, (char*)inst->rxBuffer);
 
 
 	if (inst->rxTimeout)
@@ -428,11 +433,24 @@ bool SX1278_dio0_IRQ(SX1278* inst)
 	}
 }
 
+bool SX1278_intTimeout(SX1278* inst)
+{
+	if ((millis() - inst->rxStart >= inst->config.rxTimeoutSymb) && inst->mode == RX && inst->pendingIRQ)
+	{
+		inst->rxTimeout = true;
+		inst->rxStart = millis();
+
+		return true;
+	}
+	return false;
+}
+
 void SX1278_update_IRQ_status(SX1278* inst)
 {
 	inst->irqStatus = SX1278_read_address(inst, LR_RegIrqFlags);
-	inst->rxTimeout = ((inst->irqStatus & IRQ_LR_RXTIMEOUT) > 0x00);
 	inst->rxDone = 	  ((inst->irqStatus & IRQ_LR_RXDONE) > 0x00);
+	// || inst->rxDone ##################################################### might cause error when reading this value!!!!!!!!!!!!!!!!!!!!!!!
+	inst->rxTimeout = ((inst->irqStatus & IRQ_LR_RXTIMEOUT) > 0x00) || !(inst->rxDone);
 	inst->crcError =  ((inst->irqStatus & IRQ_LR_CRCERROR) > 0x00);
 }
 

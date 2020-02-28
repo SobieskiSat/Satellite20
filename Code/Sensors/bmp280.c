@@ -1,4 +1,5 @@
 #include "bmp280.h"
+#include "run.h"
 
 static inline int read_data(BMP280 *inst, uint8_t addr, uint8_t *value, uint8_t len) {
 	uint16_t tx_buff;
@@ -13,8 +14,8 @@ static int write_register8(BMP280 *inst, uint8_t addr, uint8_t value) {
 
 	tx_buff = (inst->addr << 1);
 
-	if (HAL_I2C_Mem_Write(inst->i2c, tx_buff, addr, 1, &value, 1, 10000) == HAL_OK) return false;
-	else return true;
+	if (HAL_I2C_Mem_Write(inst->i2c, tx_buff, addr, 1, &value, 1, 10000) == HAL_OK) return 0;
+	else return 1;
 }
 
 static bool read_register16(BMP280 *inst, uint8_t addr, uint16_t *value) {

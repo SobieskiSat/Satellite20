@@ -6,13 +6,14 @@
 #include <math.h>
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_i2c.h"
+#include "run.h"
 
 //===================================================================================================================
 //====== Set of useful function to access acceleratio, gyroscope, and temperature data
 //===================================================================================================================
 void MPU_writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
-	HAL_I2C_Mem_Write(Get_I2C1_Instance(), address, subAddress, 1, &data, 1, 1);
+	HAL_I2C_Mem_Write(Get_I2C1_Instance(), address, subAddress, 1, &data, 1, 2);
 	//while(HAL_I2C_GetState(Get_I2C1_Instance()) != HAL_I2C_STATE_READY);
 	/*print("Write:");
 	print_int(data);
@@ -25,7 +26,7 @@ char MPU_readByte(uint8_t address, uint8_t subAddress)
 
 
 	//i2c.write(address, data_write, 1, 1); // no stop
-	HAL_I2C_Mem_Read(Get_I2C1_Instance(), address, subAddress, 1, data, 1, 1);
+	HAL_I2C_Mem_Read(Get_I2C1_Instance(), address, subAddress, 1, data, 1, 2);
 	//while(HAL_I2C_GetState(Get_I2C1_Instance()) != HAL_I2C_STATE_READY);
 	/*print("Read:");
 	print_int(data[0]);
@@ -38,7 +39,7 @@ void MPU_readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t* 
 {     
 	uint8_t data[14];
 
-	HAL_I2C_Mem_Read(Get_I2C1_Instance(), address, subAddress, 1, data, count, 1);
+	HAL_I2C_Mem_Read(Get_I2C1_Instance(), address, subAddress, 1, data, count, 2);
 	//while(HAL_I2C_GetState(Get_I2C1_Instance()) != HAL_I2C_STATE_READY);
 	/*print("Reads:");
 	int bo = 0;

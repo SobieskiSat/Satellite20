@@ -91,22 +91,24 @@ void log_save()
 	memset(gpsBuffer, 0x00, 1024);
 	memset(imuBuffer, 0x00, 1024);
 	memset(motBuffer, 0x00, 1024);
-	memset(radioBuffer, 0x00, 1024);
+	memset(radioBuffer, 0x00, 4096);
 }
 
 
 void log_print(char* line)
 {
-	if (logBufferIndex < 1024)
+	if (logBufferIndex < 950)
 	{
+		sprintf(timestamp, "\t@%lu\r\n", millis());
 		strcat(logBuffer, line);
+		strcat(logBuffer, timestamp);
 		logBufferIndex = strlen(logBuffer);
 	}
 }
 
 void log_bmp(BMP280* bmp)
 {
-	if (bmpBufferIndex < 1024)
+	if (bmpBufferIndex < 950)
 	{
 		sprintf(timestamp, "\t@%lu\r\n", millis());
 		sprintf(tempBuffer, "%.02f %.02f", bmp->pressure, bmp->temperature);
@@ -119,7 +121,7 @@ void log_bmp(BMP280* bmp)
 }
 void log_gps(GPS* gps)
 {
-	if (gpsBufferIndex < 1024)
+	if (gpsBufferIndex < 950)
 	{
 		sprintf(timestamp, "\t@%lu\r\n", millis());
 		sprintf(tempBuffer, "%.07f %.07f", gps->latitudeDegrees, gps->longitudeDegrees);
@@ -132,7 +134,7 @@ void log_gps(GPS* gps)
 }
 void log_imu(float* eulers)
 {
-	if (imuBufferIndex < 1024)
+	if (imuBufferIndex < 950)
 	{
 		sprintf(timestamp, "\t@%lu\r\n", millis());
 		sprintf(tempBuffer, "%.02f %.02f %.02f", eulers[0], eulers[1], eulers[2]);
@@ -146,7 +148,7 @@ void log_imu(float* eulers)
 
 void log_mot(float left, float right)
 {
-	if (motBufferIndex < 1024)
+	if (motBufferIndex < 950)
 	{
 		sprintf(timestamp, "\t@%lu\r\n", millis());
 		sprintf(tempBuffer, "%.01f %.01f", left, right);
@@ -159,19 +161,20 @@ void log_mot(float left, float right)
 }
 void log_radio(SX1278* radio, bool transmit)
 {
-	if (radioBufferIndex < 1024)
+	if (radioBufferIndex < 3700)
 	{
 		sprintf(timestamp, "]\t@%lu\r\n", millis());
 
 		if (transmit)
 		{
 			sprintf(tempBuffer, "TX\t[");
+			strcat(tempBuffer, radio->txBuffer);
 		}
 		else
 		{
 			sprintf(tempBuffer, "RX\t%d\t[", radio->rssi);
+			strcat(tempBuffer, radio->rxBuffer);
 		}
-		strcat(tempBuffer, radio->lastPacket);
 
 		strcat(tempBuffer, timestamp);
 		strcat(radioBuffer, tempBuffer);

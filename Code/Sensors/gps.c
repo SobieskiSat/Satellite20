@@ -195,8 +195,10 @@ bool GPS_init(GPS* inst)
 	//GPS_standby(inst);
 	//GPS_wakeup(inst);
 
-	GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_ALLDATA);
-	GPS_sendCommand(inst, PMTK_SET_NMEA_UPDATE_5HZ);
+	HAL_Delay(1000);
+
+	GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_RMCGGAGSA);
+	GPS_sendCommand(inst, PMTK_SET_NMEA_UPDATE_1HZ);
 
 	HAL_Delay(1000);
 
@@ -211,12 +213,13 @@ bool GPS_init(GPS* inst)
 		if (GPS_newNMEAreceived(inst))
 		{
 			// not exact, but works now
+			GPS_parse(inst, GPS_lastNMEA(inst));
 			if (GPS_lastNMEA(inst)[0] == '$' && GPS_lastNMEA(inst)[1] == 'G')
 			{
 				inst->active = true;
 
-				GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_ALLDATA);
-				GPS_sendCommand(inst, PMTK_SET_NMEA_UPDATE_5HZ);
+				//GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_RMCGGAGSA);
+				//GPS_sendCommand(inst, PMTK_SET_NMEA_UPDATE_1HZ);
 				return true;
 			}
 		}
