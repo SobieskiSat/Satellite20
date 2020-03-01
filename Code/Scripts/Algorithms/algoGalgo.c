@@ -16,7 +16,7 @@ float yaw_last_error;
 
 static void algoGalgo(float yaw, float target_yaw)
 {
-	float maxPower = 0.8;	// scale of motor power
+	float maxPower = 0.6;	// scale of motor power
 	float TurboMode= 50.0;
 	// Aim center: yaw = 180*
 //	float target_yaw = 180.0;

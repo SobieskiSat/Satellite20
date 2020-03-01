@@ -23,11 +23,13 @@ uint32_t lastDataPrint;
 uint32_t lastBmpLog;
 uint32_t lastImuLog;
 uint32_t lastBmpRead;
+uint32_t lastGpsRead;
 // IMU
 // (SPS)
 
 static bool sensing_begin(void)
 {
+
 	uint8_t attempts = 0;
 
 	attempts = 0;
@@ -84,13 +86,14 @@ static void sensing_loop(void)
 
 	if (gps.active)
 	{
-		GPS_read(&gps);
+		//while (GPS_read(&gps));
 		if (GPS_newNMEAreceived(&gps))
 		{
-			//println(GPS_lastNMEA(&gps));
-			if (gps.fix) log_gps(&gps);
+			println(GPS_lastNMEA(&gps));
 			GPS_parse(&gps, GPS_lastNMEA(&gps));
+			if (gps.fix) log_gps(&gps);
 		}
+		lastGpsRead = millis();
 	}
 
 	if (bmp.active && millis() - lastBmpRead >= 50)
@@ -134,7 +137,6 @@ static void sensing_loop(void)
 		{
 			if (gps.fix)
 			{
-				HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_SET);
 				print("Latitude: "); print_float(gps.latitudeDegrees); println("");
 				print("Longitude: "); print_float(gps.longitudeDegrees); println("");
 			}

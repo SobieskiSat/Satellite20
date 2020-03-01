@@ -85,7 +85,7 @@ static bool duplex_loop(uint8_t* buf, uint8_t len, bool externallyInvoked)
 					}
 					else if (radio.rxTimeout)
 					{
-						println("[LoRa] Receive timeout.");
+						if (DUPLEX_DEBUG) println("[LoRa] Receive timeout.");
 					}
 					HAL_GPIO_WritePin(LEDC_GPIO_Port, LEDC_Pin, GPIO_PIN_RESET);
 					isReceiving = false;

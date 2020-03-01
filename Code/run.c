@@ -55,41 +55,64 @@ static void setup(void)
 	//while (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_SET);
 
 	HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
-	HAL_Delay(1000);
+	//HAL_Delay(1000);
 
 	duplex_loop("new transmit", 14, true);
 	lastSave = millis();
 	servoState = 0;
 }
 
+static void preparePacket()
+{
+	uint32_t temv = 0;
+	temv = (uint32_t)(bmp.pressure * 10);
+	radio.txBuffer[0] = (uint8_t)(temv >> 0) & 0xFF;
+	radio.txBuffer[1] = (uint8_t)(temv >> 8) & 0xFF;
+	radio.txBuffer[2] = (uint8_t)(temv >> 16) & 0xFF;
+	radio.txBuffer[3] = (uint8_t)(temv >> 24) & 0xFF;
+
+	temv = (uint32_t)(bmp.temperature * 10);
+	radio.txBuffer[4] = (uint8_t)(temv >> 0) & 0xFF;
+	radio.txBuffer[5] = (uint8_t)(temv >> 8) & 0xFF;
+	radio.txBuffer[6] = (uint8_t)(temv >> 16) & 0xFF;
+	radio.txBuffer[7] = (uint8_t)(temv >> 24) & 0xFF;
+
+	temv = (uint32_t)(gps.latitudeDegrees * 10000000);
+	radio.txBuffer[8] = (uint8_t)(temv >> 0) & 0xFF;
+	radio.txBuffer[9] = (uint8_t)(temv >> 8) & 0xFF;
+	radio.txBuffer[10] = (uint8_t)(temv >> 16) & 0xFF;
+	radio.txBuffer[11] = (uint8_t)(temv >> 24) & 0xFF;
+
+	temv = (uint32_t)(gps.longitudeDegrees * 10000000);
+	radio.txBuffer[12] = (uint8_t)(temv >> 0) & 0xFF;
+	radio.txBuffer[13] = (uint8_t)(temv >> 8) & 0xFF;
+	radio.txBuffer[14] = (uint8_t)(temv >> 16) & 0xFF;
+	radio.txBuffer[15] = (uint8_t)(temv >> 24) & 0xFF;
+
+	radio.txBuffer[16] = (uint8_t)(yaw * (255.0 / 360.0));
+	radio.txBuffer[17] = (uint8_t)(pitch * (255.0 / 360.0));
+	radio.txBuffer[18] = (uint8_t)(roll * (255.0 / 360.0));
+
+	radio.txBuffer[19] = 0x00;
+	radio.txLen = 20;
+}
+
+
 static void loop(void)
 {
 	sensing_loop();
 
-
-	if (millis() - lastSave >= 500)	// save SD buffers while waiting for packet but no frequent than 1Hz
+	if (millis() - lastSave >= 1137)	// save SD buffers while waiting for packet but no frequent than 1Hz
 	{
 		log_save();
 		lastSave = millis();
 	}
 
-
-
 	if (duplex_checkINT())
 	{
-		radio.txLen = sprintf(radio.txBuffer, "%.01f_%.01f_%.07f_%.07f ", bmp.pressure, bmp.temperature, gps.latitudeDegrees, gps.longitudeDegrees); //imortant to leave last byte
+		//radio.txLen = sprintf(radio.txBuffer, "%.01f_%.01f_%.07f_%.07f ", bmp.pressure, bmp.temperature, gps.latitudeDegrees, gps.longitudeDegrees); //imortant to leave last byte
+		preparePacket();
 		duplex_loop(radio.txBuffer, radio.txLen, true);
-
-		/*
-		if (isReceiving && (millis() - lastSave >= 1500))	// save SD buffers while waiting for packet but no frequent than 1Hz
-		{
-			println("Saving");
-			log_save();
-			println("Done saving");
-			lastSave = millis();
-		}
-		*/
-
 
 		if ((float)radio.rxBuffer[radio.rxLen - 1] * (360.0 / 255.0))
 		{
@@ -115,6 +138,4 @@ static void loop(void)
 		//print_float(yaw); println("");
 		lastMotUpdate = millis();
 	}
-
-
 }

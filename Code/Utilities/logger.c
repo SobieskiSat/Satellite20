@@ -29,6 +29,7 @@ void log_new()
 	SD_newFile(strcat(directoryName, "/MOT.TXT"));
 	sprintf(directoryName, directoryNameCopy);
 	SD_newFile(strcat(directoryName, "/RADIO.TXT"));
+	sprintf(directoryName, directoryNameCopy);
 
 	logBufferIndex = 0;
 	bmpBufferIndex = 0;
@@ -40,7 +41,8 @@ void log_new()
 
 void log_save()
 {
-	//SD_init();
+	//__disable_irq();
+
 
 	if (logBufferIndex > 0)
 	{
@@ -48,30 +50,35 @@ void log_save()
 		sprintf(directoryName, directoryNameCopy);
 		SD_writeToFile(openedPath, logBuffer);
 	}
+
 	if (bmpBufferIndex > 0)
 	{
 		sprintf(openedPath, strcat(directoryName, "/BMP.TXT"));
 		sprintf(directoryName, directoryNameCopy);
 		SD_writeToFile(openedPath, bmpBuffer);
 	}
+
 	if (gpsBufferIndex > 0)
 	{
 		sprintf(openedPath, strcat(directoryName, "/GPS.TXT"));
 		sprintf(directoryName, directoryNameCopy);
 		SD_writeToFile(openedPath, gpsBuffer);
 	}
+
 	if (imuBufferIndex > 0)
 	{
 		sprintf(openedPath, strcat(directoryName, "/IMU.TXT"));
 		sprintf(directoryName, directoryNameCopy);
 		SD_writeToFile(openedPath, imuBuffer);
 	}
+
 	if (motBufferIndex > 0)
 	{
 		sprintf(openedPath, strcat(directoryName, "/MOT.TXT"));
 		sprintf(directoryName, directoryNameCopy);
 		SD_writeToFile(openedPath, motBuffer);
 	}
+
 	if (radioBufferIndex > 0)
 	{
 		sprintf(openedPath, strcat(directoryName, "/RADIO.TXT"));

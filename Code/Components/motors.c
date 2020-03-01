@@ -22,7 +22,7 @@ void setMotors(float dutyL, float dutyR)
 		TIM4->CNT = 0;	// reset timer counter -> clears motor timeout
 
 		HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, GPIO_PIN_RESET);
 	}
 }
 

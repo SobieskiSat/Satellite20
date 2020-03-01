@@ -1,6 +1,6 @@
 run.h:22:20:print	16	static
-run.h:32:20:println	24	static
-run.h:72:20:print_float	24	static
+run.h:32:20:println	16	static
+run.h:72:20:print_float	16	static
 clock.h:10:24:micros	4	static
 clock.h:11:24:millis	4	static
 imuTest.c:37:13:imuTest_getData	8	static
@@ -8,7 +8,7 @@ imuTest.c:67:13:imuTest_quatUpdate	8	static
 imuTest.c:85:13:imuTest_getEuler	16	static
 imuTest.c:96:13:imuTest_printData	8	static
 imuTest.c:138:13:imuTest_begin	24	static
-imuTest.c:236:13:imuTest_loop	8	static
+imuTest.c:242:13:imuTest_loop	8	static
 algoGalgo.c:17:13:algoGalgo	72	static
 algoGalgo.c:84:14:bearing	72	static
 steering.c:26:13:steering_begin	8	static

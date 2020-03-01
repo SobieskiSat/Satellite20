@@ -185,6 +185,8 @@ typedef struct
 	bool paused;
 	bool active;
 
+	uint8_t uartBuffer[1];
+
 } GPS;
 
 bool GPS_begin(GPS* inst, uint32_t baud_or_i2caddr);

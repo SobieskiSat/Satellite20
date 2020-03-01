@@ -209,6 +209,9 @@ static bool imuTest_begin(void)
 		if (d == 0x48) println("[MAG] SUCCESSS!!!!");
 
 		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(LEDC_GPIO_Port, LEDC_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_SET);
 
 		HAL_Delay(1000);
 
@@ -226,8 +229,11 @@ static bool imuTest_begin(void)
 		print("[MAG] Y-Axis sensitivity adjustment value "); print_float(magCalibration[1]); println("");
 		print("[MAG] Z-Axis sensitivity adjustment value "); print_float(magCalibration[2]); println("");
 
-
 		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(LEDC_GPIO_Port, LEDC_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
+
 		imuActive = true;
 		return true;
 	}

@@ -62,51 +62,54 @@ char GPS_read(GPS* inst)
 	static uint32_t firstChar = 0; // first character received in current sentence
 	uint32_t tStart = millis();		// as close as we can get to time char was sent
 	char c = 0;
-	uint8_t ca[1] = {0};
 
 	if (inst->paused) return c;
 
 	HAL_StatusTypeDef status = HAL_OK;
-	status = HAL_UART_Receive(inst->uart, ca, 1, 50);
-	//print("Status: ");
-	//print_int(status);
-	//println("");
-	c = (char)ca[0];
-
-	inst->currentline[inst->lineidx++] = c;
-	if (inst->lineidx >= MAXLINELENGTH) inst->lineidx = MAXLINELENGTH - 1; // ensure there is someplace to put the next received character
-
-	if (c == '\n')
+	//status = HAL_UART_Receive(inst->uart, ca, 1, 50);
+	if (status == HAL_OK)
 	{
-		inst->currentline[inst->lineidx] = 0;
+		//print("Status: ");
+		//print_int(status);
+		//println("");
+		c = (char)inst->uartBuffer[0];
 
-		if (inst->currentline == inst->line1)
+		inst->currentline[inst->lineidx++] = c;
+		if (inst->lineidx >= MAXLINELENGTH) inst->lineidx = MAXLINELENGTH - 1; // ensure there is someplace to put the next received character
+
+		if (c == '\n')
 		{
-			inst->currentline = inst->line2;
-			inst->lastline = inst->line1;
-		}
-		else
-		{
-			inst->currentline = inst->line1;
-			inst->lastline = inst->line2;
+			inst->currentline[inst->lineidx] = 0;
+
+			if (inst->currentline == inst->line1)
+			{
+				inst->currentline = inst->line2;
+				inst->lastline = inst->line1;
+			}
+			else
+			{
+				inst->currentline = inst->line1;
+				inst->lastline = inst->line2;
+			}
+
+			// Serial.//println("----");
+			// Serial.//println((char* )lastline);
+			// Serial.//println("----");
+			inst->lineidx = 0;
+			inst->recvdflag = true;
+			inst->recvdTime = millis(); // time we got the end of the string
+			inst->sentTime = firstChar;
+			firstChar = 0; // there are no characters yet
+			return c;			// wait until next character to set time
 		}
 
-		// Serial.//println("----");
-		// Serial.//println((char* )lastline);
-		// Serial.//println("----");
-		inst->lineidx = 0;
-		inst->recvdflag = true;
-		inst->recvdTime = millis(); // time we got the end of the string
-		inst->sentTime = firstChar;
-		firstChar = 0; // there are no characters yet
-		return c;			// wait until next character to set time
+		if (firstChar == 0) firstChar = tStart;
 	}
-
-	if (firstChar == 0) firstChar = tStart;
-
 	//wait for finished transmission
 	////println("[GPS] read() ... waiting");
-	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);
+//	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);
+	//print("Status: "); print_int(status); print(" c: "); print_char(c); println("");
+	if (status != HAL_OK) return 0x00;
 	////println("[GPS] finished");
 	return c;
 }
@@ -197,34 +200,36 @@ bool GPS_init(GPS* inst)
 
 	HAL_Delay(1000);
 
-	GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_RMCGGAGSA);
+	GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_ALLDATA);
 	GPS_sendCommand(inst, PMTK_SET_NMEA_UPDATE_1HZ);
 
 	HAL_Delay(1000);
 
-	GPS_sendCommand(inst, PMTK_Q_RELEASE);
-	HAL_Delay(10);
+	//GPS_sendCommand(inst, PMTK_Q_RELEASE);
+
+	HAL_UART_Receive_IT(inst->uart, inst->uartBuffer, 1);
 
 	uint32_t timeout = millis();
 
 	while (millis() - timeout <= 1000)
 	{
-		GPS_read(inst);
+		//GPS_read(inst);
 		if (GPS_newNMEAreceived(inst))
 		{
 			// not exact, but works now
 			GPS_parse(inst, GPS_lastNMEA(inst));
 			if (GPS_lastNMEA(inst)[0] == '$' && GPS_lastNMEA(inst)[1] == 'G')
 			{
-				inst->active = true;
-
 				//GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_RMCGGAGSA);
 				//GPS_sendCommand(inst, PMTK_SET_NMEA_UPDATE_1HZ);
+				inst->active = true;
 				return true;
+
 			}
 		}
 	}
-	return false;
+	return true;
+//	return false;
 }
 
 /**************************************************************************/
