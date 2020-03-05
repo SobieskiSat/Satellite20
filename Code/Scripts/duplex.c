@@ -11,7 +11,7 @@
 #include "logger.h"
 
 #define DUPLEX_DEBUG 0
-#define DUPLEX_PRINT_PACKET 1
+#define DUPLEX_PRINT_PACKET 0
 #define DUPLEX_TX_COUNT 7
 
 SX1278 radio;

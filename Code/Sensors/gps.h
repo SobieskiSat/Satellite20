@@ -72,7 +72,7 @@ position fix rate commands below too. */
 #define PMTK_Q_RELEASE "$PMTK605*31" // ask for the release and version
 #define PMTK_Q_RELEASE_RESPONSE (char *)"$GPGSA,A,1,,,,,,,,,,,,,,,*1E" // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ << add that
 
-#define PGCMD_ANTENNA "$PGCMD,33,1*6C" // request for updates on antenna status
+#define PGCMD_ANTENNA "$CDCMD,33,1*7C" // request for updates on antenna status
 #define PGCMD_NOANTENNA "$PGCMD,33,0*6D" // don't show antenna status messages
 
 #define MAXWAITSENTENCE 10 // how long to wait when we're looking for a response

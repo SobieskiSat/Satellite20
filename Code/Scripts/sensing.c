@@ -32,6 +32,7 @@ static bool sensing_begin(void)
 
 	uint8_t attempts = 0;
 
+
 	attempts = 0;
 	bmp.params = bmp280_default_config;
 	bmp.addr = BMP280_I2C_ADDRESS_0;
@@ -51,7 +52,6 @@ static bool sensing_begin(void)
 		}
 	}
 
-	imuTest_begin();
 	//if (imuTest_begin()) { println("[IMU] Init successful!"); log_print("IMU init success"); }
 	//	else { log_print("Unable to init IMU"); }
 
@@ -72,6 +72,8 @@ static bool sensing_begin(void)
 		}
 	}
 
+	//imuTest_begin();
+
 	if (SENSING_DEBUG)
 	{
 		println("Sensor init summary:");
@@ -91,10 +93,13 @@ static void sensing_loop(void)
 		{
 			println(GPS_lastNMEA(&gps));
 			GPS_parse(&gps, GPS_lastNMEA(&gps));
-			if (gps.fix) log_gps(&gps);
+			//if (gps.fix) log_gps(&gps);
+			if (gps.fix) HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, 1);
+			else HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, 0);
 		}
 		lastGpsRead = millis();
 	}
+
 
 	if (bmp.active && millis() - lastBmpRead >= 50)
 	{

@@ -201,10 +201,15 @@ bool GPS_init(GPS* inst)
 	HAL_Delay(1000);
 
 	GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_ALLDATA);
-	GPS_sendCommand(inst, PMTK_SET_NMEA_UPDATE_1HZ);
 
 	HAL_Delay(1000);
 
+	GPS_sendCommand(inst, PMTK_SET_NMEA_UPDATE_5HZ);
+
+	HAL_Delay(1000);
+
+	//GPS_sendCommand(inst, PMTK_API_SET_FIX_CTL_1HZ);
+	//GPS_sendCommand(inst, PGCMD_ANTENNA);
 	//GPS_sendCommand(inst, PMTK_Q_RELEASE);
 
 	HAL_UART_Receive_IT(inst->uart, inst->uartBuffer, 1);
@@ -217,6 +222,7 @@ bool GPS_init(GPS* inst)
 		if (GPS_newNMEAreceived(inst))
 		{
 			// not exact, but works now
+			println(GPS_lastNMEA(inst));
 			GPS_parse(inst, GPS_lastNMEA(inst));
 			if (GPS_lastNMEA(inst)[0] == '$' && GPS_lastNMEA(inst)[1] == 'G')
 			{
@@ -246,6 +252,8 @@ void GPS_sendCommand(GPS* inst, char* str)
 	//println("[GPS] sendCommand()... waiting");
 	// wait for finished transmission
 	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);
+	uint8_t nla[2] = {(uint8_t)('\r'), (uint8_t)('\n')};
+	HAL_UART_Transmit(inst->uart, nla, 2, HAL_MAX_DELAY);
 	//println("[GPS] finished");
 }
 
