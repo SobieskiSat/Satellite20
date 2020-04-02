@@ -21,12 +21,18 @@ static void algoGalgo(float yaw, float target_yaw)
 	// Aim center: yaw = 180*
 //	float target_yaw = 180.0;
 	float error=target_yaw-yaw;
-	float thrust = 180.0+TurboMode;
+	float thrust;
 
-	if (error<-180.0)
+	if (error<-180.0) //ulomne modulo
 		error = target_yaw-yaw+360.0;
 	else if (error>180.0)
 		error = target_yaw-yaw-360.0;
+
+	if (error>-10 && error<10)
+		thrust = 340.0;
+	else
+		thrust = 180.0+TurboMode;
+
 
 
 
