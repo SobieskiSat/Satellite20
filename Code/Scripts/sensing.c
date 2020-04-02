@@ -72,7 +72,7 @@ static bool sensing_begin(void)
 		}
 	}
 
-	//imuTest_begin();
+	imuTest_begin();
 
 	if (SENSING_DEBUG)
 	{

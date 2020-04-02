@@ -36,9 +36,9 @@ static void mot_up_down(void)
 			haltMotors();
 			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
 		}
-		HAL_Delay(100);
+		HAL_Delay(10);
 	}
-	HAL_Delay(400);
+	HAL_Delay(4000);
 	for (i = 254; i > 0; i--)
 	{
 		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == (GPIO_PIN_RESET & MOTORTEST_ON_USR_PRESS))
@@ -52,7 +52,7 @@ static void mot_up_down(void)
 			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
 		}
 
-		HAL_Delay(100);
+		HAL_Delay(10);
 	}
 	HAL_Delay(400);
 }

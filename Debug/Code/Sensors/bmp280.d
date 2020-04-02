@@ -46,7 +46,8 @@ Code/Sensors/bmp280.o: ../Code/Sensors/bmp280.c ../Code/Sensors/bmp280.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
- ../Inc/main.h
+ ../Inc/main.h ../Inc/usb_device.h \
+ ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h
 
 ../Code/Sensors/bmp280.h:
 
@@ -147,3 +148,7 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:
 
 ../Inc/main.h:
+
+../Inc/usb_device.h:
+
+../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h:

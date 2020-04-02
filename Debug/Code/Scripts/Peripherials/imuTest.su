@@ -1,6 +1,6 @@
-run.h:22:20:print	16	static
-run.h:32:20:println	24	static
-run.h:72:20:print_float	24	static
+run.h:38:20:print	16	static
+run.h:48:20:println	24	static
+run.h:91:20:print_float	24	static
 clock.h:10:24:micros	4	static
 clock.h:11:24:millis	4	static
 imuTest.c:37:13:imuTest_getData	8	static

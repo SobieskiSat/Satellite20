@@ -1,7 +1,8 @@
-run.h:22:20:print	16	static
-run.h:32:20:println	24	static
-run.h:61:20:print_int	16	static
-run.h:72:20:print_float	24	static
+run.h:29:20:print_format	16	static
+run.h:38:20:print	16	static
+run.h:48:20:println	24	static
+run.h:80:20:print_int	16	static
+run.h:91:20:print_float	24	static
 clock.h:10:24:micros	4	static
 clock.h:11:24:millis	4	static
 clock.h:43:24:getTime	56	static
@@ -22,6 +23,6 @@ motorTest.c:16:13:motorTest_begin	8	static
 motorTest.c:24:13:mot_up_down	16	static
 algoGalgo.c:17:13:algoGalgo	72	static
 algoGalgo.c:84:14:bearing	72	static
-run.c:30:13:setup	8	static
-run.c:81:13:preparePacket	24	static
-run.c:117:13:loop	24	static
+run.c:30:13:setup	4	static
+run.c:87:13:preparePacket	24	static
+run.c:123:13:loop	24	static

@@ -2,11 +2,10 @@
 #define COMPONENTS_CLOCK_H_
 
 #include <stdbool.h>
-#include "stm32f4xx_hal.h"
-#include "main.h"
 #include "run.h"
+#include "main.h"
+#include "stm32f4xx_hal.h"
 
-// TIM5 has 32-bit counter -> takes longer to overflow
 static inline uint32_t micros(void) { return (uint32_t)TIM2->CNT; }
 static inline uint32_t millis(void) { return (uint32_t)(TIM2->CNT) / 1000; }
 static inline uint32_t seconds(void) { return (uint32_t)(TIM2->CNT) / 1000000; }
@@ -15,7 +14,6 @@ typedef struct
 {
 	uint8_t year;		// 00:99 (+2000)
 	uint8_t month;		// 1:12
-	//uint16_t dayY;		// 1:366
 	uint8_t dayM;		// 1:31
 	uint8_t dayW;		// 1:7
 
@@ -38,6 +36,8 @@ static inline bool setTime(DateTime* dateTime)
 	rtc_date.Month = dateTime->month; //conversion might be needed
 	rtc_date.Date = dateTime->dayM;
 	if (HAL_RTC_SetDate(Get_RTC_Instance(), &rtc_date, RTC_FORMAT_BIN) != HAL_OK) return false;
+	
+	return true;
 }
 
 static inline DateTime getTime(void)
@@ -51,7 +51,6 @@ static inline DateTime getTime(void)
 
 	toReturn.year = rtc_date.Year;
 	toReturn.month = rtc_date.Month;// - (rtc_date.Month >= 0x10 ? 0 : 6);	//conversion from silly BTC format
-	//toReturn.dayY = rtc_date.
 	toReturn.dayM = rtc_date.Date;
 	toReturn.dayW = rtc_date.WeekDay;
 	toReturn.hour = rtc_time.Hours;
@@ -65,9 +64,9 @@ static inline DateTime getTime(void)
 static inline void printDate(void)
 {
 	DateTime now = getTime();
-	printLen = sprintf(printBuffer, "%d-%d-20%d %d:%d:%d:%d\r\n", now.dayM, now.month, now.year,
+	println("%d-%d-20%d %d:%d:%d:%d",
+			now.dayM, now.month, now.year,
 			now.hour, now.minute, now.second, now.msecond);
-	printv(printBuffer, printLen);
 }
 
 #endif /* COMPONENTS_CLOCK_H_ */
