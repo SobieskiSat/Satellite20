@@ -22,17 +22,29 @@ static SX1278_config sx1278_default_config =
 };
 
 // IMU config
-#define IMU_CALIBRATE 1	// force calibration on startup
-#define YAW_OFFSET 0.0	// offset from real magnetic north [deg]
+#include "mpu9250.h"
+static MPU9250_config mpu9250_default_config =
+{
+	{0.0, 0.0, 0.0}		// Euler offsets
+	AFS_2G,				// Ascale
+	GFS_250DPS, 		// Gscale
+	MFS_16BITS, 		// Mscale
+	0x06,				// Mmode
+	{0.0, 0.0, 0.0},	// magbias[3]
+	{0.0, 0.0, 0.0},	// gyroBias[3]
+	{0.0, 0.0, 0.0},	// accelBias[3]
+	true				// force calibration on startup
+};
 
 // Pressure sensor config
 #include "bmp280.h"
+#define SEA_PRESSURE 1002	// pressure at sea level [hPa]
 static BMP280_config bmp280_default_config =
 {
 	BMP280_MODE_NORMAL,		// operation mode
 	BMP280_FILTER_OFF,		// short-term dirsturbance filter
-	BMP280_ULTRA_HIGH_RES,	// pressure resolution
-	BMP280_ULTRA_HIGH_RES,	// temperature resolution
+	BMP280_OVERSAMPLING_16,	// pressure oversampling (1:16 or none)
+	BMP280_OVERSAMPLING_16,	// temperature oversampling (1:16 or none)
 	BMP280_STANDBY_05		// standby between measurements (05:4000)[ms]
 };
 

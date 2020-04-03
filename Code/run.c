@@ -5,12 +5,14 @@
 
 static void setup(void)
 {
-
+	writePin(LEDD, HIGH);	while (readPin(BTN_USR) == HIGH);	writePin(LEDD, LOW);
+	println("Hello world");
 }
 
 static void loop(void)
 {
-
+	togglePin(LEDA);
+	delay(1000);
 }
 
 /* #### setup ####
@@ -20,7 +22,7 @@ static void loop(void)
 		logger_setup();
 	#endif
 	#if RADIO_ENABLE
-		duplex_setup(); // <--- handlers??
+		duplex_setup();
 	#endif
 	#if (IMU_ENABLE || GPS_ENABLE || BMP_ENABLE)
 		sensing_setup();

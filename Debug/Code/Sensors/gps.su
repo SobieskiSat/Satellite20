@@ -1,5 +1,6 @@
-run.h:48:20:println	24	static
-clock.h:11:24:millis	4	static
+clock.h:8:24:micros	4	static
+clock.h:9:24:millis	4	static
+run.h:61:20:println	24	static
 gps.c:23:6:GPS_available	16	static
 gps.c:41:6:GPS_write	24	static
 gps.c:59:6:GPS_read	32	static

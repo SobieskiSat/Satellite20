@@ -4,6 +4,7 @@
 "Code/Components/sx1278.o"
 "Code/Scripts/Algorithms/algoGalgo.o"
 "Code/Scripts/FunctionalTests/distance.o"
+"Code/Scripts/FunctionalTests/fdr_tests.o"
 "Code/Scripts/Peripherials/bmpTest.o"
 "Code/Scripts/Peripherials/gpsTest.o"
 "Code/Scripts/Peripherials/imuTest.o"

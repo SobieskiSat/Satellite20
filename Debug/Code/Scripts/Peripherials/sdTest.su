@@ -1,7 +1,7 @@
-run.h:38:20:print	16	static
-run.h:48:20:println	24	static
-run.h:80:20:print_int	16	static
-clock.h:11:24:millis	4	static
-clock.h:43:24:getTime	56	static
+clock.h:8:24:micros	4	static
+clock.h:9:24:millis	4	static
+clock.h:42:24:getTime	56	static
+run.h:36:20:print	24	static
+run.h:61:20:println	24	static
 sdTest.c:19:13:sdTest_begin	88	static
 sdTest.c:58:13:sdTest_loop	56	static

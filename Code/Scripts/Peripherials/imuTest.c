@@ -2,13 +2,13 @@
 //		A code to test MPU9250
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+#include "run.h"
 #include "main.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_gpio.h"
-#include <stdbool.h>
 
-#include "motors.h"
-#include "run.h"
 #include "mpu9250.h"
 #include "clock.h"
 
@@ -20,19 +20,15 @@
 #define IMUTEST_PRINT_3DPLOT 0	// data for 3d plotter
 #define IMUTEST_PRINT_FREQ 10UL	// printing frequency in Hz
 
-float SelfTest[6];
-float MPU9250gyroBias[3];
-float MPU9250accelBias[3];
-float MPU9250magBias[3];      // Bias corrections for gyro and accelerometer
-float sum;
+MPU9250 mpu;
+
+static float sum;
 uint32_t sumCount;
 uint32_t lastPrint;
 uint32_t lastCompute;
 
 float a12, a22, a31, a32, a33;            // rotation matrix coefficients for Euler angles and gravity components
 float lin_ax, lin_ay, lin_az;             // linear acceleration (acceleration with gravity component subtracted)
-
-bool imuActive;
 
 static bool imuTest_getData(void)
 {
@@ -99,36 +95,22 @@ static void imuTest_printData(void)
 	{
 		println("[MPU] Data");
 		#if IMUTEST_PRINT_RAW
-		print("A[");
-		print_int((int)1000*ax); print(", ");
-		print_int((int)1000*ay); print(", ");
-		print_int((int)1000*az); print("]mg ");
-		print("G[");
-		print_float(gx); print(", ");
-		print_float(gy); print(", ");
-		print_float(gz); print("]deg/s ");
-		print("M[");
-		print_int((int)mx);
-		print_int((int)my);
-		print_int((int)mz); println("]mG");
+		println("A[%d, %d, %d]mg G[%f, %f, %f]deg/s M[%d, %d, %d]mG",
+				(int)1000*ax, (int)1000*ay, (int)1000*az,
+				gx, gy, gz,
+				(int)mx, (int)my, (int)mz);
 		#endif
 
 		#if IMUTEST_PRINT_QUAT
-		print("Q[");
-		print_float(q[0]); print(", ");
-		print_float(q[1]); print(", ");
-		print_float(q[2]); print(", ");
-		print_float(q[3]); println("]");
+		println("Q[%f, %f, %f, %f]", mpu.q[0], mpu.q[1], mpu.q[2], mpu.q[3]);
 		#endif
 
 		#if IMUTEST_PRINT_EULER
-		print("Y "); print_float(yaw);
-		print("P "); print_float(pitch);
-		print("R "); print_float(roll); println("");
+		println("Y %f P %f R %f", mpu.yaw, mpu.pitch, mpu.roll);
 		#endif
 
 		#if IMUTEST_3DPLOT
-		print("w"); print_float(q[0]); print("wa"); print_float(q[1]); print("ab"); print_float(q[2]); print("bc"); print_float(q[3]); println("c");
+		println("w%fwa%fab%fbc%fc", mpu.q[0], mpu.q[1], mpu.q[2], mpu.q[3]);
 		#endif
 
 		lastPrint = millis();
@@ -137,106 +119,13 @@ static void imuTest_printData(void)
 
 static bool imuTest_begin(void)
 {
-	imuActive = false;
-
-	println("imuTest start!");
-	GyroMeasError = PI * (60.0f / 180.0f);
-	beta = sqrt(3.0f / 4.0f) * GyroMeasError;
-	GyroMeasDrift = PI * (1.0f / 180.0f);
-	zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;
-
-	AAscale = AFS_2G;
-	GGscale = GFS_250DPS;
-	MMscale = MFS_16BITS;
-	Mmode = 0x06;
-	magCalibration[0] = 0;
-	magCalibration[1] = 0;
-	magCalibration[2] = 0;
-	magbias[0] = 0;
-	magbias[1] = 0;
-	magbias[2] = 0;
-	delt_t = 0;
-	count = 0;
-	deltat = 0.0f;
-	lastUpdate = 0;
-	firstUpdate = 0;
-	Now = 0;
-	q[0] = 1.0f;
-	q[1] = 0.0f;
-	q[2] = 0.0f;
-	q[3] = 0.0f;
-	eInt[0] = 0.0f;
-	eInt[1] = 0.0f;
-	eInt[2] = 0.0f;
-
-
-	if (MPU_present())
-	{
-		HAL_Delay(100);
-		MPU_SelfTest(SelfTest); // Start by performing self test and reporting values
-		println("MPU9250 Self Test:");
-		print("x-axis self test: acceleration trim within : "); print_float(SelfTest[0]); println("% of factory value");
-		print("y-axis self test: acceleration trim within : "); print_float(SelfTest[1]); println("% of factory value");
-		print("z-axis self test: acceleration trim within : "); print_float(SelfTest[2]); println("% of factory value");
-		print("x-axis self test: gyration trim within : "); print_float(SelfTest[3]); println("% of factory value");
-		print("y-axis self test: gyration trim within : "); print_float(SelfTest[4]); println("% of factory value");
-		print("z-axis self test: gyration trim within : "); print_float(SelfTest[5]); println("% of factory value");
-		HAL_Delay(1000);
-
-		// get sensor resolutions, only need to do this once
-		MPU_getAres();
-		MPU_getGres();
-		MPU_getMres();
-
-		println(" Calibrate MPU9250 gyro and accel");
-		MPU_calibrate(MPU9250gyroBias, MPU9250accelBias); // Calibrate gyro and accelerometers, load biases in bias registers
-		println("accel biases (mg)");
-		print_float(1000.0 * MPU9250accelBias[0]); println("");
-		print_float(1000.0 * MPU9250accelBias[1]); println("");
-		print_float(1000.0 * MPU9250accelBias[2]); println("");
-		println("gyro biases (dps)");
-		print_float(MPU9250gyroBias[0]); println("");
-		print_float(MPU9250gyroBias[1]); println("");
-		print_float(MPU9250gyroBias[2]); println("");
-
-		HAL_Delay(1000);
-
-		MPU_init();
-		println("MPU9250 initialized for active data mode...."); // Initialize device for active mode read of acclerometer, gyroscope, and temperature
-
-		// Read the WHO_AM_I register of the magnetometer, this is a good test of communication
-		char d = MPU_readByte(AK8963_ADDRESS, AK8963_WHO_AM_I);  // Read WHO_AM_I register for AK8963
-		if (d == 0x48) println("[MAG] SUCCESSS!!!!");
-
-		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(LEDC_GPIO_Port, LEDC_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_SET);
-
-		HAL_Delay(1000);
-
-		// Get magnetometer calibration from AK8963 ROM
-		AK8963_init(magCalibration); println("AK8963 initialized for active data mode...."); // Initialize device for active mode read of magnetometer
-
-		MPU_calibrateMag(MPU9250magBias);
-		println("AK8963 mag biases (mG)");
-		print_float(MPU9250magBias[0]); println("");
-		print_float(MPU9250magBias[1]); println("");
-		print_float(MPU9250magBias[2]); println("");
-		HAL_Delay(2000); // add delay to see results before serial spew of data
-
-		print("[MAG] X-Axis sensitivity adjustment value "); print_float(magCalibration[0]); println("");
-		print("[MAG] Y-Axis sensitivity adjustment value "); print_float(magCalibration[1]); println("");
-		print("[MAG] Z-Axis sensitivity adjustment value "); print_float(magCalibration[2]); println("");
-
-		HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(LEDC_GPIO_Port, LEDC_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
-
-		imuActive = true;
-		return true;
-	}
+	mpu.i2c = Get_I2C1_Instance();
+	mpu.i2c_addr = MPU9250_ADDRESS;
+	mpu.i2c_addr_ak = AK8963_ADDRESS;
+	MPU9250_init(&mpu, &mpu9250_default_config);
+	// LED blink blink - for move
+	AK8963_init(magCalibration); 
+	// LED blink blink - for move
 	return false;
 }
 static bool imuTest_loop(void)
@@ -244,6 +133,19 @@ static bool imuTest_loop(void)
 	imuTest_getData();
 	if (imuTest_quatUpdate()) imuTest_getEuler();
 	imuTest_printData();
+}
+
+static void imuTest_printSelfTest(void)
+{
+	println("MPU9250 Self Test [% of factory value]:");
+	println("Acceleration:\t%f\t%f\t%f", mpu.SelfTest[0], mpu.SelfTest[1], mpu.SelfTest[2]);
+	println("Gyration:\t%f\t%f\t%f", mpu.SelfTest[3], mpu.SelfTest[4], mpu.SelfTest[5]);
+}
+
+static void imuTest_printMagTest(void)
+{
+	println("AK8963 mag biases [mG]:\t%f\t%f\t%f", mpu.config.magBias[0], mpu.config.magBias[1], mpu.config.magBias[2]);
+	println("AK8963 Axis sensitivity adjustment values:\t%f\t%f\t%f", mpu.magCalibration[0], mpu.magCalibration[1], mpu.magCalibration[2]);
 }
 
 

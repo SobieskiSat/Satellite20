@@ -19,7 +19,7 @@ float pressure;
 static bool bmpTest_begin(void)
 {
 	bmp280.params = bmp280_default_config;
-	bmp280.addr = BMP280_I2C_ADDRESS_0;
+	bmp280.i2c_addr = BMP280_I2C_ADDRESS;
 	bmp280.i2c = Get_I2C1_Instance();
 
 	while (!bmp280_init(&bmp280, &bmp280.params)) {

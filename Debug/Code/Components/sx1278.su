@@ -1,4 +1,4 @@
-clock.h:11:24:millis	4	static
+clock.h:9:24:millis	4	static
 sx1278.c:15:6:SX1278_write	16	static
 sx1278.c:21:6:SX1278_command	16	static
 sx1278.c:30:6:SX1278_command_burst	32	static

@@ -35,7 +35,7 @@ static bool sensing_begin(void)
 
 	attempts = 0;
 	bmp.params = bmp280_default_config;
-	bmp.addr = BMP280_I2C_ADDRESS_0;
+	bmp.i2c_addr = BMP280_I2C_ADDRESS;
 	bmp.i2c = Get_I2C1_Instance();
 	//unneccessary, to change
 	while (!bmp280_init(&bmp, &bmp.params))

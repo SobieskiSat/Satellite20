@@ -1,5 +1,5 @@
-run.h:48:20:println	24	static
-run.h:70:20:printv	16	static
+clock.h:8:24:micros	4	static
+run.h:61:20:println	24	static
 motors.c:14:6:setMotors	16	static
 motors.c:29:6:haltMotors	4	static
 motors.c:38:6:enableMotors	8	static

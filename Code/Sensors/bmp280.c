@@ -1,102 +1,47 @@
 #include "bmp280.h"
 #include "run.h"
+#include "config.h"
 
-static inline int read_data(BMP280 *inst, uint8_t addr, uint8_t *value, uint8_t len) {
-	uint16_t tx_buff;
-	tx_buff = (inst->addr << 1);
-
-	if (HAL_I2C_Mem_Read(inst->i2c, tx_buff, addr, 1, value, len, 5000) == HAL_OK) return 0;
-	else return 1;
+static bool BMP280_readBytes(BMP280* inst, uint8_t mem_addr, uint8_t* data, uint8_t len)
+{
+	return (HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, data, len, 5000) == HAL_OK);
 }
 
-static int write_register8(BMP280 *inst, uint8_t addr, uint8_t value) {
-	uint16_t tx_buff;
-
-	tx_buff = (inst->addr << 1);
-
-	if (HAL_I2C_Mem_Write(inst->i2c, tx_buff, addr, 1, &value, 1, 10000) == HAL_OK) return 0;
-	else return 1;
+static bool BMP280_writeByte(BMP280* inst, uint8_t mem_addr, uint8_t data)
+{
+	return (HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr, mem_addr, 1, &data, 1, 10000) == HAL_OK);
 }
 
-static bool read_register16(BMP280 *inst, uint8_t addr, uint16_t *value) {
-	uint16_t tx_buff;
+static bool BMP280_read16(BMP280* inst, uint8_t mem_addr, uint16_t* data)
+{
 	uint8_t rx_buff[2];
-	tx_buff = (inst->addr << 1);
 
-	if (HAL_I2C_Mem_Read(inst->i2c, tx_buff, addr, 1, rx_buff, 2, 5000) == HAL_OK)
+	if (HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, rx_buff, 2, 5000) == HAL_OK)
 	{
-		*value = (uint16_t) ((rx_buff[1] << 8) | rx_buff[0]);
+		*data = (uint16_t)((rx_buff[1] << 8) | rx_buff[0]);
 		return true;
 	}
 	else return false;
-
 }
 
-static bool read_calibration_data(BMP280 *inst)
+static bool read_calibration_data(BMP280* inst)
 {
-	return (read_register16(inst, 0x88, &inst->dig_T1)
-	&& read_register16(inst, 0x8a, (uint16_t *) &inst->dig_T2)
-	&& read_register16(inst, 0x8c, (uint16_t *) &inst->dig_T3)
-	&& read_register16(inst, 0x8e, &inst->dig_P1)
-	&& read_register16(inst, 0x90, (uint16_t *) &inst->dig_P2)
-	&& read_register16(inst, 0x92, (uint16_t *) &inst->dig_P3)
-	&& read_register16(inst, 0x94, (uint16_t *) &inst->dig_P4)
-	&& read_register16(inst, 0x96, (uint16_t *) &inst->dig_P5)
-	&& read_register16(inst, 0x98, (uint16_t *) &inst->dig_P6)
-	&& read_register16(inst, 0x9a, (uint16_t *) &inst->dig_P7)
-	&& read_register16(inst, 0x9c, (uint16_t *) &inst->dig_P8)
-	&& read_register16(inst, 0x9e, (uint16_t *) &inst->dig_P9));
+	return(BMP280_read16(inst, 0x88, &inst->dig_T1)
+		&& BMP280_read16(inst, 0x8a, (uint16_t*) &inst->dig_T2)
+		&& BMP280_read16(inst, 0x8c, (uint16_t*) &inst->dig_T3)
+		&& BMP280_read16(inst, 0x8e, &inst->dig_P1)
+		&& BMP280_read16(inst, 0x90, (uint16_t*) &inst->dig_P2)
+		&& BMP280_read16(inst, 0x92, (uint16_t*) &inst->dig_P3)
+		&& BMP280_read16(inst, 0x94, (uint16_t*) &inst->dig_P4)
+		&& BMP280_read16(inst, 0x96, (uint16_t*) &inst->dig_P5)
+		&& BMP280_read16(inst, 0x98, (uint16_t*) &inst->dig_P6)
+		&& BMP280_read16(inst, 0x9a, (uint16_t*) &inst->dig_P7)
+		&& BMP280_read16(inst, 0x9c, (uint16_t*) &inst->dig_P8)
+		&& BMP280_read16(inst, 0x9e, (uint16_t*) &inst->dig_P9));
 }
 
-bool bmp280_init(BMP280 *inst, BMP280_config *params)
+static int32_t compensate_temperature(BMP280 *inst, int32_t adc_temp, int32_t *fine_temp)
 {
-	inst->active = false;
-	if (inst->addr != BMP280_I2C_ADDRESS_0 && inst->addr != BMP280_I2C_ADDRESS_1) return false;
-	if (read_data(inst, BMP280_REG_ID, &inst->id, 1)) return false;
-	if (inst->id != BMP280_CHIP_ID) return false;
-
-	// Soft reset.
-	if (write_register8(inst, BMP280_REG_RESET, BMP280_RESET_VALUE)) return false;
-
-	// Wait until finished copying over the NVP data.
-	while (1) {
-		uint8_t status;
-		if (!read_data(inst, BMP280_REG_STATUS, &status, 1) && (status & 1) == 0) break;
-	}
-
-	if (!read_calibration_data(inst)) return false;
-
-	uint8_t config = (params->standby << 5) | (params->filter << 2);
-	if (write_register8(inst, BMP280_REG_CONFIG, config)) return false;
-
-	if (params->mode == BMP280_MODE_FORCED) {
-		params->mode = BMP280_MODE_SLEEP;  // initial mode for forced is sleep
-	}
-
-	uint8_t ctrl = (params->oversampling_temperature << 5) | (params->oversampling_pressure << 2) | (params->mode);
-
-	if (write_register8(inst, BMP280_REG_CTRL, ctrl)) return false;
-
-	inst->active = true;
-	return true;
-}
-
-bool bmp280_is_measuring(BMP280 *inst) {
-	uint8_t status;
-	if (read_data(inst, BMP280_REG_STATUS, &status, 1)) return false;
-
-	if (status & (1 << 3)) return true;
-
-	return false;
-}
-
-/**
- * Compensation algorithm is taken from BMP280 datasheet.
- *
- * Return value is in degrees Celsius.
- */
-static inline int32_t compensate_temperature(BMP280 *inst, int32_t adc_temp,
-		int32_t *fine_temp) {
 	int32_t var1, var2;
 
 	var1 = ((((adc_temp >> 3) - ((int32_t) inst->dig_T1 << 1)))
@@ -109,13 +54,8 @@ static inline int32_t compensate_temperature(BMP280 *inst, int32_t adc_temp,
 	return (*fine_temp * 5 + 128) >> 8;
 }
 
-/**
- * Compensation algorithm is taken from BMP280 datasheet.
- *
- * Return value is in Pa, 24 integer bits and 8 fractional bits.
- */
-static inline uint32_t compensate_pressure(BMP280 *inst, int32_t adc_press,
-		int32_t fine_temp) {
+static uint32_t compensate_pressure(BMP280 *inst, int32_t adc_press, int32_t fine_temp)
+{
 	int64_t var1, var2, p;
 
 	var1 = (int64_t) fine_temp - 128000;
@@ -123,7 +63,7 @@ static inline uint32_t compensate_pressure(BMP280 *inst, int32_t adc_press,
 	var2 = var2 + ((var1 * (int64_t) inst->dig_P5) << 17);
 	var2 = var2 + (((int64_t) inst->dig_P4) << 35);
 	var1 = ((var1 * var1 * (int64_t) inst->dig_P3) >> 8)
-			+ ((var1 * (int64_t) inst->dig_P2) << 12);
+		 + ((var1 * (int64_t) inst->dig_P2) << 12);
 	var1 = (((int64_t) 1 << 47) + var1) * ((int64_t) inst->dig_P1) >> 33;
 
 	if (var1 == 0) {
@@ -139,46 +79,53 @@ static inline uint32_t compensate_pressure(BMP280 *inst, int32_t adc_press,
 	return p;
 }
 
-bool bmp280_read_fixed(BMP280 *inst, int32_t *temperature, uint32_t *pressure) {
+bool bmp280_init(BMP280 *inst, BMP280_config *params)
+{
+	uint8_t temp_data[1];	// nasty temporary byte, used for everything
+	inst->active = false;
+
+	if (!BMP280_readBytes(inst, BMP280_REG_ID, temp_data, 1) || (temp_data[0] != BMP280_CHIP_ID)) return false;	// request and verify chip id
+
+	if (!BMP280_writeByte(inst, BMP280_REG_RESET, BMP280_RESET_VALUE)) return false;	// soft reset
+
+	while (!(BMP280_readBytes(inst, BMP280_REG_STATUS, temp_data, 1) && (temp_data[0] & 0x01) == 0)); // wait until finished copying over the NVM data
+
+	if (!read_calibration_data(inst)) return false;
+
+	// Setting parameters
+	temp_data[0] = (params->standby << 5) | (params->filter << 2);	// config byte
+	if (!BMP280_writeByte(inst, BMP280_REG_CONFIG, temp_data[0])) return false;
+
+	if (params->mode == BMP280_MODE_FORCED) params->mode = BMP280_MODE_SLEEP;  // initial mode for forced is sleep
+	temp_data[0] = (params->oversampling_temperature << 5) | (params->oversampling_pressure << 2) | (params->mode); // ctrl byte
+	if (!BMP280_writeByte(inst, BMP280_REG_CTRL, temp_data[0])) return false;
+
+	inst->active = true;
+	return true;
+}
+
+bool bmp280_update(BMP280 *inst)
+{
 	int32_t adc_pressure;
 	int32_t adc_temp;
 	uint8_t data[6];
 
-	// Need to read in one sequence to ensure they match.
 	size_t size = 6;
-	if (read_data(inst, 0xf7, data, size)) return false;
+	if (!BMP280_readBytes(inst, 0xf7, data, size)) return false;
 
 	adc_pressure = data[0] << 12 | data[1] << 4 | data[2] >> 4;
 	adc_temp = data[3] << 12 | data[4] << 4 | data[5] >> 4;
 
 	int32_t fine_temp;
-	*temperature = compensate_temperature(inst, adc_temp, &fine_temp);
-	*pressure = compensate_pressure(inst, adc_pressure, fine_temp);
+	inst->temperature = (float)(compensate_temperature(inst, adc_temp, &fine_temp)) / 100.0;
+	inst->pressure = (float)(compensate_pressure(inst, adc_pressure, fine_temp)) / 256.0;
+	inst->altitude = 44330 * (1.0 - pow(inst->pressure / SEA_PRESSURE, 0.1903));
 
 	return true;
 }
 
-bool bmp280_read_float(BMP280 *inst, float *temperature, float *pressure)
+bool bmp280_is_measuring(BMP280 *inst)
 {
-	int32_t fixed_temperature;
-	uint32_t fixed_pressure;
-	if (bmp280_read_fixed(inst, &fixed_temperature, &fixed_pressure))
-	{
-		*temperature = (float) fixed_temperature / 100;
-		*pressure = (float) fixed_pressure / 256;
-
-		inst->temperature = *temperature;
-		inst->pressure = *pressure;
-		return true;
-	}
-
-	return false;
-}
-
-bool bmp280_update(BMP280 *inst)
-{
-	// uneccessary, to change
-	float te;
-	float pre;
-	return bmp280_read_float(inst, &te, &pre);
+	uint8_t status;
+	return (BMP280_readBytes(inst, BMP280_REG_STATUS, &status, 1) && ((status >> 3) == 1));
 }

@@ -1,3 +1,4 @@
-run.h:48:20:println	24	static
+clock.h:8:24:micros	4	static
+run.h:61:20:println	24	static
 motorTest.c:16:13:motorTest_begin	8	static
 motorTest.c:24:13:mot_up_down	16	static

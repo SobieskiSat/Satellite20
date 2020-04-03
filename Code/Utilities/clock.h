@@ -2,7 +2,6 @@
 #define COMPONENTS_CLOCK_H_
 
 #include <stdbool.h>
-#include "run.h"
 #include "main.h"
 #include "stm32f4xx_hal.h"
 
@@ -59,14 +58,6 @@ static inline DateTime getTime(void)
 	toReturn.msecond = millis() % 1000;
 
 	return toReturn;
-}
-
-static inline void printDate(void)
-{
-	DateTime now = getTime();
-	println("%d-%d-20%d %d:%d:%d:%d",
-			now.dayM, now.month, now.year,
-			now.hour, now.minute, now.second, now.msecond);
 }
 
 #endif /* COMPONENTS_CLOCK_H_ */

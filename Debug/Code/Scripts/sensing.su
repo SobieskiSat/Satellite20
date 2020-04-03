@@ -1,8 +1,7 @@
-run.h:38:20:print	16	static
-run.h:48:20:println	24	static
-run.h:91:20:print_float	24	static
-clock.h:10:24:micros	4	static
-clock.h:11:24:millis	4	static
+clock.h:8:24:micros	4	static
+clock.h:9:24:millis	4	static
+run.h:36:20:print	24	static
+run.h:61:20:println	24	static
 imuTest.c:37:13:imuTest_getData	8	static
 imuTest.c:67:13:imuTest_quatUpdate	8	static
 imuTest.c:85:13:imuTest_getEuler	16	static
@@ -10,4 +9,4 @@ imuTest.c:96:13:imuTest_printData	8	static
 imuTest.c:138:13:imuTest_begin	24	static
 imuTest.c:242:13:imuTest_loop	8	static
 sensing.c:30:13:sensing_begin	16	static
-sensing.c:86:13:sensing_loop	24	static
+sensing.c:86:13:sensing_loop	32	static
