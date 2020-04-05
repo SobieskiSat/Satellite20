@@ -31,9 +31,11 @@ typedef struct //BMP280
 	int16_t dig_P2, dig_P3, dig_P4, dig_P5, dig_P6, dig_P7, dig_P8, dig_P9;
 } BMP280;
 
-bool bmp280_init(BMP280 *inst, BMP280_config *params);
-bool bmp280_update(BMP280 *inst);
-bool bmp280_is_measuring(BMP280 *inst);
+bool bmp280_init(BMP280* inst, BMP280_config* params);
+bool bmp280_update(BMP280* inst);
+bool bmp280_present(BMP280* inst, uint8_t trials);
+void bmp280_reset(BMP280* inst);
+bool bmp280_is_measuring(BMP280* inst);
 
 // Mode of operation
 #define BMP280_MODE_SLEEP 0

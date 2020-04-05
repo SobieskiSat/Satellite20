@@ -55,7 +55,9 @@ static void steering_loop(void)
 	if (millis() - lastMotUpdate >= 10)	// every 10ms get Euler angles and run motor alogrithm
 	{
 		imuTest_getEuler();
-		algoGalgo(yaw, target_yaw);
+
+		//algoGalgo(yaw, target_yaw);
+
 		lastMotUpdate = millis();
 	}
 

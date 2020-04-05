@@ -50,6 +50,7 @@ Code/Sensors/bmp280.o: ../Code/Sensors/bmp280.c ../Code/Sensors/bmp280.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h
 
 ../Code/Sensors/bmp280.h:
@@ -161,5 +162,7 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h:
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h:

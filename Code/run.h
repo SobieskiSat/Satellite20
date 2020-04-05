@@ -47,7 +47,7 @@ static inline bool print(const char* format, ...)
 		uint32_t timeout = 10 * printLen + 70;
 		while (CDC_Transmit_FS((uint8_t*) printBuffer, printLen) == USBD_BUSY)
 		{
-			if (micros() - printStart > timeout)
+			if (micros() - printStart > timeout && false)
 			{
 				writePin(LEDD, LOW);
 				return false;
@@ -77,7 +77,7 @@ static inline bool println(const char* format, ...)
 		uint32_t timeout = 10 * printLen + 70;
 		while (CDC_Transmit_FS((uint8_t*) printBuffer, printLen) == USBD_BUSY)
 		{
-			if (micros() - printStart > timeout)
+			if (micros() - printStart > timeout && false)
 			{
 				writePin(LEDD, LOW);
 				return false;

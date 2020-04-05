@@ -6,11 +6,10 @@
 #include <math.h>
 #include "stm32f4xx_hal.h"
 
-#define Kp 2.0f * 5.0f // these are the free parameters in the Mahony filter and fusion scheme, Kp for proportional feedback, Ki for integral
-#define Ki 0.0f
+#define MPU9250_DEBUG 1	// enable debug messages
 
 // Ascale
-#define MPU9250_AFS_2G	0
+#define MPU9250_AFS_2G 	0
 #define MPU9250_AFS_4G	1
 #define MPU9250_AFS_8G	2
 #define MPU9250_AFS_16G	3
@@ -26,6 +25,8 @@
 #define MPU9250_MMODE_8		0x02
 #define MPU9250_MMODE_100	0x06
 
+#define MPU9250_VERTICAL_AXIS 2	// 0 - x, 1 - y, 2 - z (accepts negative)
+
 typedef struct // MPU9250_config
 {
 	float eulerOffsets[3];
@@ -35,10 +36,13 @@ typedef struct // MPU9250_config
 	uint8_t Mscale;		// MFS_14BITS or MFS_16BITS, 14-bit or 16-bit magnetometer resolution
 	uint8_t Mmode;
 
-	float magbias[3];	// Bias corrections preventing drift	
+	bool calibrate;		// force calibration on startup
+	float magBias[3];	// Bias corrections preventing drift	
 	float gyroBias[3];
 	float accelBias[3];
-	bool calibrate;		// force calibration on startup
+
+	float alg_rate;		// rate of quaternion filter update, setting to -1 explicitly sets to highest [Hz]
+	float euler_rate;	// rate of Euler angle computation [Hz]
 
 } MPU9250_config;
 
@@ -48,58 +52,55 @@ typedef struct // MPU9250
 	I2C_HandleTypeDef *i2c;
 	uint8_t i2c_addr;
 	uint8_t i2c_addr_ak;
-	MPU9250_config config;
-
-	bool active;
+	bool mpu_active, ak_active, active;
 	
 	float yaw, pitch, roll;
 	float temperature;
 	float ax, ay, az, gx, gy, gz, mx, my, mz;	// variables to hold latest sensor data values
 	float aRes, gRes, mRes;	// scale resolutions per LSB for the sensors
 
-	float magCalibration[3];// Factory mag calibration 
+	float magBias[3];	// Bias corrections preventing drift	
+	float gyroBias[3];
+	float accelBias[3];
+	float magCalibration[3];// Factory mag calibration
 
-	int16_t accelCount[3];	// Stores the 16-bit signed accelerometer sensor output
-	int16_t gyroCount[3];	// Stores the 16-bit signed gyro sensor output
-	int16_t magCount[3];	// Stores the 16-bit signed magnetometer sensor output
-	int16_t tempCount;		// Stores the real internal chip temperature in degrees Celsius
-
-	float SelfTest[6];
+	uint32_t euler_delay;
+	uint32_t euler_lastUpdate;
+	float eulerOffsets[3];
 
 	// parameters for 6 DoF sensor fusion calculations
-	float GyroMeasError; // gyroscope measurement error in rads/s (start at 60 deg/s), then reduce after ~10 s to 3
-	float beta;			 // compute beta
-	float GyroMeasDrift; // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
-	float zeta;			 // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
-
-	float deltat;					  // integration interval for both filter schemes
-	int lastUpdate, firstUpdate, Now; // used to calculate integration interval
-	float q[4];						  // vector to hold quaternion
-	float eInt[3];					  // vector to hold integral error for Mahony method
+	uint32_t alg_lastUpdate;	// used to calculate integration interval
+	float alg_deltat;		// dt
+	float alg_delay;
+	float q[4];				// vector to hold quaternion
+	float eInt[3];			// vector to hold integral error for Mahony method
 
 } MPU9250;
 
-bool MPU9250_init(MPU9250* inst, MPU9250_config* config);
+#define MPU9250_ALG_Kp 2.0f * 5.0f // these are the free parameters in the Mahony filter and fusion scheme, Kp for proportional feedback, Ki for integral
+#define MPU9250_ALG_Ki 0.0f
+#define MPU9250_ALG_BETA (sqrt(3.0f / 4.0f) * M_PI * (60.0f / 180.0f))
+#define MPU9250_ALG_ZETA (sqrt(3.0f / 4.0f) * M_PI * (1.0f / 180.0f))
 
-void MPU9250_getRes(MPU9250* inst);
-void MPU9250_readAccelData(int16_t *destination);
-void MPU9250_readGyroData(int16_t *destination);
-void MPU9250_readMagData(int16_t *destination);
-int16_t MPU9250_readTempData();
-bool MPU9250_present();
-void MPU9250_reset();
-void AK8963_init(float *destination);
-void MPU9250_calibrate(float *dest1, float *dest2);
-void MPU9250_calibrateMag(float *dest1);
-void MPU9250_SelfTest(float *destination);
-void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz);
-void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz);
+bool MPU9250_init(MPU9250* inst, MPU9250_config* config);
+bool MPU9250_update(MPU9250* inst);
+bool MPU9250_present(MPU9250* inst, uint8_t trials);
+void MPU9250_reset(MPU9250* inst);
+void MPU9250_calibrate(MPU9250* inst);
+bool MPU9250_SelfTest(MPU9250* inst);
+
+bool AK8963_init(MPU9250* inst, MPU9250_config* config);
+void AK8963_calibrate(MPU9250* inst);
+
+void MPU9250_updateEuler(MPU9250* inst);
+void MadgwickQuaternionUpdate(MPU9250* inst);
+void MahonyQuaternionUpdate(MPU9250* inst);
 
 // See also MPU-9250 Register Map and Descriptions, Revision 4.0, RM-MPU-9250A-00, Rev. 1.4, 9/9/2013 for registers not listed in
 // above document; the MPU9250 and MPU9150 are virtually identical but the latter has a different register map
 //
 //Magnetometer Registers
-#define AK8963_ADDRESS	0x0C << 1
+#define AK8963_I2C_ADDRESS	(0x0C << 1)
 #define AK8963_WHO_AM_I	0x00 // should return	0x48
 #define AK8963_INFO		0x01
 #define AK8963_ST1		0x02 // data ready status bit 0
@@ -118,7 +119,7 @@ void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, fl
 #define AK8963_ASAZ		0x12 // Fuse ROM z-axis sensitivity adjustment value
 
 #define MPU9250_SELF_TEST_X_GYRO	0x00
-#define MPU9250_SELF_TEST_Y_GRYO	0x01
+#define MPU9250_SELF_TEST_Y_GYRO	0x01
 #define MPU9250_SELF_TEST_Z_GYRO	0x02
 
 /*
@@ -246,16 +247,8 @@ void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, fl
 #define MPU9250_ZA_OFFSET_H			0x7D
 #define MPU9250_ZA_OFFSET_L			0x7E
 
-// Using the MSENSR-9250 breakout board, ADO is set to 0
-// Seven-bit device address is 110100 for ADO = 0 and 110101 for ADO = 1
-//mbed uses the eight-bit device address, so shift seven-bit addresses left by one!
-#define ADO 1
-#if ADO
-#define MPU9250_ADDRESS	0x69 << 1 // Device address when ADO = 1
-#else
-#define MPU9250_ADDRESS	0x68 << 1 // Device address when ADO = 0
-#endif
-
+#define MPU9250_ADO_STATE 0x01
+#define MPU9250_I2C_ADDRESS ((0x68 | MPU9250_ADO_STATE) << 1)
 #define MPU9250_WHO_AM_I	0x75
 
 #endif

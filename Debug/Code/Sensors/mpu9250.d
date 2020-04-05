@@ -1,5 +1,5 @@
 Code/Sensors/mpu9250.o: ../Code/Sensors/mpu9250.c \
- ../Code/Sensors/mpu9250.h ../Inc/main.h \
+ ../Code/Sensors/mpu9250.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
@@ -38,7 +38,8 @@ Code/Sensors/mpu9250.o: ../Code/Sensors/mpu9250.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h ../Inc/usb_device.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h ../Inc/main.h \
+ ../Inc/usb_device.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h \
  ../Inc/usbd_conf.h ../Inc/main.h ../Inc/usbd_cdc_if.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h \
@@ -50,8 +51,6 @@ Code/Sensors/mpu9250.o: ../Code/Sensors/mpu9250.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h
 
 ../Code/Sensors/mpu9250.h:
-
-../Inc/main.h:
 
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 
@@ -130,6 +129,8 @@ Code/Sensors/mpu9250.o: ../Code/Sensors/mpu9250.c \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
+
+../Inc/main.h:
 
 ../Inc/usb_device.h:
 

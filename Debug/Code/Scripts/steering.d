@@ -51,6 +51,9 @@ Code/Scripts/steering.o: ../Code/Scripts/steering.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h \
  ../Code/Scripts/Peripherials/imuTest.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h \
  ../Code/Scripts/Algorithms/algoGalgo.c
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
@@ -162,5 +165,11 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h:
 ../Code/Scripts/Peripherials/imuTest.c:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h:
 
 ../Code/Scripts/Algorithms/algoGalgo.c:

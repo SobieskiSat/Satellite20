@@ -1,7 +1,14 @@
 clock.h:8:24:micros	4	static
+clock.h:9:24:millis	4	static
 run.h:61:20:println	24	static
-run.c:11:13:setup	16	static
-run.c:21:13:loop	16	static
+imuTest.c:26:13:imuTest_printData	40	static
+imuTest.c:54:13:imuTest_begin	8	static
+imuTest.c:68:13:imuTest_loop	8	static
+imuTest.c:78:13:imuTest_printSelfTest	8	static
+imuTest.c:85:13:imuTest_printBiases	40	static
+imuTest.c:91:13:imuTest_printMagTest	40	static
+run.c:18:13:setup	8	static
+run.c:26:13:loop	8	static
 main.c:87:6:HAL_UART_RxCpltCallback	16	static
 main.c:99:5:main	8	static
 main.c:179:6:SystemClock_Config	104	static

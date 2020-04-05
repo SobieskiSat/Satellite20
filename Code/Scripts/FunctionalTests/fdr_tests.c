@@ -85,9 +85,11 @@ static void preparePacket()
 	radio.txBuffer[14] = (uint8_t)(temv >> 16) & 0xFF;
 	radio.txBuffer[15] = (uint8_t)(temv >> 24) & 0xFF;
 
+	/*
 	radio.txBuffer[16] = (uint8_t)(yaw * (255.0 / 360.0));
 	radio.txBuffer[17] = (uint8_t)(pitch * (255.0 / 360.0));
 	radio.txBuffer[18] = (uint8_t)(roll * (255.0 / 360.0));
+	 */
 
 	radio.txBuffer[19] = 0x00;
 	radio.txLen = 20;
@@ -134,7 +136,9 @@ static void fdr_loop(void)
 		imuTest_getEuler();
 		float brng = bearing(gps.latitudeDegrees, gps.longitudeDegrees, target_lat, target_lon);
 	    //algoGalgo(yaw, brng); // target_yaw wyliczane z pozycji anteny;
-		algoGalgo(yaw, target_yaw); //statyczny target_yaw
+
+		//algoGalgo(yaw, target_yaw); //statyczny target_yaw
+
 		//print_float(yaw); println("");
 		lastMotUpdate = millis();
 	}

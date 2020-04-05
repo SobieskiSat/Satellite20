@@ -40,6 +40,7 @@ Code/Components/motors.o: ../Code/Components/motors.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h ../Inc/main.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h ../Inc/usb_device.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h \
@@ -135,6 +136,8 @@ Code/Components/motors.o: ../Code/Components/motors.c \
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h:
 

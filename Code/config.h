@@ -23,17 +23,22 @@ static SX1278_config sx1278_default_config =
 
 // IMU config
 #include "mpu9250.h"
+// ? ADD SMPLRT_DIV
 static MPU9250_config mpu9250_default_config =
 {
-	{0.0, 0.0, 0.0}		// Euler offsets
-	AFS_2G,				// Ascale
-	GFS_250DPS, 		// Gscale
-	MFS_16BITS, 		// Mscale
-	0x06,				// Mmode
+	{0.0f, 0.0f, 0.0f},	// Euler offsets
+	MPU9250_AFS_2G,		// Ascale
+	MPU9250_GFS_250DPS, // Gscale
+	MPU9250_MFS_16BITS, // Mscale
+	MPU9250_MMODE_100,	// Mmode
+	
+	true,				// force calibration on startup
 	{0.0, 0.0, 0.0},	// magbias[3]
 	{0.0, 0.0, 0.0},	// gyroBias[3]
 	{0.0, 0.0, 0.0},	// accelBias[3]
-	true				// force calibration on startup
+
+	1000.0,				// alg_rate [Hz]
+	500.0				// euler_rate [Hz]
 };
 
 // Pressure sensor config

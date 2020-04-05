@@ -6,12 +6,10 @@ static bool BMP280_readBytes(BMP280* inst, uint8_t mem_addr, uint8_t* data, uint
 {
 	return (HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, data, len, 5000) == HAL_OK);
 }
-
 static bool BMP280_writeByte(BMP280* inst, uint8_t mem_addr, uint8_t data)
 {
 	return (HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr, mem_addr, 1, &data, 1, 10000) == HAL_OK);
 }
-
 static bool BMP280_read16(BMP280* inst, uint8_t mem_addr, uint16_t* data)
 {
 	uint8_t rx_buff[2];
@@ -79,14 +77,40 @@ static uint32_t compensate_pressure(BMP280 *inst, int32_t adc_press, int32_t fin
 	return p;
 }
 
-bool bmp280_init(BMP280 *inst, BMP280_config *params)
+void bmp280_reset(BMP280* inst)
+{
+	// soft reset
+	BMP280_writeByte(inst, BMP280_REG_RESET, BMP280_RESET_VALUE);
+	delay(100);
+}
+
+bool bmp280_present(BMP280* inst, uint8_t trials)
+{
+	// request and verify chip id
+	uint8_t attempts = 0;
+	do
+	{
+		bmp280_reset(inst);
+		uint8_t who[1] = { 0x00 };
+		BMP280_readBytes(inst, BMP280_REG_ID, who, 1);
+		if (who[0] == BMP280_CHIP_ID) return true;
+		else
+		{
+			attempts++;
+			delay(1000);
+		}
+	} while (attempts <= trials);
+	inst->active = false;
+	return false;
+}
+
+bool bmp280_init(BMP280* inst, BMP280_config* params)
 {
 	uint8_t temp_data[1];	// nasty temporary byte, used for everything
 	inst->active = false;
 
-	if (!BMP280_readBytes(inst, BMP280_REG_ID, temp_data, 1) || (temp_data[0] != BMP280_CHIP_ID)) return false;	// request and verify chip id
-
-	if (!BMP280_writeByte(inst, BMP280_REG_RESET, BMP280_RESET_VALUE)) return false;	// soft reset
+	if (!bmp280_present(inst, 1)) return false;
+	bmp280_reset(inst);
 
 	while (!(BMP280_readBytes(inst, BMP280_REG_STATUS, temp_data, 1) && (temp_data[0] & 0x01) == 0)); // wait until finished copying over the NVM data
 

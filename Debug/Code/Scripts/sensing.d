@@ -50,6 +50,7 @@ Code/Scripts/sensing.o: ../Code/Scripts/sensing.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/logger.h \
@@ -60,7 +61,6 @@ Code/Scripts/sensing.o: ../Code/Scripts/sensing.c \
  ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h \
  ../Middlewares/Third_Party/FatFs/src/diskio.h \
  ../Middlewares/Third_Party/FatFs/src/ff.h ../Inc/sd_diskio.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h \
  ../Code/Scripts/Peripherials/imuTest.c
 
@@ -172,6 +172,8 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
 
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h:
+
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h:
@@ -199,8 +201,6 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sd.h:
 ../Middlewares/Third_Party/FatFs/src/ff.h:
 
 ../Inc/sd_diskio.h:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h:
 

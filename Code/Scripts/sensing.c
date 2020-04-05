@@ -19,6 +19,7 @@
 
 GPS gps;
 BMP280 bmp;
+MPU9250 imu;
 uint32_t lastDataPrint;
 uint32_t lastBmpLog;
 uint32_t lastImuLog;
@@ -79,7 +80,7 @@ static bool sensing_begin(void)
 		println("Sensor init summary:");
 		print("GPS - "); gps.active ? println("active") : println("not active");
 		print("BMP - "); bmp.active ? println("active") : println("not active");
-		print("IMU - "); imuActive ? println("active") : println("not active");
+		print("IMU - "); imu.active ? println("active") : println("not active");
 	}
 }
 
@@ -114,7 +115,7 @@ static void sensing_loop(void)
 		}
 	}
 
-
+/*
 	if (imuActive)
 	{
 		imuTest_getData();		// get data from IMU
@@ -129,21 +130,21 @@ static void sensing_loop(void)
 		}
 
 	}
-
+*/
 
 	if (millis() - lastDataPrint >= 1000 && SENSING_PRINT_DATA)
 	{
 		if (bmp.active)
 		{
-			print("Pressure: "); print_float(bmp.pressure); println("");
-			print("Temperature: "); print_float(bmp.temperature); println("");
+			println("Pressure: %f", bmp.pressure);
+			println("Temperature: %f", bmp.temperature);
 		}
 		if (gps.active)
 		{
 			if (gps.fix)
 			{
-				print("Latitude: "); print_float(gps.latitudeDegrees); println("");
-				print("Longitude: "); print_float(gps.longitudeDegrees); println("");
+				println("Latitude: %f", gps.latitudeDegrees);
+				println("Longitude: %f", gps.longitudeDegrees);
 			}
 			else
 			{
