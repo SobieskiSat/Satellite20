@@ -32,10 +32,10 @@ static MPU9250_config mpu9250_default_config =
 	MPU9250_MFS_16BITS, // Mscale
 	MPU9250_MMODE_100,	// Mmode
 	
-	true,				// force calibration on startup
-	{0.0, 0.0, 0.0},	// magbias[3]
-	{0.0, 0.0, 0.0},	// gyroBias[3]
-	{0.0, 0.0, 0.0},	// accelBias[3]
+	false,				// force calibration on startup
+	{12.381678, 12.381678, -923.776245},	// magbias[3]
+	{0.862595, 2.022901, -1.541985},	// gyroBias[3]
+	{-83.557129 / 1000.0, 5.432129 / 1000.0, 139.282227 / 1000.0},	// accelBias[3]
 
 	1000.0,				// alg_rate [Hz]
 	500.0				// euler_rate [Hz]

@@ -16,9 +16,9 @@
 // Set to 1 to print:
 #define IMUTEST_PRINT_RAW 0		// raw data
 #define IMUTEST_PRINT_QUAT 0	// quaternions
-#define IMUTEST_PRINT_EULER 1	// euler angles
+#define IMUTEST_PRINT_EULER 0	// euler angles
 #define IMUTEST_PRINT_RATES 0	// get and compute rates
-#define IMUTEST_PRINT_3DPLOT 0	// data for 3d plotter
+#define IMUTEST_PRINT_3DPLOT 1	// data for 3d plotter
 
 MPU9250 mpu;
 uint32_t lastPrint;
@@ -27,7 +27,7 @@ static void imuTest_printData(void)
 {
 	if (millis() - lastPrint > 20)
 	{
-		println("[MPU] Data");
+		//println("[MPU] Data");
 		#if IMUTEST_PRINT_RAW
 		println("A[%d, %d, %d]mg G[%f, %f, %f]deg/s M[%d, %d, %d]mG",
 				(int)1000*mpu.ax, (int)1000*mpu.ay, (int)1000*mpu.az,
@@ -43,12 +43,26 @@ static void imuTest_printData(void)
 		println("Y %f P %f R %f", mpu.yaw, mpu.pitch, mpu.roll);
 		#endif
 
-		#if IMUTEST_3DPLOT
+		#if IMUTEST_PRINT_3DPLOT
 		println("w%fwa%fab%fbc%fc", mpu.q[0], mpu.q[1], mpu.q[2], mpu.q[3]);
 		#endif
 
 		lastPrint = millis();
 	}
+}
+
+
+static void imuTest_printBiases(void)
+{
+	println("accel biases [ms]:\t%f\t%f\t%f", 1000.0 * mpu.accelBias[0], 1000.0 * mpu.accelBias[1], 1000.0 * mpu.accelBias[2]);
+	println("gyro biases [dps]:\t%f\t%f\t%f", mpu.gyroBias[0], mpu.gyroBias[1], mpu.gyroBias[2]);
+	println("mag biases [mG]:\t%f\t%f\t%f", mpu.magBias[0], mpu.magBias[1], mpu.magBias[2]);
+	delay(2000);
+	/*
+accel biases (mg): [3935.302734, 2100.402832, 97.839355]
+gyro biases (dps): [88.206108, 3.259542, 312.610687]
+mag biases [mG]:        -42.451466      -15.919300      -899.914856
+	 */
 }
 
 static bool imuTest_begin(void)
@@ -63,6 +77,7 @@ static bool imuTest_begin(void)
 	writePin(LEDA, HIGH);
 	AK8963_init(&mpu, &mpu9250_default_config);
 	writePin(LEDA, LOW);
+	imuTest_printBiases();
 	return false;
 }
 static bool imuTest_loop(void)
@@ -82,11 +97,6 @@ static void imuTest_printSelfTest(void)
 	//println("Gyration:\t%f\t%f\t%f", mpu.selfTest[3], mpu.selfTest[4], mpu.selfTest[5]);
 }
 
-static void imuTest_printBiases(void)
-{
-	println("accel biases (mg): [%f, %f, %f]", 1000.0 * mpu.accelBias[0], 1000.0 * mpu.accelBias[1], 1000.0 * mpu.accelBias[2]);
-	println("gyro biases (dps): [%f, %f, %f]", mpu.gyroBias[0], mpu.gyroBias[1], mpu.gyroBias[2]);
-}
 
 static void imuTest_printMagTest(void)
 {

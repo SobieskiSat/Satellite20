@@ -88,9 +88,9 @@ void MPU9250_readGyroData(MPU9250* inst)
 	uint8_t rawData[6];
 	MPU9250_readBytes(inst, MPU9250_GYRO_XOUT_H, 6, &rawData[0]);
 	// calculate actual gyro value
-	inst->gx = (float)((int16_t)(((int16_t)rawData[0] << 8) | rawData[1]))*inst->gRes;							
-	inst->gy = (float)((int16_t)(((int16_t)rawData[2] << 8) | rawData[3]))*inst->gRes;
-	inst->gz = (float)((int16_t)(((int16_t)rawData[4] << 8) | rawData[5]))*inst->gRes;
+	inst->gx = (float)((int16_t)(((int16_t)rawData[0] << 8) | rawData[1]))*inst->gRes - inst->gyroBias[0];
+	inst->gy = (float)((int16_t)(((int16_t)rawData[2] << 8) | rawData[3]))*inst->gRes - inst->gyroBias[1];
+	inst->gz = (float)((int16_t)(((int16_t)rawData[4] << 8) | rawData[5]))*inst->gRes - inst->gyroBias[2];
 }
 void MPU9250_readMagData(MPU9250* inst)
 {
@@ -335,7 +335,7 @@ void MPU9250_calibrate(MPU9250* inst)					// Function which accumulates gyro and
 	uint16_t  accelsensitivity = 16384;					// = 16384 LSB/g
 
 														// Configure FIFO to capture accelerometer and gyro data for bias calculation
-	MPU9250_writeByte(inst, MPU9250_USER_CTRL, 0x40);   // Enable FIFO  
+	MPU9250_writeByte(inst, MPU9250_USER_CTRL, 0x40);   // Enable FIFO
 	MPU9250_writeByte(inst, MPU9250_FIFO_EN, 0x78);     // Enable gyro and accelerometer sensors for FIFO (max size 512 bytes in MPU-9250)
 	delay(40);											// accumulate 40 samples in 80 milliseconds = 480 bytes
 
@@ -347,13 +347,21 @@ void MPU9250_calibrate(MPU9250* inst)					// Function which accumulates gyro and
 
 	for (i = 0; i < packet_count; i++)
 	{
-		MPU9250_readBytes(inst, MPU9250_FIFO_R_W, 12, &data[0]);		// read data for averaging
-		accel_bias[0] += (int32_t)(((int16_t)data[0] << 8) | data[1]);	// Form signed 16-bit integer for each sample in FIFO
-		accel_bias[1] += (int32_t)(((int16_t)data[2] << 8) | data[3]);	// Sum individual biases
-		accel_bias[2] += (int32_t)(((int16_t)data[4] << 8) | data[5]);
-		gyro_bias[0]  += (int32_t)(((int16_t)data[6] << 8) | data[7]);
-		gyro_bias[1]  += (int32_t)(((int16_t)data[8] << 8) | data[9]);
-		gyro_bias[2]  += (int32_t)(((int16_t)data[10] << 8) | data[11]);
+		int16_t accel_temp[3] = {0, 0, 0}, gyro_temp[3] = {0, 0, 0};	// [!!!] strange, cannot get rid of those arrays, conversion is screwed then
+		MPU9250_readBytes(inst, MPU9250_FIFO_R_W, 12, &data[0]); // read data for averaging
+		accel_temp[0] = (int16_t) (((int16_t)data[0] << 8) | data[1]  ) ;  // Form signed 16-bit integer for each sample in FIFO
+		accel_temp[1] = (int16_t) (((int16_t)data[2] << 8) | data[3]  ) ;
+		accel_temp[2] = (int16_t) (((int16_t)data[4] << 8) | data[5]  ) ;
+		gyro_temp[0]  = (int16_t) (((int16_t)data[6] << 8) | data[7]  ) ;
+		gyro_temp[1]  = (int16_t) (((int16_t)data[8] << 8) | data[9]  ) ;
+		gyro_temp[2]  = (int16_t) (((int16_t)data[10] << 8) | data[11]) ;
+
+		accel_bias[0] += (int32_t) accel_temp[0]; // Sum individual signed 16-bit biases to get accumulated signed 32-bit biases
+		accel_bias[1] += (int32_t) accel_temp[1];
+		accel_bias[2] += (int32_t) accel_temp[2];
+		gyro_bias[0]  += (int32_t) gyro_temp[0];
+		gyro_bias[1]  += (int32_t) gyro_temp[1];
+		gyro_bias[2]  += (int32_t) gyro_temp[2];
 	}
 
 	for (i = 0; i < 3; i++)								// Normalize sums to get average count biases
@@ -361,16 +369,11 @@ void MPU9250_calibrate(MPU9250* inst)					// Function which accumulates gyro and
 		accel_bias[i] /= (int32_t) packet_count;
 		gyro_bias[i]  /= (int32_t) packet_count;
 
-		if (i == abs(MPU9250_VERTICAL_AXIS))			// Remove gravity from the z-axis accelerometer bias calculation
+		if (i == abs(MPU9250_VERTICAL_AXIS) && false)			// Remove gravity from the z-axis accelerometer bias calculation
 		{
 			//accel_bias[abs(MPU9250_VERTICAL_AXIS)] += (int32_t)(accelsensitivity * sgn(MPU9250_VERTICAL_AXIS)); // !!! not sure about sign!
 																					// [!!!] \/ \/ scarry, no sgn()!
 			accel_bias[abs(MPU9250_VERTICAL_AXIS)] -= (int32_t)(accelsensitivity * (accel_bias[abs(MPU9250_VERTICAL_AXIS)] / abs(accel_bias[abs(MPU9250_VERTICAL_AXIS)])));
-
-			/* !ORIGINAL!
-			if(accel_bias[2] > 0L)	accel_bias[2] -= (int32_t) accelsensitivity;
-			else 					accel_bias[2] += (int32_t) accelsensitivity;
-			*/
 		}
 		//[!!!] this part isn't needed unless [commented STEP1]	// Construct the gyro biases for push to the hardware gyro bias registers,
 		data[2*i] =  ((-gyro_bias[i]/4) >> 8) & 0xFF;	// which are reset to zero upon device startup.
@@ -378,6 +381,9 @@ void MPU9250_calibrate(MPU9250* inst)					// Function which accumulates gyro and
 		//[!!!] goto [commented STEP1]					// Biases are additive, so change sign on calculated average gyro biases
 		inst->gyroBias[i] = (float)gyro_bias[i]/(float)gyrosensitivity;	// Construct gyro bias in deg/s for later manual subtraction
 	}
+
+	if(accel_bias[2] > 0L)	accel_bias[2] -= (int32_t) accelsensitivity;
+	else 						accel_bias[2] += (int32_t) accelsensitivity;
 
 	/* [commented STEP1]:
 	MPU9250_writeByte(inst, MPU9250_XG_OFFSET_H, data[0]);	// Push gyro biases to hardware registers
@@ -486,9 +492,9 @@ bool MPU9250_SelfTest(MPU9250* inst)						// Accelerometer and gyroscope self te
 		aSTAvg[2] += inst->az;
 
 		MPU9250_readGyroData(inst);
-		aSTAvg[0] += inst->gx;
-		aSTAvg[1] += inst->gy;
-		aSTAvg[2] += inst->gz;
+		gSTAvg[0] += inst->gx;
+		gSTAvg[1] += inst->gy;
+		gSTAvg[2] += inst->gz;
 	}
 
 	for (i = 0; i < 3; i++)									// Get average of 200 values and store as average self-test readings

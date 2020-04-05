@@ -1,9 +1,9 @@
 clock.h:8:24:micros	4	static
 clock.h:9:24:millis	4	static
 run.h:61:20:println	24	static
-imuTest.c:26:13:imuTest_printData	40	static
-imuTest.c:54:13:imuTest_begin	8	static
-imuTest.c:68:13:imuTest_loop	8	static
-imuTest.c:78:13:imuTest_printSelfTest	8	static
-imuTest.c:85:13:imuTest_printBiases	40	static
-imuTest.c:91:13:imuTest_printMagTest	40	static
+imuTest.c:26:13:imuTest_printData	56	static
+imuTest.c:55:13:imuTest_printBiases	40	static
+imuTest.c:68:13:imuTest_begin	8	static
+imuTest.c:83:13:imuTest_loop	8	static
+imuTest.c:93:13:imuTest_printSelfTest	8	static
+imuTest.c:101:13:imuTest_printMagTest	40	static

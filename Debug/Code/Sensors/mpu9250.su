@@ -16,9 +16,9 @@ mpu9250.c:143:6:MPU9250_init	32	static
 mpu9250.c:237:6:AK8963_init	24	static
 mpu9250.c:277:6:MPU9250_update	16	static
 mpu9250.c:303:6:MPU9250_reset	16	static
-mpu9250.c:309:6:MPU9250_calibrate	88	static
-mpu9250.c:435:6:MPU9250_SelfTest	152	static
-mpu9250.c:538:6:AK8963_calibrate	64	static
-mpu9250.c:582:6:MPU9250_updateEuler	24	static
-mpu9250.c:619:6:MadgwickQuaternionUpdate	216	static
-mpu9250.c:719:6:MahonyQuaternionUpdate	184	static
+mpu9250.c:309:6:MPU9250_calibrate	104	static
+mpu9250.c:441:6:MPU9250_SelfTest	152	static
+mpu9250.c:542:6:AK8963_calibrate	64	static
+mpu9250.c:586:6:MPU9250_updateEuler	24	static
+mpu9250.c:623:6:MadgwickQuaternionUpdate	216	static
+mpu9250.c:723:6:MahonyQuaternionUpdate	184	static
