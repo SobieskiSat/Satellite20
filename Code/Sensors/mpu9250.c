@@ -8,6 +8,8 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_i2c.h"
 
+// #################### Low level communication ####################
+
 static void MPU9250_writeByte(MPU9250* inst, uint8_t mem_addr, uint8_t data)
 {
 	HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr, mem_addr, 1, &data, 1, 2);
@@ -50,8 +52,49 @@ static void AK8963_readBytes(MPU9250* inst, uint8_t mem_addr, uint8_t count, uin
 		dest[ii] = data[ii];
 	}
 }
- 
-void MPU9250_getRes(MPU9250* inst, MPU9250_config* config)
+
+static void MPU9250_readAccelData(MPU9250* inst)
+{
+	uint8_t rawData[6];
+	MPU9250_readBytes(inst, MPU9250_ACCEL_XOUT_H, 6, &rawData[0]);
+	// calculate actual g value
+	inst->ax = (float)((int16_t)(((int16_t)rawData[0] << 8) | rawData[1]))*inst->aRes - inst->accelBias[0];	
+	inst->ay = (float)((int16_t)(((int16_t)rawData[2] << 8) | rawData[3]))*inst->aRes - inst->accelBias[1];
+	inst->az = (float)((int16_t)(((int16_t)rawData[4] << 8) | rawData[5]))*inst->aRes - inst->accelBias[2];
+}
+static void MPU9250_readGyroData(MPU9250* inst)
+{
+	uint8_t rawData[6];
+	MPU9250_readBytes(inst, MPU9250_GYRO_XOUT_H, 6, &rawData[0]);
+	// calculate actual gyro value
+	inst->gx = (float)((int16_t)(((int16_t)rawData[0] << 8) | rawData[1]))*inst->gRes - inst->gyroBias[0];
+	inst->gy = (float)((int16_t)(((int16_t)rawData[2] << 8) | rawData[3]))*inst->gRes - inst->gyroBias[1];
+	inst->gz = (float)((int16_t)(((int16_t)rawData[4] << 8) | rawData[5]))*inst->gRes - inst->gyroBias[2];
+}
+static void MPU9250_readMagData(MPU9250* inst)
+{
+	uint8_t rawData[7];											// 7 because must read ST2 at end of data acquisition
+	if(AK8963_readByte(inst, AK8963_ST1) & 0x01)				// wait for magnetometer data ready bit to be set
+	{
+		AK8963_readBytes(inst, AK8963_XOUT_L, 7, &rawData[0]);	// Read the six raw data and ST2 registers sequentially into data array
+		uint8_t c = rawData[6];									// End data read by reading ST2 register
+		if(!(c & 0x08))											// Check if magnetic sensor overflow set, if not then report data
+		{
+			// calculate actual magnetometer value including factory calibration values
+			inst->mx = (float)((int16_t)(((int16_t)rawData[1] << 8) | rawData[0]))*inst->mRes*inst->magCalibration[0] - inst->magBias[0];	
+			inst->my = (float)((int16_t)(((int16_t)rawData[3] << 8) | rawData[2]))*inst->mRes*inst->magCalibration[1] - inst->magBias[1];
+			inst->mz = (float)((int16_t)(((int16_t)rawData[5] << 8) | rawData[4]))*inst->mRes*inst->magCalibration[2] - inst->magBias[2];
+		}
+	}
+}
+static void MPU9250_readTempData(MPU9250* inst)
+{
+	uint8_t rawData[2];
+	MPU9250_readBytes(inst, MPU9250_TEMP_OUT_H, 2, &rawData[0]);
+	// calculate chip temperature in Celcius degrees
+	inst->temperature = ((float)((int16_t)(((int16_t)rawData[0]) << 8 | rawData[1]))) / 333.87 + 21.0;
+}
+static void MPU9250_getRes(MPU9250* inst, MPU9250_config* config)
 {
 	switch (config->Mscale)
 	{
@@ -74,71 +117,7 @@ void MPU9250_getRes(MPU9250* inst, MPU9250_config* config)
 	}
 }
 
-void MPU9250_readAccelData(MPU9250* inst)
-{
-	uint8_t rawData[6];
-	MPU9250_readBytes(inst, MPU9250_ACCEL_XOUT_H, 6, &rawData[0]);
-	// calculate actual g value
-	inst->ax = (float)((int16_t)(((int16_t)rawData[0] << 8) | rawData[1]))*inst->aRes - inst->accelBias[0];	
-	inst->ay = (float)((int16_t)(((int16_t)rawData[2] << 8) | rawData[3]))*inst->aRes - inst->accelBias[1];
-	inst->az = (float)((int16_t)(((int16_t)rawData[4] << 8) | rawData[5]))*inst->aRes - inst->accelBias[2];
-}
-void MPU9250_readGyroData(MPU9250* inst)
-{
-	uint8_t rawData[6];
-	MPU9250_readBytes(inst, MPU9250_GYRO_XOUT_H, 6, &rawData[0]);
-	// calculate actual gyro value
-	inst->gx = (float)((int16_t)(((int16_t)rawData[0] << 8) | rawData[1]))*inst->gRes - inst->gyroBias[0];
-	inst->gy = (float)((int16_t)(((int16_t)rawData[2] << 8) | rawData[3]))*inst->gRes - inst->gyroBias[1];
-	inst->gz = (float)((int16_t)(((int16_t)rawData[4] << 8) | rawData[5]))*inst->gRes - inst->gyroBias[2];
-}
-void MPU9250_readMagData(MPU9250* inst)
-{
-	uint8_t rawData[7];											// 7 because must read ST2 at end of data acquisition
-	if(AK8963_readByte(inst, AK8963_ST1) & 0x01)				// wait for magnetometer data ready bit to be set
-	{
-		AK8963_readBytes(inst, AK8963_XOUT_L, 7, &rawData[0]);	// Read the six raw data and ST2 registers sequentially into data array
-		uint8_t c = rawData[6];									// End data read by reading ST2 register
-		if(!(c & 0x08))											// Check if magnetic sensor overflow set, if not then report data
-		{
-			// calculate actual magnetometer value including factory calibration values
-			inst->mx = (float)((int16_t)(((int16_t)rawData[1] << 8) | rawData[0]))*inst->mRes*inst->magCalibration[0] - inst->magBias[0];	
-			inst->my = (float)((int16_t)(((int16_t)rawData[3] << 8) | rawData[2]))*inst->mRes*inst->magCalibration[1] - inst->magBias[1];
-			inst->mz = (float)((int16_t)(((int16_t)rawData[5] << 8) | rawData[4]))*inst->mRes*inst->magCalibration[2] - inst->magBias[2];
-		}
-	}
-}
-void MPU9250_readTempData(MPU9250* inst)
-{
-	uint8_t rawData[2];
-	MPU9250_readBytes(inst, MPU9250_TEMP_OUT_H, 2, &rawData[0]);
-	// calculate chip temperature in Celcius degrees
-	inst->temperature = ((float)((int16_t)(((int16_t)rawData[0]) << 8 | rawData[1]))) / 333.87 + 21.0;
-}
-
-bool MPU9250_present(MPU9250* inst, uint8_t trials)	// arg = trials of getting WHO_AM_I response from MPU and AK
-{
-	uint8_t attempts = 0;
-	do
-	{
-		//MPU9250_reset(inst);
-		char who[2] = {0, 0};
-		who[0] = MPU9250_readByte(inst, MPU9250_WHO_AM_I);
-		who[1] = AK8963_readByte(inst, AK8963_WHO_AM_I);
-		if (who[0] == 0x71)
-		{
-			println("Both present!");
-			return true;
-		}
-		else
-		{
-			attempts++;
-			delay(1000);
-		}
-	} while (attempts <= trials);
-	inst->active = false;
-	return false;
-}
+// #################### Public routines ####################
 
 bool MPU9250_init(MPU9250* inst, MPU9250_config* config)
 {
@@ -234,6 +213,7 @@ bool MPU9250_init(MPU9250* inst, MPU9250_config* config)
 	inst->active = inst->mpu_active && inst->ak_active;
 	return true;
 }
+
 bool AK8963_init(MPU9250* inst, MPU9250_config* config)
 {
 	delay(1000);
@@ -272,6 +252,30 @@ bool AK8963_init(MPU9250* inst, MPU9250_config* config)
 	inst->ak_active = true;
 	inst->active = inst->mpu_active && inst->ak_active;
 	return true;
+}
+
+bool MPU9250_present(MPU9250* inst, uint8_t trials)	// arg = trials of getting WHO_AM_I response from MPU and AK
+{
+	uint8_t attempts = 0;
+	do
+	{
+		//MPU9250_reset(inst);
+		char who[2] = {0, 0};
+		who[0] = MPU9250_readByte(inst, MPU9250_WHO_AM_I);
+		who[1] = AK8963_readByte(inst, AK8963_WHO_AM_I);
+		if (who[0] == 0x71)
+		{
+			println("Both present!");
+			return true;
+		}
+		else
+		{
+			attempts++;
+			delay(1000);
+		}
+	} while (attempts <= trials);
+	inst->active = false;
+	return false;
 }
 
 bool MPU9250_update(MPU9250* inst)
@@ -533,7 +537,7 @@ bool MPU9250_SelfTest(MPU9250* inst)						// Accelerometer and gyroscope self te
 	{
 		passed &= (results[i] > -14.0) & (results[i] < 14.0);
 		#if MPU9250_DEBUG
-			println("%f%", results[i]);
+			println("%f", results[i]);
 		#endif
 	}
 	return passed;
@@ -579,7 +583,6 @@ void AK8963_calibrate(MPU9250* inst)
 	}
 }
 
-
 // #################### Algotithms ####################
 
 
@@ -590,7 +593,7 @@ void MPU9250_updateEuler(MPU9250* inst)		// Convert quaternions to Euler angles
 	inst->pitch = -asin(2.0f * (inst->q[1] * inst->q[3] - inst->q[0] * inst->q[2]));
 	inst->roll  = atan2(2.0f * (inst->q[0] * inst->q[1] + inst->q[2] * inst->q[3]),
 						inst->q[0] * inst->q[0] - inst->q[1] * inst->q[1] - inst->q[2] * inst->q[2] + inst->q[3] * inst->q[3]);
-	inst->yaw	*= 180.0f / M_PI;			// Convert to degrees
+	inst->yaw	*= -180.0f / M_PI;			// Convert to degrees
 	inst->pitch *= 180.0f / M_PI;
 	inst->roll  *= 180.0f / M_PI;
 	inst->yaw 	+= inst->eulerOffsets[0];	// Add offsets
@@ -715,13 +718,10 @@ void MadgwickQuaternionUpdate(MPU9250* inst)
 	inst->q[1] = q2 * norm;
 	inst->q[2] = q3 * norm;
 	inst->q[3] = q4 * norm;
-
 }
 
- // Similar to Madgwick scheme but uses proportional and integral filtering on the error between estimated reference vectors and
- // measured ones.
-void MahonyQuaternionUpdate(MPU9250* inst)
-{
+void MahonyQuaternionUpdate(MPU9250* inst)	// Similar to Madgwick scheme but uses proportional and integral filtering
+{											// on the error between estimated reference vectors and measured ones.
 	// Transform matrix for proper axis
 	float ax = inst-> ax, 			 ay = -(inst->ay), 				az = -(inst->az);
 	float gx = inst->gx*M_PI/180.0f, gy = -(inst->gy)*M_PI/180.0f, 	gz = -(inst->gz)*M_PI/180.0f;

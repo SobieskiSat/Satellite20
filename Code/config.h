@@ -26,19 +26,19 @@ static SX1278_config sx1278_default_config =
 // ? ADD SMPLRT_DIV
 static MPU9250_config mpu9250_default_config =
 {
-	{0.0f, 0.0f, 0.0f},	// Euler offsets
+	{90.0f, 0.0f, 0.0f},	// Euler offsets
 	MPU9250_AFS_2G,		// Ascale
 	MPU9250_GFS_250DPS, // Gscale
 	MPU9250_MFS_16BITS, // Mscale
 	MPU9250_MMODE_100,	// Mmode
 	
-	false,				// force calibration on startup
+	true,				// force calibration on startup
 	{12.381678, 12.381678, -923.776245},	// magbias[3]
 	{0.862595, 2.022901, -1.541985},	// gyroBias[3]
 	{-83.557129 / 1000.0, 5.432129 / 1000.0, 139.282227 / 1000.0},	// accelBias[3]
 
-	1000.0,				// alg_rate [Hz]
-	500.0				// euler_rate [Hz]
+	-1,				// alg_rate [Hz]
+	100.0				// euler_rate [Hz]
 };
 
 // Pressure sensor config

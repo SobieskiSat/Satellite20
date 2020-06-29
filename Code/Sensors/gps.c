@@ -12,105 +12,51 @@
 
 static bool strStartsWith(const char* str, const char* prefix);
 
-
-/**************************************************************************/
-/*!
-		@brief How many bytes are available to read - part of '//print'-class
-	 functionality
-		@return Bytes available, 0 if none
-*/
-/**************************************************************************/
-bool GPS_available(GPS* inst)
-{
-	// @@@@@@@@@@@@@@@@@@@@@@@@@ not exactly that
-	if (inst->paused) return 0;
-
-	if (HAL_UART_GetState(inst->uart) == HAL_UART_STATE_READY) return 1;
-
-	return 0;
-}
-
-/**************************************************************************/
-/*!
-		@brief Write a byte to the underlying transport - part of '//print'-class
-	 functionality
-		@param c A single byte to send
-		@return Bytes written - 1 on success, 0 on failure
-*/
-/**************************************************************************/
 bool GPS_write(GPS* inst, uint8_t c)
 {
-	// code ~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!&&&&&&&&&&&&********%%%%%%%%%%%%%%%%
 	uint8_t ca[1] = {c};
-	HAL_UART_Transmit(inst->uart, ca, 1, HAL_MAX_DELAY);
-
-
-	// wait for finished transmission
-	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);
-	return 0;
+	HAL_UART_Transmit(inst->uart, ca, 1, HAL_MAX_DELAY);			// transmit byte
+	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);	// wait for finished transmission
+	return true;
 }
 
-/**************************************************************************/
-/*!
-		@brief Read one character from the GPS device
-		@return The character that we received, or 0 if nothing was available
-*/
-/**************************************************************************/
 char GPS_read(GPS* inst)
 {
-	////println("[GPS] read()");
-	static uint32_t firstChar = 0; // first character received in current sentence
+	static uint32_t firstChar = 0;	// first character received in current sentence
 	uint32_t tStart = millis();		// as close as we can get to time char was sent
 	char c = 0;
-
 	if (inst->paused) return c;
 
-	HAL_StatusTypeDef status = HAL_OK;
-	//status = HAL_UART_Receive(inst->uart, ca, 1, 50);
-	if (status == HAL_OK)
+	c = (char)inst->uartBuffer[0];
+
+	inst->currentline[inst->lineidx++] = c;
+	// [!!!] \/ wtf is that
+	if (inst->lineidx >= MAXLINELENGTH) inst->lineidx = MAXLINELENGTH - 1; // ensure there is someplace to put the next received character
+
+	if (c == '\n')
 	{
-		//print("Status: ");
-		//print_int(status);
-		//println("");
-		c = (char)inst->uartBuffer[0];
+		inst->currentline[inst->lineidx] = 0;	// add endline character
 
-		inst->currentline[inst->lineidx++] = c;
-		if (inst->lineidx >= MAXLINELENGTH) inst->lineidx = MAXLINELENGTH - 1; // ensure there is someplace to put the next received character
-
-		if (c == '\n')
+		if (inst->currentline == inst->line1)
 		{
-			inst->currentline[inst->lineidx] = 0;
-
-			if (inst->currentline == inst->line1)
-			{
-				inst->currentline = inst->line2;
-				inst->lastline = inst->line1;
-			}
-			else
-			{
-				inst->currentline = inst->line1;
-				inst->lastline = inst->line2;
-			}
-
-			// Serial.//println("----");
-			// Serial.//println((char* )lastline);
-			// Serial.//println("----");
-			inst->lineidx = 0;
-			inst->recvdflag = true;
-			inst->recvdTime = millis(); // time we got the end of the string
-			inst->sentTime = firstChar;
-			firstChar = 0; // there are no characters yet
-			return c;			// wait until next character to set time
+			inst->currentline = inst->line2;
+			inst->lastline = inst->line1;
+		}
+		else
+		{
+			inst->currentline = inst->line1;
+			inst->lastline = inst->line2;
 		}
 
-		if (firstChar == 0) firstChar = tStart;
+		inst->lineidx = 0;
+		inst->recvdflag = true;
+		inst->recvdTime = millis();	// time we got the end of the string
+		inst->sentTime = firstChar;
+		firstChar = 0;				// there are no characters yet
+		return c;					// wait until next character to set time
 	}
-	//wait for finished transmission
-	////println("[GPS] read() ... waiting");
-//	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);
-	//print("Status: "); print_int(status); print(" c: "); print_char(c); println("");
-	if (status != HAL_OK) return 0x00;
-	////println("[GPS] finished");
+
+	if (firstChar == 0) firstChar = tStart;
 	return c;
 }
 

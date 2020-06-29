@@ -14,41 +14,36 @@
 #include "config.h"
 
 // Set to 1 to print:
-#define IMUTEST_PRINT_RAW 0		// raw data
-#define IMUTEST_PRINT_QUAT 0	// quaternions
-#define IMUTEST_PRINT_EULER 0	// euler angles
-#define IMUTEST_PRINT_RATES 0	// get and compute rates
-#define IMUTEST_PRINT_3DPLOT 1	// data for 3d plotter
+#define IMUTEST_PRINT_RAW 0			// raw data
+#define IMUTEST_PRINT_QUAT 0		// quaternions
+#define IMUTEST_PRINT_EULER 0		// euler angles
+#define IMUTEST_PRINT_RATES 0		// get and compute rates
+#define IMUTEST_PRINT_3DPLOT 1		// data for 3d plotter
 
 MPU9250 mpu;
 uint32_t lastPrint;
 
 static void imuTest_printData(void)
 {
-	if (millis() - lastPrint > 20)
-	{
-		//println("[MPU] Data");
-		#if IMUTEST_PRINT_RAW
-		println("A[%d, %d, %d]mg G[%f, %f, %f]deg/s M[%d, %d, %d]mG",
-				(int)1000*mpu.ax, (int)1000*mpu.ay, (int)1000*mpu.az,
-				mpu.gx, mpu.gy, mpu.gz,
-				(int)mpu.mx, (int)mpu.my, (int)mpu.mz);
-		#endif
+	//println("[MPU] Data");
+	#if IMUTEST_PRINT_RAW
+	println("A[%d, %d, %d]mg G[%f, %f, %f]deg/s M[%d, %d, %d]mG",
+			(int)1000*mpu.ax, (int)1000*mpu.ay, (int)1000*mpu.az,
+			mpu.gx, mpu.gy, mpu.gz,
+			(int)mpu.mx, (int)mpu.my, (int)mpu.mz);
+	#endif
 
-		#if IMUTEST_PRINT_QUAT
-		println("Q[%f, %f, %f, %f]", mpu.q[0], mpu.q[1], mpu.q[2], mpu.q[3]);
-		#endif
+	#if IMUTEST_PRINT_QUAT
+	println("Q[%f, %f, %f, %f]", mpu.q[0], mpu.q[1], mpu.q[2], mpu.q[3]);
+	#endif
 
-		#if IMUTEST_PRINT_EULER
-		println("Y %f P %f R %f", mpu.yaw, mpu.pitch, mpu.roll);
-		#endif
+	#if IMUTEST_PRINT_EULER
+	println("Y %f P %f R %f", mpu.yaw, mpu.pitch, mpu.roll);
+	#endif
 
-		#if IMUTEST_PRINT_3DPLOT
-		println("w%fwa%fab%fbc%fc", mpu.q[0], mpu.q[1], mpu.q[2], mpu.q[3]);
-		#endif
-
-		lastPrint = millis();
-	}
+	#if IMUTEST_PRINT_3DPLOT
+	println("w%fwa%fab%fbc%fc%f", mpu.q[0], mpu.q[1], mpu.q[2], mpu.q[3], mpu.alg_deltat);
+	#endif
 }
 
 
@@ -58,11 +53,6 @@ static void imuTest_printBiases(void)
 	println("gyro biases [dps]:\t%f\t%f\t%f", mpu.gyroBias[0], mpu.gyroBias[1], mpu.gyroBias[2]);
 	println("mag biases [mG]:\t%f\t%f\t%f", mpu.magBias[0], mpu.magBias[1], mpu.magBias[2]);
 	delay(2000);
-	/*
-accel biases (mg): [3935.302734, 2100.402832, 97.839355]
-gyro biases (dps): [88.206108, 3.259542, 312.610687]
-mag biases [mG]:        -42.451466      -15.919300      -899.914856
-	 */
 }
 
 static bool imuTest_begin(void)
@@ -87,7 +77,10 @@ static bool imuTest_loop(void)
 		imuTest_printData();
 		if (mpu.yaw >= 178.0 && mpu.yaw <= 182.0) writePin(LEDA, HIGH);
 		else writePin(LEDA, LOW);
+
+		return true;
 	}
+	return false;
 }
 
 static void imuTest_printSelfTest(void)

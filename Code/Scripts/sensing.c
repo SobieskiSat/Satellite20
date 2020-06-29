@@ -25,7 +25,6 @@ uint32_t lastBmpLog;
 uint32_t lastImuLog;
 uint32_t lastBmpRead;
 uint32_t lastGpsRead;
-// IMU
 // (SPS)
 
 static bool sensing_begin(void)

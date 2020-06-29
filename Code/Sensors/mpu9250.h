@@ -8,25 +8,6 @@
 
 #define MPU9250_DEBUG 1	// enable debug messages
 
-// Ascale
-#define MPU9250_AFS_2G 	0
-#define MPU9250_AFS_4G	1
-#define MPU9250_AFS_8G	2
-#define MPU9250_AFS_16G	3
-// Gscale
-#define MPU9250_GFS_250DPS	0
-#define MPU9250_GFS_500DPS	1
-#define MPU9250_GFS_1000DPS	2
-#define MPU9250_GFS_2000DPS	3
-// Mscale
-#define MPU9250_MFS_14BITS	0	// 0.6 mG per LSB
-#define MPU9250_MFS_16BITS	1	// 0.15 mG per LSB
-// Mmode - magnetometer data ODR
-#define MPU9250_MMODE_8		0x02
-#define MPU9250_MMODE_100	0x06
-
-#define MPU9250_VERTICAL_AXIS 2	// 0 - x, 1 - y, 2 - z (accepts negative)
-
 typedef struct // MPU9250_config
 {
 	float eulerOffsets[3];
@@ -46,7 +27,6 @@ typedef struct // MPU9250_config
 
 } MPU9250_config;
 
-
 typedef struct // MPU9250
 {
 	I2C_HandleTypeDef *i2c;
@@ -57,30 +37,25 @@ typedef struct // MPU9250
 	float yaw, pitch, roll;
 	float temperature;
 	float ax, ay, az, gx, gy, gz, mx, my, mz;	// variables to hold latest sensor data values
-	float aRes, gRes, mRes;	// scale resolutions per LSB for the sensors
+	float aRes, gRes, mRes;						// scale resolutions per LSB for the sensors
 
-	float magBias[3];	// Bias corrections preventing drift	
+	float magBias[3];							// Bias corrections preventing drift	
 	float gyroBias[3];
 	float accelBias[3];
-	float magCalibration[3];// Factory mag calibration
+	float magCalibration[3];					// Factory magnetometer calibration
+
+	// algorithm variables
+	uint32_t alg_lastUpdate;
+	float alg_deltat;
+	float alg_delay;
+	float q[4];									// vector to hold quaternion
+	float eInt[3];								// vector to hold integral error for Mahony method
 
 	uint32_t euler_delay;
 	uint32_t euler_lastUpdate;
 	float eulerOffsets[3];
 
-	// parameters for 6 DoF sensor fusion calculations
-	uint32_t alg_lastUpdate;	// used to calculate integration interval
-	float alg_deltat;		// dt
-	float alg_delay;
-	float q[4];				// vector to hold quaternion
-	float eInt[3];			// vector to hold integral error for Mahony method
-
 } MPU9250;
-
-#define MPU9250_ALG_Kp 2.0f * 5.0f // these are the free parameters in the Mahony filter and fusion scheme, Kp for proportional feedback, Ki for integral
-#define MPU9250_ALG_Ki 0.0f
-#define MPU9250_ALG_BETA (sqrt(3.0f / 4.0f) * M_PI * (60.0f / 180.0f))
-#define MPU9250_ALG_ZETA (sqrt(3.0f / 4.0f) * M_PI * (1.0f / 180.0f))
 
 bool MPU9250_init(MPU9250* inst, MPU9250_config* config);
 bool MPU9250_update(MPU9250* inst);
@@ -95,6 +70,34 @@ void AK8963_calibrate(MPU9250* inst);
 void MPU9250_updateEuler(MPU9250* inst);
 void MadgwickQuaternionUpdate(MPU9250* inst);
 void MahonyQuaternionUpdate(MPU9250* inst);
+
+#define MPU9250_VERTICAL_AXIS 2	// 0 - x, 1 - y, 2 - z (accepts negative)
+
+#define MPU9250_ALG_Kp 2.0f * 5.0f // these are the free parameters in the Mahony filter and fusion scheme, Kp for proportional feedback, Ki for integral
+#define MPU9250_ALG_Ki 0.0f
+#define MPU9250_ALG_BETA (sqrt(3.0f / 4.0f) * M_PI * (60.0f / 180.0f))
+#define MPU9250_ALG_ZETA (sqrt(3.0f / 4.0f) * M_PI * (1.0f / 180.0f))
+
+#define MPU9250_ADO_STATE 	0x01
+#define MPU9250_I2C_ADDRESS ((0x68 | MPU9250_ADO_STATE) << 1)
+#define MPU9250_WHO_AM_I	0x75
+
+// Ascale
+#define MPU9250_AFS_2G 	0
+#define MPU9250_AFS_4G	1
+#define MPU9250_AFS_8G	2
+#define MPU9250_AFS_16G	3
+// Gscale
+#define MPU9250_GFS_250DPS	0
+#define MPU9250_GFS_500DPS	1
+#define MPU9250_GFS_1000DPS	2
+#define MPU9250_GFS_2000DPS	3
+// Mscale
+#define MPU9250_MFS_14BITS	0	// 0.6 mG per LSB
+#define MPU9250_MFS_16BITS	1	// 0.15 mG per LSB
+// Mmode - magnetometer data ODR
+#define MPU9250_MMODE_8		0x02
+#define MPU9250_MMODE_100	0x06
 
 // See also MPU-9250 Register Map and Descriptions, Revision 4.0, RM-MPU-9250A-00, Rev. 1.4, 9/9/2013 for registers not listed in
 // above document; the MPU9250 and MPU9150 are virtually identical but the latter has a different register map
@@ -229,26 +232,22 @@ void MahonyQuaternionUpdate(MPU9250* inst);
 #define MPU9250_SIGNAL_PATH_RESET	0x68
 #define MPU9250_MOT_DETECT_CTRL		0x69
 #define MPU9250_USER_CTRL			0x6A	// Bit 7 enable DMP, bit 3 reset DMP
-#define MPU9250_PWR_MGMT_1			0x6B // Device defaults to the SLEEP mode
+#define MPU9250_PWR_MGMT_1			0x6B	// Device defaults to the SLEEP mode
 #define MPU9250_PWR_MGMT_2			0x6C
 #define MPU9250_DMP_BANK			0x6D	// Activates a specific bank in the DMP
-#define MPU9250_DMP_RW_PNT			0x6E // Set read/write pointer to a specific start address in specified DMP bank
+#define MPU9250_DMP_RW_PNT			0x6E	// Set read/write pointer to a specific start address in specified DMP bank
 #define MPU9250_DMP_REG				0x6F	// Register in DMP from which to read or to which to write
 #define MPU9250_DMP_REG_1			0x70
 #define MPU9250_DMP_REG_2			0x71
 #define MPU9250_FIFO_COUNTH			0x72
 #define MPU9250_FIFO_COUNTL			0x73
 #define MPU9250_FIFO_R_W			0x74
-#define MPU9250_WHO_AM_I_MPU9250	0x75 // Should return	0x71
+#define MPU9250_WHO_AM_I_MPU9250	0x75	// Should return 0x71
 #define MPU9250_XA_OFFSET_H			0x77
 #define MPU9250_XA_OFFSET_L			0x78
 #define MPU9250_YA_OFFSET_H			0x7A
 #define MPU9250_YA_OFFSET_L			0x7B
 #define MPU9250_ZA_OFFSET_H			0x7D
 #define MPU9250_ZA_OFFSET_L			0x7E
-
-#define MPU9250_ADO_STATE 0x01
-#define MPU9250_I2C_ADDRESS ((0x68 | MPU9250_ADO_STATE) << 1)
-#define MPU9250_WHO_AM_I	0x75
 
 #endif
