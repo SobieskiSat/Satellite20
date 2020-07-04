@@ -65,7 +65,7 @@ bool bmp280_is_measuring(BMP280* inst);
 #define BMP280_STANDBY_4000 7
 // Chip parameters
 #define BMP280_SDO_STATE 0 // pull state on SDO pin
-#define BMP280_I2C_ADDRESS ((0x76 & BMP280_SDO_STATE) << 1)
+#define BMP280_I2C_ADDRESS ((0x76 | BMP280_SDO_STATE) << 1)
 #define BMP280_CHIP_ID 0x58
 #define BMP280_RESET_VALUE 0xB6
 // Register adresses

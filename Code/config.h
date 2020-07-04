@@ -50,7 +50,7 @@ static BMP280_config bmp280_default_config =
 	BMP280_FILTER_OFF,		// short-term dirsturbance filter
 	BMP280_OVERSAMPLING_16,	// pressure oversampling (1:16 or none)
 	BMP280_OVERSAMPLING_16,	// temperature oversampling (1:16 or none)
-	BMP280_STANDBY_05		// standby between measurements (05:4000)[ms]
+	BMP280_STANDBY_125		// standby between measurements (05:4000)[ms]
 };
 
 

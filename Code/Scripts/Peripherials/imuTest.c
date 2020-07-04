@@ -18,7 +18,7 @@
 #define IMUTEST_PRINT_QUAT 0		// quaternions
 #define IMUTEST_PRINT_EULER 0		// euler angles
 #define IMUTEST_PRINT_RATES 0		// get and compute rates
-#define IMUTEST_PRINT_3DPLOT 1		// data for 3d plotter
+#define IMUTEST_PRINT_3DPLOT 0		// data for 3d plotter
 
 MPU9250 mpu;
 uint32_t lastPrint;
@@ -64,9 +64,17 @@ static bool imuTest_begin(void)
 	writePin(LEDB, HIGH);
 	MPU9250_init(&mpu, &mpu9250_default_config);
 	writePin(LEDB, LOW);
+
 	writePin(LEDA, HIGH);
+	writePin(LEDB, HIGH);
+	writePin(LEDC, HIGH);
+	writePin(LEDD, HIGH);
 	AK8963_init(&mpu, &mpu9250_default_config);
 	writePin(LEDA, LOW);
+	writePin(LEDB, LOW);
+	writePin(LEDC, LOW);
+	writePin(LEDD, LOW);
+
 	imuTest_printBiases();
 	return false;
 }

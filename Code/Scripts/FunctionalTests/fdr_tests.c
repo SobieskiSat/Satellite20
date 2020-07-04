@@ -35,7 +35,7 @@ static void fdr_setup(void)
 	println("Hello world!!");	HAL_Delay(500);
 	HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
 
-	TIM3->CCR3 = 510;
+	TIM3->CCR3 = 600;
 
 	if (sdTest_begin()) { println("SD card is working!");}
 	log_new();
@@ -123,8 +123,8 @@ static void fdr_loop(void)
 
 		//print_float(target_yaw); println("<< YAW << YAW");
 		//print_int(radio.rxBuffer[0]); println("<< SERVO");
-		if (radio.rxBuffer[0] == 1 || radio.rxBuffer[0] == 3) TIM3->CCR3 = 550;
-		else TIM3->CCR3 = 990;
+		if (radio.rxBuffer[0] == 1 || radio.rxBuffer[0] == 3) TIM3->CCR3 = 600;
+		else TIM3->CCR3 = 900;
 		if (radio.rxBuffer[0] == 2 || radio.rxBuffer[0] == 3) enableMotors();
 		else disableMotors();
 	}
@@ -133,11 +133,11 @@ static void fdr_loop(void)
 	if (millis() - lastMotUpdate >= 10)	// every 10ms get Euler angles and run motor alogrithm
 	{
 
-		imuTest_getEuler();
+		//imuTest_getEuler();
 		float brng = bearing(gps.latitudeDegrees, gps.longitudeDegrees, target_lat, target_lon);
 	    //algoGalgo(yaw, brng); // target_yaw wyliczane z pozycji anteny;
 
-		//algoGalgo(yaw, target_yaw); //statyczny target_yaw
+		algoGalgo(mpu.yaw, target_yaw); //statyczny target_yaw
 
 		//print_float(yaw); println("");
 		lastMotUpdate = millis();

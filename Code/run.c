@@ -7,7 +7,7 @@
 #include "stm32f4xx_hal.h"
 
 
-#include "gps.h"
+//#include "gps.h"
 
 /*
 #include <string.h>
@@ -31,39 +31,30 @@
  * GPTXT - custom message
  */
 
-
-#include "Scripts/Peripherials/imuTest.c"
-#include "Scripts/Peripherials/motorTest.c"
-
+#include "Scripts/FunctionalTests/fdr_tests.c"
 
 static void setup(void)
 {
 	//writePin(LEDD, HIGH);	while (readPin(BTN_USR) == HIGH);	writePin(LEDD, LOW);
-	println("Hello world");
+	//println("Hello world");
 	
 
-	//imuTest_begin();
-	motorTest_begin();
+	//gps.uart = Get_UART3_Instance();
+	//GPS_init(&gps);
 
-
-	/*
-	gps.uart = Get_UART3_Instance();
-	GPS_init(&gps);
-	 */
+	fdr_setup();
 }
 
 static void loop(void)
 {
-	//imuTest_loop();
-	mot_up_down();
-
-	/*
+/*
 	if (HAL_UART_Receive(gps.uart, gps.uartBuffer, 1, HAL_MAX_DELAY) == HAL_OK)
 	{
 		char toPrint[2] = {gps.uartBuffer[0], '\0'};
 		print(toPrint);
 	}
 	*/
+	fdr_loop();
 }
 
 /* #### setup ####

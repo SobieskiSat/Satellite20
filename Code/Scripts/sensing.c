@@ -71,6 +71,8 @@ static bool sensing_begin(void)
 			break;
 		}
 	}
+	gps.active = true;
+	mpu.active = true;
 
 	imuTest_begin();
 
@@ -114,22 +116,16 @@ static void sensing_loop(void)
 		}
 	}
 
-/*
-	if (imuActive)
+
+	if (mpu.active)
 	{
-		imuTest_getData();		// get data from IMU
-		imuTest_quatUpdate();	// compute data received
-
-		if (millis() - lastImuLog >= 100)
+		if (MPU9250_update(&mpu))
 		{
-			imuTest_getEuler();
-			float eulers[3] = {yaw, pitch, roll};
-			log_imu(eulers);
-			lastImuLog = millis();
+			imuTest_printData();
+			if (mpu.yaw >= 178.0 && mpu.yaw <= 182.0) writePin(LEDA, HIGH);
+			else writePin(LEDA, LOW);
 		}
-
 	}
-*/
 
 	if (millis() - lastDataPrint >= 1000 && SENSING_PRINT_DATA)
 	{
