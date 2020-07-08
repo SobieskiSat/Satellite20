@@ -21,5 +21,5 @@ motorTest.c:25:13:mot_up_down	16	static
 algoGalgo.c:17:13:algoGalgo	72	static
 algoGalgo.c:90:14:bearing	72	static
 fdr_tests.c:26:13:fdr_setup	8	static
-fdr_tests.c:61:13:preparePacket	16	static
-fdr_tests.c:99:13:fdr_loop	24	static
+fdr_tests.c:61:13:preparePacket	24	static
+fdr_tests.c:98:13:fdr_loop	24	static

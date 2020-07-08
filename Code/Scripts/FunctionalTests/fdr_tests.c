@@ -85,11 +85,10 @@ static void preparePacket()
 	radio.txBuffer[14] = (uint8_t)(temv >> 16) & 0xFF;
 	radio.txBuffer[15] = (uint8_t)(temv >> 24) & 0xFF;
 
-	/*
-	radio.txBuffer[16] = (uint8_t)(yaw * (255.0 / 360.0));
-	radio.txBuffer[17] = (uint8_t)(pitch * (255.0 / 360.0));
-	radio.txBuffer[18] = (uint8_t)(roll * (255.0 / 360.0));
-	 */
+
+	radio.txBuffer[16] = (uint8_t)(mpu.yaw * (255.0 / 360.0));
+	radio.txBuffer[17] = (uint8_t)(mpu.pitch * (255.0 / 360.0));
+	radio.txBuffer[18] = (uint8_t)(mpu.roll * (255.0 / 360.0));
 
 	radio.txBuffer[19] = 0x00;
 	radio.txLen = 20;

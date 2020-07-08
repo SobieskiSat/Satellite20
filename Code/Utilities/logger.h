@@ -33,7 +33,7 @@ void log_gps(GPS* gps);
 
 char imuBuffer[1024];
 uint16_t imuBufferIndex;
-void log_imu(float* eulers);
+void log_imu(MPU9250* mpu);
 
 char motBuffer[1024];
 uint16_t motBufferIndex;

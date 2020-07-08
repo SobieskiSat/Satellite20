@@ -139,12 +139,12 @@ void log_gps(GPS* gps)
 		memset(tempBuffer, 0x00, 1024);
 	}
 }
-void log_imu(float* eulers)
+void log_imu(MPU9250* mpu)
 {
 	if (imuBufferIndex < 950)
 	{
 		sprintf(timestamp, "\t@%lu\r\n", millis());
-		sprintf(tempBuffer, "%.02f %.02f %.02f", eulers[0], eulers[1], eulers[2]);
+		sprintf(tempBuffer, "%.02f %.02f %.02f", mpu->yaw, mpu->pitch, mpu->roll);
 		strcat(tempBuffer, timestamp);
 		strcat(imuBuffer, tempBuffer);
 		imuBufferIndex = strlen(imuBuffer);

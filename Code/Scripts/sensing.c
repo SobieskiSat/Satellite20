@@ -124,6 +124,12 @@ static void sensing_loop(void)
 			imuTest_printData();
 			if (mpu.yaw >= 178.0 && mpu.yaw <= 182.0) writePin(LEDA, HIGH);
 			else writePin(LEDA, LOW);
+
+			if (millis() - lastImuLog >= 100)
+			{
+				log_imu(&mpu);
+				lastImuLog = millis();
+			}
 		}
 	}
 
