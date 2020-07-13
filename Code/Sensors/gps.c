@@ -28,6 +28,8 @@ char GPS_read(GPS* inst)
 	if (inst->paused) return c;
 
 	c = (char)inst->uartBuffer[0];
+	char ca[2] = {c, "\0"};
+	print(ca);
 
 	inst->currentline[inst->lineidx++] = c;
 	// [!!!] \/ wtf is that

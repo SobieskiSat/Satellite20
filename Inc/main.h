@@ -57,8 +57,9 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 I2C_HandleTypeDef* Get_I2C1_Instance(void);
+I2C_HandleTypeDef* Get_I2C2_Instance(void);
 SPI_HandleTypeDef* Get_SPI1_Instance(void);
-UART_HandleTypeDef* Get_UART3_Instance(void);
+UART_HandleTypeDef* Get_UART1_Instance(void);
 RTC_HandleTypeDef* Get_RTC_Instance(void);
 TIM_HandleTypeDef* Get_TIM2_Instance(void);
 TIM_HandleTypeDef* Get_TIM3_Instance(void);
@@ -66,6 +67,8 @@ TIM_HandleTypeDef* Get_TIM5_Instance(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LR_NSS_Pin GPIO_PIN_13
+#define LR_NSS_GPIO_Port GPIOC
 #define LSE_IN_Pin GPIO_PIN_14
 #define LSE_IN_GPIO_Port GPIOC
 #define LSE_OUT_Pin GPIO_PIN_15
@@ -74,48 +77,34 @@ TIM_HandleTypeDef* Get_TIM5_Instance(void);
 #define HSE_IN_GPIO_Port GPIOH
 #define HSE_OUT_Pin GPIO_PIN_1
 #define HSE_OUT_GPIO_Port GPIOH
-#define P1_Pin GPIO_PIN_0
-#define P1_GPIO_Port GPIOC
-#define P4_Pin GPIO_PIN_1
-#define P4_GPIO_Port GPIOC
-#define P2_Pin GPIO_PIN_2
-#define P2_GPIO_Port GPIOC
-#define P5_Pin GPIO_PIN_3
-#define P5_GPIO_Port GPIOC
-#define PH_L_Pin GPIO_PIN_0
-#define PH_L_GPIO_Port GPIOA
-#define EN_L_Pin GPIO_PIN_1
-#define EN_L_GPIO_Port GPIOA
-#define PH_R_Pin GPIO_PIN_2
-#define PH_R_GPIO_Port GPIOA
-#define EN_R_Pin GPIO_PIN_3
-#define EN_R_GPIO_Port GPIOA
-#define P7_Pin GPIO_PIN_4
-#define P7_GPIO_Port GPIOA
-#define LR_DIO0_Pin GPIO_PIN_6
-#define LR_DIO0_GPIO_Port GPIOA
-#define LR_TIM_Pin GPIO_PIN_7
-#define LR_TIM_GPIO_Port GPIOA
-#define LR_RESET_Pin GPIO_PIN_5
-#define LR_RESET_GPIO_Port GPIOC
-#define P6_Pin GPIO_PIN_0
-#define P6_GPIO_Port GPIOB
-#define P3_Pin GPIO_PIN_1
-#define P3_GPIO_Port GPIOB
-#define GPS_RX_Pin GPIO_PIN_10
-#define GPS_RX_GPIO_Port GPIOB
-#define GPS_TX_Pin GPIO_PIN_11
-#define GPS_TX_GPIO_Port GPIOB
-#define LEDD_Pin GPIO_PIN_12
-#define LEDD_GPIO_Port GPIOB
-#define LEDC_Pin GPIO_PIN_13
-#define LEDC_GPIO_Port GPIOB
-#define LEDB_Pin GPIO_PIN_6
-#define LEDB_GPIO_Port GPIOC
-#define LEDA_Pin GPIO_PIN_7
+#define LEDA_Pin GPIO_PIN_0
 #define LEDA_GPIO_Port GPIOC
+#define LEDB_Pin GPIO_PIN_1
+#define LEDB_GPIO_Port GPIOC
+#define LEDC_Pin GPIO_PIN_2
+#define LEDC_GPIO_Port GPIOC
+#define LEDD_Pin GPIO_PIN_3
+#define LEDD_GPIO_Port GPIOC
+#define LR_DIO0_Pin GPIO_PIN_4
+#define LR_DIO0_GPIO_Port GPIOC
+#define LR_DIO1_Pin GPIO_PIN_5
+#define LR_DIO1_GPIO_Port GPIOC
+#define EN_R_Pin GPIO_PIN_0
+#define EN_R_GPIO_Port GPIOB
+#define MOT_STBY_Pin GPIO_PIN_2
+#define MOT_STBY_GPIO_Port GPIOB
+#define PH_R_Pin GPIO_PIN_12
+#define PH_R_GPIO_Port GPIOB
+#define PH_L_Pin GPIO_PIN_14
+#define PH_L_GPIO_Port GPIOB
+#define EN_L_Pin GPIO_PIN_7
+#define EN_L_GPIO_Port GPIOC
 #define SDIO_SW_Pin GPIO_PIN_8
 #define SDIO_SW_GPIO_Port GPIOA
+#define GPS_RX_Pin GPIO_PIN_9
+#define GPS_RX_GPIO_Port GPIOA
+#define GPS_TX_Pin GPIO_PIN_10
+#define GPS_TX_GPIO_Port GPIOA
 #define USB_DM_Pin GPIO_PIN_11
 #define USB_DM_GPIO_Port GPIOA
 #define USB_DP_Pin GPIO_PIN_12
@@ -124,8 +113,8 @@ TIM_HandleTypeDef* Get_TIM5_Instance(void);
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14
 #define SWCLK_GPIO_Port GPIOA
-#define BTN_USR_Pin GPIO_PIN_15
-#define BTN_USR_GPIO_Port GPIOA
+#define LR_RESET_Pin GPIO_PIN_15
+#define LR_RESET_GPIO_Port GPIOA
 #define LR_SCK_Pin GPIO_PIN_3
 #define LR_SCK_GPIO_Port GPIOB
 #define LR_MISO_Pin GPIO_PIN_4
@@ -136,8 +125,10 @@ TIM_HandleTypeDef* Get_TIM5_Instance(void);
 #define SCL_GPIO_Port GPIOB
 #define SDA_Pin GPIO_PIN_7
 #define SDA_GPIO_Port GPIOB
-#define LR_NSS_Pin GPIO_PIN_9
-#define LR_NSS_GPIO_Port GPIOB
+#define BTN_1_Pin GPIO_PIN_8
+#define BTN_1_GPIO_Port GPIOB
+#define BTN_2_Pin GPIO_PIN_9
+#define BTN_2_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

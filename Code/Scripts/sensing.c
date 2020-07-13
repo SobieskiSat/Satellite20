@@ -56,8 +56,10 @@ static bool sensing_begin(void)
 	//	else { log_print("Unable to init IMU"); }
 
 
+
 	attempts = 0;
-	gps.uart = Get_UART3_Instance();
+	gps.uart = Get_UART1_Instance();
+	/*
 	while (!GPS_init(&gps))
 	{
 		HAL_Delay(500);
@@ -71,10 +73,11 @@ static bool sensing_begin(void)
 			break;
 		}
 	}
+	*/
 	gps.active = true;
-	mpu.active = true;
 
-	imuTest_begin();
+	//imuTest_begin();
+	//mpu.active = true;
 
 	if (SENSING_DEBUG)
 	{
@@ -146,6 +149,7 @@ static void sensing_loop(void)
 			{
 				println("Latitude: %f", gps.latitudeDegrees);
 				println("Longitude: %f", gps.longitudeDegrees);
+				println("Altitude: %f", gps.altitude);
 			}
 			else
 			{

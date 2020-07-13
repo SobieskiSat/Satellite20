@@ -3,7 +3,7 @@ run.h:61:20:println	24	static
 motors.c:14:6:setMotors	16	static
 motors.c:29:6:haltMotors	4	static
 motors.c:38:6:enableMotors	8	static
-motors.c:63:6:disableMotors	8	static
-motors.c:75:6:setPwmFrequency	24	static
-motors.c:104:6:setMotorTimeout	16	static
-motors.c:112:6:motorTimeout	8	static
+motors.c:67:6:disableMotors	8	static
+motors.c:80:6:setPwmFrequency	24	static
+motors.c:109:6:setMotorTimeout	16	static
+motors.c:117:6:motorTimeout	4	static

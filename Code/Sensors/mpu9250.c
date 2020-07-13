@@ -596,9 +596,11 @@ void MPU9250_updateEuler(MPU9250* inst)		// Convert quaternions to Euler angles
 	inst->yaw	*= -180.0f / M_PI;			// Convert to degrees
 	inst->pitch *= 180.0f / M_PI;
 	inst->roll  *= 180.0f / M_PI;
+	/*
 	inst->yaw 	+= inst->eulerOffsets[0];	// Add offsets
 	inst->pitch	+= inst->eulerOffsets[1];
 	inst->roll 	+= inst->eulerOffsets[2];
+	*/
 	if(inst->yaw < 0)	inst->yaw	+= 360.0f;	// Fix overflow
 	if(inst->pitch < 0)	inst->pitch	+= 360.0f;
 	if(inst->roll < 0)	inst->roll	+= 360.0f;

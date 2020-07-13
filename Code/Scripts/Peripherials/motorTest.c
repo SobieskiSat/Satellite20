@@ -11,8 +11,8 @@
 #include "run.h"
 
 // Set to 1 to drive motors only when USR is pressed
-#define MOTORTEST_ON_USR_PRESS 0
-#define power_treshold 190
+#define MOTORTEST_ON_BTN_PRESS 0
+#define power_treshold 250
 
 static bool motorTest_begin(void)
 {
@@ -25,38 +25,21 @@ static bool motorTest_begin(void)
 static void mot_up_down(void)
 {
 	uint8_t i;
-	for (i = 0; i < power_treshold; i++)
+	//enableMotors();
+	for (i = 0; i <= power_treshold; i++)
 	{
-		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET || !MOTORTEST_ON_USR_PRESS)
-		{
-			setMotors(((float)i) / 255.0, ((float)i) / 255.0);
-			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_SET);
-		}
-		else
-		{
-			haltMotors();
-			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
-		}
-		HAL_Delay(10);
+		setMotors(((float)i) / 255.0, ((float)i) / 255.0);
+		delay(100);
 	}
-	for (i = 0; i < 100; i++)
-	{
-		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET || !MOTORTEST_ON_USR_PRESS) HAL_Delay(100);
-	}
+	delay(2000);
+	print("Between");
+	//enableMotors();
+	delay(2000);
 	for (i = power_treshold; i > 0; i--)
 	{
-		if (HAL_GPIO_ReadPin(BTN_USR_GPIO_Port, BTN_USR_Pin) == GPIO_PIN_RESET || !MOTORTEST_ON_USR_PRESS)
-		{
-			setMotors(((float)i) / 255.0, ((float)i) / 255.0);
-			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_SET);
-		}
-		else
-		{
-			haltMotors();
-			HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
-		}
-
-		HAL_Delay(10);
+		setMotors(((float)i) / 255.0, ((float)i) / 255.0);
+		delay(100);
 	}
-	HAL_Delay(400);
+	delay(400);
+	//disableMotors();
 }

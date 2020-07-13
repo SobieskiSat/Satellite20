@@ -11,11 +11,11 @@ duplex.c:62:13:duplex_loop	16	static
 imuTest.c:26:13:imuTest_printData	4	static
 imuTest.c:50:13:imuTest_printBiases	40	static
 imuTest.c:58:13:imuTest_begin	8	static
-imuTest.c:81:13:imuTest_loop	8	static
-imuTest.c:94:13:imuTest_printSelfTest	8	static
-imuTest.c:102:13:imuTest_printMagTest	40	static
+imuTest.c:83:13:imuTest_loop	8	static
+imuTest.c:96:13:imuTest_printSelfTest	8	static
+imuTest.c:104:13:imuTest_printMagTest	40	static
 sensing.c:30:13:sensing_begin	16	static
-sensing.c:88:13:sensing_loop	16	static
+sensing.c:91:13:sensing_loop	16	static
 motorTest.c:17:13:motorTest_begin	8	static
 motorTest.c:25:13:mot_up_down	16	static
 algoGalgo.c:17:13:algoGalgo	72	static

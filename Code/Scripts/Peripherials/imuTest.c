@@ -61,10 +61,12 @@ static bool imuTest_begin(void)
 	mpu.i2c_addr = MPU9250_I2C_ADDRESS;
 	mpu.i2c_addr_ak = AK8963_I2C_ADDRESS;
 
+	println("DONT MOVE!!");
 	writePin(LEDB, HIGH);
 	MPU9250_init(&mpu, &mpu9250_default_config);
 	writePin(LEDB, LOW);
 
+	println("R O T A T E");
 	writePin(LEDA, HIGH);
 	writePin(LEDB, HIGH);
 	writePin(LEDC, HIGH);

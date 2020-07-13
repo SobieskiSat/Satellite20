@@ -59,19 +59,7 @@ Src/main.o: ../Src/main.c ../Inc/main.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/FunctionalTests/fdr_tests.c \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/sdTest.c \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sd.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/logger.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/duplex.c \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/sensing.c \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/imuTest.c \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/motorTest.c \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Algorithms/algoGalgo.c
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h
 
 ../Inc/main.h:
 
@@ -207,28 +195,4 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h:
 
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/FunctionalTests/fdr_tests.c:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/sdTest.c:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sd.h:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/logger.h:
-
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/duplex.c:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/sensing.c:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/imuTest.c:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Peripherials/motorTest.c:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/Algorithms/algoGalgo.c:

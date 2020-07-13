@@ -29,11 +29,11 @@ static bool radioTest_begin(void)
 	radio.reset = LR_RESET_Pin;
 	radio.dio0 = LR_DIO0_Pin;
 	radio.nss = LR_NSS_Pin;
-	radio.rxtim = LR_TIM_Pin;
+	//radio.rxtim = LR_TIM_Pin;
 	radio.reset_port = LR_RESET_GPIO_Port;
 	radio.dio0_port = LR_DIO0_GPIO_Port;
 	radio.nss_port = LR_NSS_GPIO_Port;
-	radio.rxtim_port = LR_TIM_GPIO_Port;
+	//radio.rxtim_port = LR_TIM_GPIO_Port;
 	radio.spi = Get_SPI1_Instance();
 
 	radio.config = sx1278_default_config;

@@ -20,7 +20,7 @@ static bool bmpTest_begin(void)
 {
 	bmp280.params = bmp280_default_config;
 	bmp280.i2c_addr = BMP280_I2C_ADDRESS;
-	bmp280.i2c = Get_I2C1_Instance();
+	bmp280.i2c = Get_I2C2_Instance();
 
 	while (!bmp280_init(&bmp280, &bmp280.params)) {
 		print("BMP280 initialization failed\n");

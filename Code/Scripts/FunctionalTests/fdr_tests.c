@@ -40,7 +40,7 @@ static void fdr_setup(void)
 	if (sdTest_begin()) { println("SD card is working!");}
 	log_new();
 	SD_init();
-	if (duplex_begin()) { println("Radio is working");}
+	//if (duplex_begin()) { println("Radio is working");}
 
 	sensing_begin();
 
@@ -53,7 +53,7 @@ static void fdr_setup(void)
 	HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
 	//HAL_Delay(1000);
 
-	duplex_loop("new transmit", 14, true);
+	//duplex_loop("new transmit", 14, true);
 	lastSave = millis();
 	servoState = 0;
 }
@@ -109,7 +109,7 @@ static void fdr_loop(void)
 
 
 
-	if (duplex_checkINT())
+	if (duplex_checkINT() || false)
 	{
 		//radio.txLen = sprintf(radio.txBuffer, "%.01f_%.01f_%.07f_%.07f ", bmp.pressure, bmp.temperature, gps.latitudeDegrees, gps.longitudeDegrees); //imortant to leave last byte
 		preparePacket();

@@ -20,11 +20,11 @@ static bool receiver_begin(void)
 	recradio.reset = LR_RESET_Pin;
 	recradio.dio0 = LR_DIO0_Pin;
 	recradio.nss = LR_NSS_Pin;
-	recradio.rxtim = LR_TIM_Pin;
+	//recradio.rxtim = LR_TIM_Pin;
 	recradio.reset_port = LR_RESET_GPIO_Port;
 	recradio.dio0_port = LR_DIO0_GPIO_Port;
 	recradio.nss_port = LR_NSS_GPIO_Port;
-	recradio.rxtim_port = LR_TIM_GPIO_Port;
+	//recradio.rxtim_port = LR_TIM_GPIO_Port;
 	recradio.spi = Get_SPI1_Instance();
 	recradio.config = sx1278_default_config;
 

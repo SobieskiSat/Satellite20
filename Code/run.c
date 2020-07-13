@@ -7,7 +7,7 @@
 #include "stm32f4xx_hal.h"
 
 
-//#include "gps.h"
+#include "gps.h"
 
 /*
 #include <string.h>
@@ -19,7 +19,7 @@
 #define setup EVALUATOR(FILENAME, setup)
 */
 
-//GPS gps;
+GPS gps;
 
 /*
  * GPRMC - fix, warning, lat, lon, speed, Course Made Good?, date of fix, magnetic variation
@@ -31,7 +31,15 @@
  * GPTXT - custom message
  */
 
-#include "Scripts/FunctionalTests/fdr_tests.c"
+//#include "Scripts/FunctionalTests/fdr_tests.c"
+
+//#include "Scripts/Peripherials/motorTest.c"
+
+//#include "Scripts/Peripherials/bmpTest.c"
+
+//#include "Scripts/Peripherials/imuTest.c"
+
+//#include "Scripts/sensing.c"
 
 static void setup(void)
 {
@@ -39,22 +47,45 @@ static void setup(void)
 	//println("Hello world");
 	
 
-	//gps.uart = Get_UART3_Instance();
+	delay(1000);
+	println("Hello world");
+
+	//bmpTest_begin();
+
+	gps.uart = Get_UART1_Instance();
 	//GPS_init(&gps);
 
-	fdr_setup();
+	//imuTest_begin();
+
+
+	//sensing_begin();
+
+	//motorTest_begin();
+
+	//fdr_setup();
 }
 
 static void loop(void)
 {
-/*
+
+	//sensing_loop();
+
+	//mot_up_down();
+
+	//imuTest_loop();
+
+	//bmpTest_loop();
+
+
 	if (HAL_UART_Receive(gps.uart, gps.uartBuffer, 1, HAL_MAX_DELAY) == HAL_OK)
 	{
 		char toPrint[2] = {gps.uartBuffer[0], '\0'};
 		print(toPrint);
 	}
-	*/
-	fdr_loop();
+
+
+
+	//fdr_loop();
 }
 
 /* #### setup ####
