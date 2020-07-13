@@ -1,7 +1,7 @@
 clock.h:8:24:micros	4	static
 clock.h:9:24:millis	4	static
-run.h:36:20:print	24	static
-run.h:61:20:println	24	static
+run.h:58:20:print	24	static
+run.h:83:20:println	24	static
 gpsTest.c:19:13:gpsTest_begin	8	static
 gpsTest.c:36:13:gpsTest_getData	16	static
 gpsTest.c:56:13:gpsTest_printData	24	static

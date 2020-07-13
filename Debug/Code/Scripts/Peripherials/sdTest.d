@@ -46,7 +46,12 @@ Code/Scripts/Peripherials/sdTest.o: ../Code/Scripts/Peripherials/sdTest.c \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
  ../Inc/fatfs.h ../Middlewares/Third_Party/FatFs/src/ff.h \
  ../Middlewares/Third_Party/FatFs/src/integer.h ../Inc/ffconf.h \
  ../Inc/bsp_driver_sd.h ../Inc/fatfs_platform.h \
@@ -157,7 +162,17 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
 
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:
 
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h:
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
 
 ../Inc/fatfs.h:
 

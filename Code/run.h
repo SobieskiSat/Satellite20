@@ -12,10 +12,32 @@
 #include "usbd_cdc_if.h"
 #include "clock.h"
 
+#include "bmp280.h"
+#include "mpu9250.h"
+#include "gps.h"
+#include "sx1278.h"
 
-// ############ Run routines ############
+// ############ Run specific ############
 static void setup(void);
 static void loop(void);
+static struct
+{
+	BMP280 bmp;
+	MPU9250 mpu;
+	GPS gps;
+	SX1278 radio;
+	//SPS30 sps;
+	float mot_l;
+	float mot_r;
+	bool motors_enabled;
+	bool servo_enabled;
+	float target_lat;
+	float target_lon;
+	float target_alt;
+	float target_yaw;
+	uint8_t operation_mode;
+	void (*log_print)(const char* format, ...);
+} Common;
 
 // ############ GPIO writing ############
 #define HIGH GPIO_PIN_SET
@@ -92,7 +114,7 @@ static inline bool println(const char* format, ...)
 static inline void printDate(void)
 {
 	DateTime now = getTime();
-	println("%d-%d-20%d %d:%d:%d:%d",
+	println("%.2d-%.2d-20%.2d %.2d:%.2d:%.2d:.4%d",
 			now.dayM, now.month, now.year,
 			now.hour, now.minute, now.second, now.msecond);
 }

@@ -394,11 +394,11 @@ void SX1278_reset(SX1278* inst) {
 	inst->rxLen = 0;
 	inst->mode = SLEEP;
 
-	HAL_GPIO_WritePin(inst->nss_port, inst->nss, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(inst->reset_port, inst->reset, GPIO_PIN_RESET);
-	HAL_Delay(1);
-	HAL_GPIO_WritePin(inst->reset_port, inst->reset, GPIO_PIN_SET);
-	HAL_Delay(100);
+	HAL_GPIO_WritePin(inst->nss_port, inst->nss, HIGH);
+	HAL_GPIO_WritePin(inst->reset_port, inst->reset, LOW);
+	delay(1);
+	HAL_GPIO_WritePin(inst->reset_port, inst->reset, LOW);
+	delay(100);
 }
 
 //#### Interrupt methods ####

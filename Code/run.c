@@ -2,98 +2,22 @@
 #include "config.h"
 #include <stdio.h>
 #include <stdbool.h>
-
 #include "main.h"
 #include "stm32f4xx_hal.h"
 
+#include "Scripts/loging.c"
 
-#include "gps.h"
-
-/*
-#include <string.h>
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-
-#define FILENAME file1
-#define PASTER(x,y) x ## _ ## y
-#define EVALUATOR(x,y)  PASTER(x,y)
-#define setup EVALUATOR(FILENAME, setup)
+/* To do:
+- add .newData flag
+- LoRa overcurrent setting
+- SPS30
 */
-
-GPS gps;
-
-/*
- * GPRMC - fix, warning, lat, lon, speed, Course Made Good?, date of fix, magnetic variation
- * GPVTG - Track made good?, magnetic track made good?, speed, speed
- * GPGGA - time, lat, lon, fix, no. satellites, HDOP, alt, time since last DGPS update, DGPS reference station id
- * GPGSA - fix mode, fix, satellite ids used to fix, PDOP, HDOP, VDOP
- * GPGSV - no. messages, msg number, total no. satellites in view, [SV PRN number, elevation in deg, azimuth, signal strenght]
- * GPGLL - lat, lon, fix time, data status
- * GPTXT - custom message
- */
-
-//#include "Scripts/FunctionalTests/fdr_tests.c"
-
-//#include "Scripts/Peripherials/motorTest.c"
-
-//#include "Scripts/Peripherials/bmpTest.c"
-
-//#include "Scripts/Peripherials/imuTest.c"
-
-//#include "Scripts/sensing.c"
 
 static void setup(void)
 {
-	//writePin(LEDD, HIGH);	while (readPin(BTN_USR) == HIGH);	writePin(LEDD, LOW);
-	//println("Hello world");
-	
+	writePin(LEDD, HIGH);	while (readPin(BTN_1) == HIGH);	writePin(LEDD, LOW);
 
-	delay(1000);
-	println("Hello world");
-
-	//bmpTest_begin();
-
-	gps.uart = Get_UART1_Instance();
-	//GPS_init(&gps);
-
-	//imuTest_begin();
-
-
-	//sensing_begin();
-
-	//motorTest_begin();
-
-	//fdr_setup();
-}
-
-static void loop(void)
-{
-
-	//sensing_loop();
-
-	//mot_up_down();
-
-	//imuTest_loop();
-
-	//bmpTest_loop();
-
-
-	if (HAL_UART_Receive(gps.uart, gps.uartBuffer, 1, HAL_MAX_DELAY) == HAL_OK)
-	{
-		char toPrint[2] = {gps.uartBuffer[0], '\0'};
-		print(toPrint);
-	}
-
-
-
-	//fdr_loop();
-}
-
-/* #### setup ####
-	writePin(LEDD, HIGH);	while (readPin(BTN_USR) == HIGH);	writePin(LEDD, LOW);
-
-	#if SD_ENABLE
-		logger_setup();
-	#endif
+	loging_setup();
 	#if RADIO_ENABLE
 		duplex_setup();
 	#endif
@@ -104,8 +28,13 @@ static void loop(void)
 		steering_setup();
 	#endif
 
-	writePin(LEDD, HIGH);	while (readPin(BTN_USR) == HIGH);	writePin(LEDD, LOW);
-*/
+	writePin(LEDD, HIGH);	while (readPin(BTN_1) == HIGH);	writePin(LEDD, LOW);
+}
+
+static void loop(void)
+{
+	loging_loop();
+}
 
 /* #### loop ####
 	#if SD_ENABLE

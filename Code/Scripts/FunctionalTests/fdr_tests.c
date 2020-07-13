@@ -109,7 +109,7 @@ static void fdr_loop(void)
 
 
 
-	if (duplex_checkINT() || false)
+	if (duplex_checkINT())
 	{
 		//radio.txLen = sprintf(radio.txBuffer, "%.01f_%.01f_%.07f_%.07f ", bmp.pressure, bmp.temperature, gps.latitudeDegrees, gps.longitudeDegrees); //imortant to leave last byte
 		preparePacket();

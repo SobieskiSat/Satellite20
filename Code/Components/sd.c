@@ -24,7 +24,6 @@ FRESULT SD_setFileTime(char* patho, DateTime* dateTime)
 
 FRESULT SD_init()
 {
-
 	if (BSP_SD_Init() != MSD_OK) return FR_NOT_READY;
 
 	if (FATFS_UnLinkDriver(SDPath) != 0) return FR_NOT_READY;
@@ -57,7 +56,6 @@ FRESULT SD_newFile(char* path)
 		f_mount(0, SDPath, 0);
 		return stato;
 	}
-
 
 	//DateTime now = getTime();
 	//SD_setFileTime(path, &now);

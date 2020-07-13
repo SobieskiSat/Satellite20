@@ -15,7 +15,6 @@ RM := rm -rf
 -include Middlewares/ST/STM32_USB_Device_Library/Core/Src/subdir.mk
 -include Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/subdir.mk
 -include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
--include Code/Utilities/subdir.mk
 -include Code/Sensors/subdir.mk
 -include Code/Scripts/Peripherials/subdir.mk
 -include Code/Scripts/FunctionalTests/subdir.mk
