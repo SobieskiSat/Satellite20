@@ -184,13 +184,14 @@ typedef struct
 	uint32_t sentTime; // millis() when first character of last full sentence received
 	bool paused;
 	bool active;
+	bool newData;
 
 	uint8_t uartBuffer[1];
 
 } GPS;
 
-bool GPS_begin(GPS* inst, uint32_t baud_or_i2caddr);
 bool GPS_init(GPS* inst);
+bool GPS_update(GPS* inst);
 
 char* GPS_lastNMEA(GPS* inst);
 bool GPS_newNMEAreceived(GPS* inst);

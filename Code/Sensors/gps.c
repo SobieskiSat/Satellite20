@@ -146,6 +146,7 @@ bool GPS_init(GPS* inst)
 	//GPS_standby(inst);
 	//GPS_wakeup(inst);
 
+	/*
 	HAL_Delay(1000);
 
 	GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_ALLDATA);
@@ -182,8 +183,17 @@ bool GPS_init(GPS* inst)
 			}
 		}
 	}
+	*/
 	return true;
 //	return false;
+}
+
+bool GPS_update(GPS* inst)
+{
+	if (GPS_newNMEAreceived(inst))
+	{
+		if (GPS_parse(inst, GPS_lastNMEA(inst))) inst->newData = true;
+	}
 }
 
 /**************************************************************************/

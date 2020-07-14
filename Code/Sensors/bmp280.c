@@ -4,17 +4,17 @@
 
 static bool BMP280_readBytes(BMP280* inst, uint8_t mem_addr, uint8_t* data, uint8_t len)
 {
-	return (HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, data, len, 5000) == HAL_OK);
+	return (HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, data, len, 500) == HAL_OK);
 }
 static bool BMP280_writeByte(BMP280* inst, uint8_t mem_addr, uint8_t data)
 {
-	return (HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr, mem_addr, 1, &data, 1, 10000) == HAL_OK);
+	return (HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr, mem_addr, 1, &data, 1, 500) == HAL_OK);
 }
 static bool BMP280_read16(BMP280* inst, uint8_t mem_addr, uint16_t* data)
 {
 	uint8_t rx_buff[2];
 
-	if (HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, rx_buff, 2, 5000) == HAL_OK)
+	if (HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, rx_buff, 2, 500) == HAL_OK)
 	{
 		*data = (uint16_t)((rx_buff[1] << 8) | rx_buff[0]);
 		return true;
@@ -108,6 +108,7 @@ bool bmp280_init(BMP280* inst, BMP280_config* params)
 {
 	uint8_t temp_data[1];	// nasty temporary byte, used for everything
 	inst->active = false;
+	inst->params = *params;
 
 	if (!bmp280_present(inst, 1)) return false;
 	bmp280_reset(inst);

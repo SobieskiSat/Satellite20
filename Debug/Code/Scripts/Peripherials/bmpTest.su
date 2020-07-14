@@ -1,4 +1,0 @@
-clock.h:8:24:micros	4	static
-run.h:58:20:print	24	static
-bmpTest.c:19:13:bmpTest_begin	8	static
-bmpTest.c:38:13:bmpTest_getData	8	static

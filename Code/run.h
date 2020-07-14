@@ -119,4 +119,8 @@ static inline void printDate(void)
 			now.hour, now.minute, now.second, now.msecond);
 }
 
+// ############### Useful #################
+static inline void floatToBytes(float* value, uint8_t* buffer) { for (uint8_t i = 0; i < 4; i++) buffer[i] = *((uint8_t*)(value) + i); }
+static inline void bytesToFloat(uint8_t* buffer, float* value) { for (uint8_t i = 0; i < 4; i++) *((uint8_t*)(value) + i) = buffer[i]; }
+
 #endif /* RUN_H_ */

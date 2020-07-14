@@ -33,7 +33,7 @@ void log_new();
 char logBuffer[4096];
 uint16_t logBufferIndex;
 void log_print(const char* format, ...);
-void log_print_dummy(const char* format, ...) { return; }
+static void log_print_dummy(const char* format, ...) { return; }
 
 char bmpBuffer[1024];
 uint16_t bmpBufferIndex;
@@ -109,7 +109,7 @@ static bool loging_setup(void)		// Writes test file to SD card, if successful cr
 		sdActive = true;
 		log_new();
 		Common.log_print = &log_print;
-		(*Common.log_print)("[LOGING] SD works, welcome onboard!");
+		(*Common.log_print)("*L00"); // [LOGING] SD works, welcome onboard!
 		return true;
 
 		error_handler:
@@ -167,8 +167,8 @@ static void loging_loop(void)
 			#if LOGING_PRINT_RADIO
 				if (Common.radio.active)
 				{
-					println("Packets transmitted: %d", radio.txCount);
-					println("Packets received: %d", radio.rxCount);
+					println("Packets transmitted: %d", Common.radio.txCount);
+					println("Packets received: %d", Common.radio.rxCount);
 				}
 			#endif
 			#if LOGING_PRINT_INFO

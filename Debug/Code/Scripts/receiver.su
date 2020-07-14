@@ -1,4 +1,0 @@
-clock.h:8:24:micros	4	static
-run.h:61:20:println	24	static
-receiver.c:18:13:receiver_begin	16	static
-receiver.c:51:13:receiver_loop	8	static

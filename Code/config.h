@@ -3,11 +3,6 @@
 
 #include "stm32f4xx_hal.h"
 
-// Motor config
-#define MOTOR_L_DIR 0
-#define MOTOR_R_DIR 0
-#define MOTOR_PWM_RESOLUTION 1024
-
 // Radio config
 #include "sx1278.h"
 static SX1278_config sx1278_default_config =
@@ -53,28 +48,56 @@ static BMP280_config bmp280_default_config =
 	BMP280_STANDBY_125		// standby between measurements (05:4000)[ms]
 };
 
-// Loging parameters [ms]
+// Timing parameters [ms]
 #define DATA_PRINT_DELAY 1000
 #define LOG_SAVE_DELAY 1473
 #define LOG_BMP_DELAY 100
 #define LOG_IMU_DELAY 100
 #define LOG_MOT_DELAY 100
 #define LOG_TARGET_YAW_DELAY 1000
+#define DUPLEX_TX_COUNT 5			// Count of packets transmitted per one received
+// Radio timeout value is set in SX1278 config 
+#define SENSING_BMP_DELAY 50
+#define STEERING_PID_DELAY 10		// Delay between motor thrust updates
+#define STEERING_YAW_DELAY 100		// Delay between target yaw corrections
 
-// Peripherial state (dangerous!, maybe to implement)
-#define MOTOR_ENABLE 1
-#define RADIO_ENABLE 1
-#define IMU_ENABLE 1
-#define GPS_ENABLE 1
-#define BMP_ENABLE 1
+// Peripherial state
 #define SD_ENABLE 1
+#define RADIO_ENABLE 1
+#define BMP_ENABLE 1
+#define GPS_ENABLE 1
+#define IMU_ENABLE 1
+#define STEERING_ENABLE 1	// defines MOTOR_ENABLE
 
 // Debug messages
+#define LOGING_DEBUG 1
 #define LOGING_PRINT_DATA 1
 	#define LOGING_PRINT_SENSORS 1
 	#define LOGING_PRINT_RADIO 1
 	#define LOGING_PRINT_INFO 1
-#define LOGING_DEBUG 1
 #define DUPLEX_DEBUG 1
+#define SENSING_DEBUG 1
+#define STEERING_DEBUG 1
+
+// Flight parameters
+#define DEFAULT_TARGET_LAT 50.0
+#define DEFAULT_TARGET_LON 19.0
+#define DEFAULT_TARGET_ALT 500.0
+#define DEFAULT_TARGET_YAW 0.0
+#define KEEPOUT_LAT 0.01	// Destination range (area)
+#define KEEPOUT_LON 0.01
+#define KEEPOUT_ALT 50.0
+#define TERMINAL_HOR 45.0	// Maximum horizonal angle to be accepted
+#define TERMINAL_YAWR 40.0	// Maximum yaw rotation speed in (deg/s) to be accepted
+#define TERMINAL_VEL -10.0	// Maximum falling speed to be accepted
+// PID
+#define PID_kp 1.0 		//dobrany
+#define PID_ki 0.5
+#define PID_kd 500.0 	//dobrany 500 ok - 100ms
+
+// Motor config
+#define MOTOR_L_DIR 0
+#define MOTOR_R_DIR 0
+#define MOTOR_PWM_RESOLUTION 1024
 
 #endif /* CONFIG_H_ */

@@ -265,6 +265,8 @@ bool SX1278_tx_finish(SX1278* inst)
 {
 	inst->irqStatus = SX1278_read_address(inst, LR_RegIrqFlags);
 	inst->txDone = ((inst->irqStatus & IRQ_LR_TXDONE) > 0x00);
+	if (inst->txDone) inst->newTxData = true;
+	inst->txCount++;
 	SX1278_clearLoRaIrq(inst);
 	SX1278_standby(inst);
 
@@ -298,7 +300,9 @@ bool SX1278_rx_get_packet(SX1278* inst)
 
 	SX1278_read_burst(inst, 0x00, inst->rxBuffer, packet_size);
 
-	inst->newPacket = inst->rxDone && !inst->rxTimeout && !(inst->crcError && !LR_VALIDATE_CRCERROR);
+	inst->newPacket = inst->rxDone && !inst->rxTimeout && (!inst->crcError || LR_VALIDATE_CRCERROR);
+	if (inst->newPacket) inst->newRxData = true;
+	inst->rxCount++;
 	inst->rssi = SX1278_getRSSI(inst);
 	inst->rxLen = packet_size;
 	SX1278_clearLoRaIrq(inst);

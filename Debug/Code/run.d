@@ -46,12 +46,25 @@ Code/run.o: ../Code/run.c ../Code/run.h ../Inc/main.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_core.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h \
- ../Code/config.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
+ ../Code/clock.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
+ ../Code/config.h ../Code/Scripts/loging.c ../Inc/fatfs.h \
+ ../Middlewares/Third_Party/FatFs/src/ff.h \
+ ../Middlewares/Third_Party/FatFs/src/integer.h ../Inc/ffconf.h \
+ ../Inc/bsp_driver_sd.h ../Inc/fatfs_platform.h \
+ ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h \
+ ../Middlewares/Third_Party/FatFs/src/diskio.h \
+ ../Middlewares/Third_Party/FatFs/src/ff.h ../Inc/sd_diskio.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sd.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h \
+ ../Code/Scripts/duplex.c ../Code/Scripts/sensing.c \
+ ../Code/Scripts/steering.c
 
 ../Code/run.h:
 
@@ -155,14 +168,52 @@ Code/run.o: ../Code/run.c ../Code/run.h ../Inc/main.h \
 
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h:
 
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Utilities/clock.h:
-
-../Code/config.h:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h:
+../Code/clock.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h:
 
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h:
+
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
+
+../Code/config.h:
+
+../Code/Scripts/loging.c:
+
+../Inc/fatfs.h:
+
+../Middlewares/Third_Party/FatFs/src/ff.h:
+
+../Middlewares/Third_Party/FatFs/src/integer.h:
+
+../Inc/ffconf.h:
+
+../Inc/bsp_driver_sd.h:
+
+../Inc/fatfs_platform.h:
+
+../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h:
+
+../Middlewares/Third_Party/FatFs/src/diskio.h:
+
+../Middlewares/Third_Party/FatFs/src/ff.h:
+
+../Inc/sd_diskio.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sd.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h:
+
+../Code/Scripts/duplex.c:
+
+../Code/Scripts/sensing.c:
+
+../Code/Scripts/steering.c:

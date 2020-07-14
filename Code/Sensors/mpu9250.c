@@ -135,28 +135,24 @@ bool MPU9250_init(MPU9250* inst, MPU9250_config* config)
 	}
 	inst->q[0] = 1.0f;
 
-	if (MPU9250_present(inst, 5))
-	{
-		delay(100);
-		MPU9250_SelfTest(inst);					// Start by performing self test
-		delay(1000);
-		MPU9250_getRes(inst, config);			// Get sensor resolutions based on config, only need to do this once
+	//Self test was there
+	delay(1000);
+	MPU9250_getRes(inst, config);			// Get sensor resolutions based on config, only need to do this once
 
-		if (config->calibrate)
-		{
-			MPU9250_calibrate(inst);			// Calibrate gyro and accelerometers, load biases in bias registers	
-		}
-		else
-		{										// Or load biases from config
-			for (i = 0; i < 3; i++)
-			{
-				inst->accelBias[i] = config->accelBias[i];
-				inst->gyroBias[i] = config->gyroBias[i];
-			}
-			// magBias?
-		}
-		delay(1000);
+	if (config->calibrate)
+	{
+		MPU9250_calibrate(inst);			// Calibrate gyro and accelerometers, load biases in bias registers	
 	}
+	else
+	{										// Or load biases from config
+		for (i = 0; i < 3; i++)
+		{
+			inst->accelBias[i] = config->accelBias[i];
+			inst->gyroBias[i] = config->gyroBias[i];
+			inst->magBias[i] = config->magBias[i];
+		}
+	}
+	delay(1000);
 															// Initialize MPU9250 device
 															// wake up device
 	MPU9250_writeByte(inst, MPU9250_PWR_MGMT_1, 0x00);		// Clear sleep mode bit (6), enable all sensors 
@@ -204,10 +200,12 @@ bool MPU9250_init(MPU9250* inst, MPU9250_config* config)
 															//and clear on read of INT_STATUS, enable I2C_BYPASS_EN
 	MPU9250_writeByte(inst, MPU9250_INT_ENABLE, 0x01);		// Enable data ready (bit 0) interrupt
 
+	/*
 	if (!config->calibrate && false)						// [SKIPPED] Do this step immidiately only if not calibrating
 	{
 		AK8963_init(inst, config);	 						// Get magnetometer calibration from AK8963 ROM
 	}
+	*/
 
 	inst->mpu_active = true;
 	inst->active = inst->mpu_active && inst->ak_active;
@@ -254,29 +252,8 @@ bool AK8963_init(MPU9250* inst, MPU9250_config* config)
 	return true;
 }
 
-bool MPU9250_present(MPU9250* inst, uint8_t trials)	// arg = trials of getting WHO_AM_I response from MPU and AK
-{
-	uint8_t attempts = 0;
-	do
-	{
-		//MPU9250_reset(inst);
-		char who[2] = {0, 0};
-		who[0] = MPU9250_readByte(inst, MPU9250_WHO_AM_I);
-		who[1] = AK8963_readByte(inst, AK8963_WHO_AM_I);
-		if (who[0] == 0x71)
-		{
-			println("Both present!");
-			return true;
-		}
-		else
-		{
-			attempts++;
-			delay(1000);
-		}
-	} while (attempts <= trials);
-	inst->active = false;
-	return false;
-}
+bool MPU9250_present(MPU9250* inst) { /*MPU9250_reset(inst);*/ return (MPU9250_readByte(inst, MPU9250_WHO_AM_I) == 0x71); }
+bool AK8963_present(MPU9250* inst) { /*MPU9250_reset(inst);*/ return (AK8963_readByte(inst, AK8963_WHO_AM_I) == 0x48); }
 
 bool MPU9250_update(MPU9250* inst)
 {
@@ -451,7 +428,7 @@ bool MPU9250_SelfTest(MPU9250* inst)						// Accelerometer and gyroscope self te
 	float results[6];
 
 	inst->aRes = 1;											// Prepare instance to SelfTest
-	inst->gRes = 1;											//Configuration values (must?) not affect readings
+	inst->gRes = 1;											// Configuration values (must?) not affect readings
 	int i = 0;
 	for (i = 0; i < 3; i++)
 	{

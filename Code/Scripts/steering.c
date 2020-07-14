@@ -1,64 +1,143 @@
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// 		Steering code
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+#ifndef STEERING_C
+#define STEERING_C
+
+#include "main.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_gpio.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <math.h>
 
 #include "run.h"
-#include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
-#include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_i2c.h"
-#include "stm32f4xx_hal_gpio.h"
-#include <math.h>
-#include <stdlib.h>
-
+#include "config.h"
 #include "motors.h"
-#include "Peripherials/imuTest.c"
-
-#include "Algorithms/algoGalgo.c"
+#include "clock.h"
 
 uint32_t lastMotUpdate;
-uint32_t lastMotUpdate2;
+uint32_t lastYawUpdate;
 
-float target_yaw;
-time_t t;
+uint32_t lastAlgo;
 
-static void steering_begin(void)
+float yaw_last_error;
+
+static void PID(float yaw, float target_yaw)
 {
-	if (imuTest_begin()) println("[IMU] Init successful!");
+	float maxPower = 0.6;	// scale of motor power
+	float TurboMode= 50.0;
+	float error= target_yaw-yaw;
+	float thrust;
 
-	enableMotors(); println("[MOT] Motors enabled!");
-	lastMotUpdate = millis();
-	lastMotUpdate2 = millis();
+	if (error<-180.0) //ulomne modulo
+		error = target_yaw-yaw+360.0;
+	else if (error>180.0)
+		error = target_yaw-yaw-360.0;
 
-	yaw_last_error=0.0;
-	target_yaw=180.0;
+	if (error>-10 && error<10)
+		thrust = 340.0;
+	else
+		thrust = 180.0+TurboMode;
 
-	srand((unsigned) time(&t));
+	float pid_p, pid_i, pid_d;
+
+	pid_p=PID_kp*error;
+	pid_d=PID_kd*((error-yaw_last_error)/(millis() - lastAlgo));
+	//pid_i=pid_i+(PID_ki*error);
+
+	float PID_coef;
+	//if (error>-15 && error <15)
+	//	PID_coef=pid_p+pid_d+pid_i;
+	//else
+		PID_coef=pid_p+pid_d;
+
+	if (PID_coef>180.0-TurboMode)
+			PID_coef=180.0-TurboMode;
+		else if (PID_coef<-180.0+TurboMode)
+			PID_coef=-180.0+TurboMode;
+
+	setMotors((thrust - PID_coef) * maxPower * (1.0 / 360.0), (thrust + PID_coef) * maxPower * (1.0 / 360.0) * 0.92);
+
+	//setMotors(maxPower, maxPower*0.9); //prawie skalibrowane
+	//setMotors((thrust - error) * maxPower * (1.0 / 360.0), (thrust + error) * maxPower * (1.0 / 360.0));
+
+	yaw_last_error=error;
+	lastAlgo = millis();
+}
+
+static float bearing(float lat, float lon, float lat2, float lon2)
+{
+	//lat = your current gps latitude.
+	//lon = your current gps longitude.
+	//lat2 = your destiny gps latitude.
+	//lon2 = your destiny gps longitude.
+
+    float teta1 = lat*M_PI/180;
+    float teta2 = lat2*M_PI/180;
+    float delta1 = (lat2-lat)*M_PI/180;
+    float delta2 = (lon2-lon)*M_PI/180;
+
+    //==================Heading Formula Calculation================//
+
+    float y = sin(delta2) * cos(teta2);
+    float x = cos(teta1)*sin(teta2) - sin(teta1)*cos(teta2)*cos(delta2);
+    float brng = atan2(y,x);
+    brng = brng*180/M_PI;			// radians to degrees
+    brng = fmod((brng + 360), 360);
+
+    return brng;
+}
+
+static void steering_setup(void)
+{
+	#if STEERING_ENABLE
+		#if STEERING_DEBUG
+			println("[STEERING] Activating PID algorithm");
+		#endif
+		(*Common.log_print)("*P00");
+
+		if (!Common.mpu.active)
+		{
+			#if STEERING_DEBUG
+				println("error: [STEERING] PID cannot function because IMU is not active!");
+			#endif
+			(*Common.log_print)("*EP00");
+		}
+		yaw_last_error=0.0;
+		Common.target_lat = DEFAULT_TARGET_LAT;
+		Common.target_lon = DEFAULT_TARGET_LON;
+		Common.target_alt = DEFAULT_TARGET_ALT;
+		Common.target_yaw = DEFAULT_TARGET_YAW;
+	#else
+		#if STEERING_DEBUG
+			println("warning: [STEERING] PID IS DISABLED!")
+		#endif
+		(*Common.log_print)("*WP00");
+		disableMotors();
+		Common.motors_enabled = false;
+		return false;
+	#endif
 }
 
 static void steering_loop(void)
 {
-	imuTest_getData();		// get data from IMU
-	imuTest_quatUpdate();	// compute data received
-
-
-/*	if (millis() - lastMotUpdate2 >= 2000)	// every 10ms get Euler angles and run motor alogrithm
+	#if STEERING_ENABLE
+	if (Common.mpu.active)
 	{
-		target_yaw=rand()%360; // losowo
-		//target_yaw=fmod(target_yaw+1.0, 360);
+		if (Common.operation_mode == 31) disableMotors();
+		else enableMotors();
 
+		if (Common.operation_mode != 31 && millis() - lastMotUpdate >= STEERING_PID_DELAY)	// run motor alogrithm
+		{	
+			PID(Common.mpu.yaw, Common.target_yaw);
+			lastMotUpdate = millis();
+		}
 
-		lastMotUpdate2 = millis();
+		if ((Common.operation_mode == 0 || Common.operation_mode == 1) && millis() - lastYawUpdate >= STEERING_YAW_DELAY)
+		{
+			Common.target_yaw = bearing(Common.gps.latitudeDegrees, Common.gps.longitudeDegrees, Common.target_lat, Common.target_lon); // target_yaw wyliczane z pozycji anteny
+			lastYawUpdate = millis();
+		}
 	}
-*/
-	if (millis() - lastMotUpdate >= 10)	// every 10ms get Euler angles and run motor alogrithm
-	{
-		imuTest_getEuler();
-
-		//algoGalgo(yaw, target_yaw);
-
-		lastMotUpdate = millis();
-	}
-
+	#endif
 }
+
+#endif

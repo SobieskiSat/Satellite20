@@ -18,9 +18,6 @@ OBJCOPY_BIN :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 Code/Components \
-Code/Scripts/Algorithms \
-Code/Scripts/FunctionalTests \
-Code/Scripts/Peripherials \
 Code/Scripts \
 Code/Sensors \
 Code \

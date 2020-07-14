@@ -1,6 +1,0 @@
-clock.h:8:24:micros	4	static
-run.h:83:20:println	24	static
-radioTest.c:26:13:radioTest_begin	16	static
-radioTest.c:70:13:radioTest_receive	24	static
-radioTest.c:113:13:radioTest_transmit	8	static
-radioTest.c:189:13:dio0_IRQ	8	static

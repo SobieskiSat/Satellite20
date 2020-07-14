@@ -59,13 +59,14 @@ typedef struct // MPU9250
 
 bool MPU9250_init(MPU9250* inst, MPU9250_config* config);
 bool MPU9250_update(MPU9250* inst);
-bool MPU9250_present(MPU9250* inst, uint8_t trials);
+bool MPU9250_present(MPU9250* inst);
 void MPU9250_reset(MPU9250* inst);
 void MPU9250_calibrate(MPU9250* inst);
 bool MPU9250_SelfTest(MPU9250* inst);
 
 bool AK8963_init(MPU9250* inst, MPU9250_config* config);
 void AK8963_calibrate(MPU9250* inst);
+bool AK8963_present(MPU9250* inst);
 
 void MPU9250_updateEuler(MPU9250* inst);
 void MadgwickQuaternionUpdate(MPU9250* inst);

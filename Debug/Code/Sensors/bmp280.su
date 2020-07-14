@@ -7,5 +7,5 @@ bmp280.c:55:17:compensate_pressure	72	static
 bmp280.c:80:6:bmp280_reset	16	static
 bmp280.c:87:6:bmp280_present	24	static
 bmp280.c:107:6:bmp280_init	24	static
-bmp280.c:131:6:bmp280_update	48	static
-bmp280.c:151:6:bmp280_is_measuring	24	static
+bmp280.c:132:6:bmp280_update	48	static
+bmp280.c:152:6:bmp280_is_measuring	24	static
