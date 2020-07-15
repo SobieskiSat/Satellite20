@@ -13,10 +13,6 @@
 
 static uint32_t MAX_PWM_FREQ = 1;
 
-static uint8_t motL = 0;
-static uint8_t motR = 0;
-static bool motL_forward = true;
-static bool motR_forward = true;
 static bool motorsEnabled;
 
 void setMotors(float dutyL, float dutyR);

@@ -34,7 +34,7 @@ typedef struct // MPU9250
 	uint8_t i2c_addr_ak;
 	bool mpu_active, ak_active, active;
 	
-	float yaw, pitch, roll;
+	float yaw, pitch, roll, yaw_dx;
 	float temperature;
 	float ax, ay, az, gx, gy, gz, mx, my, mz;	// variables to hold latest sensor data values
 	float aRes, gRes, mRes;						// scale resolutions per LSB for the sensors

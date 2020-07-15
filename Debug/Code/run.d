@@ -64,7 +64,7 @@ Code/run.o: ../Code/run.c ../Code/run.h ../Inc/main.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sd.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h \
  ../Code/Scripts/duplex.c ../Code/Scripts/sensing.c \
- ../Code/Scripts/steering.c
+ ../Code/Scripts/steering.c ../Code/Components/motors.h
 
 ../Code/run.h:
 
@@ -217,3 +217,5 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h:
 ../Code/Scripts/sensing.c:
 
 ../Code/Scripts/steering.c:
+
+../Code/Components/motors.h:

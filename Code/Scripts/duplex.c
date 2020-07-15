@@ -10,6 +10,11 @@
 bool transmitting;
 uint8_t packetNumber;
 
+static void send_info_packet(void)
+{
+	SX1278_transmit(&(Common.radio), Common.radio.txBuffer, 22);	
+}
+
 static bool duplex_setup(void)
 {
 	(*Common.log_print)("*D00"); // [DUPLEX] Hello!
@@ -51,7 +56,7 @@ static bool duplex_setup(void)
 		packetNumber = 1;
 		transmitting = true;
 
-		SX1278_transmit(&(Common.radio), Common.radio.txBuffer, 22);	// Send empty packet to kickstart duplex
+		send_info_packet(); // Send packet to kickstart duplex
 		return true;
 	#else // RADIO_ENABLE
 		#if DUPLEX_DEBUG
@@ -76,9 +81,12 @@ static void decodePacket()
 		uint32_t temv = 0;
 
 		temv = (uint32_t)Common.radio.rxBuffer[0];
-		Common.motors_enabled = temv & (1 << 7);
-		Common.servo_enabled = temv & (1 << 6);
 		Common.operation_mode = temv & (0xFF >> 2);
+		if (Common.operation_mode == 3)
+		{
+			Common.motors_enabled = temv & (1 << 7);
+			Common.servo_enabled = temv & (1 << 6);
+		}
 
 		if (Common.operation_mode == 2 || Common.operation_mode == 3)
 		{
@@ -100,33 +108,31 @@ static void preparePacket()
 {
 	// format: TEMP-2, PRES-3, LAT-4, LON-4, ALT-2, YAW-1, PITCH-1, ROLL-1, SPS1-1, SPS10-1, OPMODE-1, PN-1
 	uint32_t temv = 0;
-	uint8_t B = 0;
 
 	temv = (uint32_t)((Common.bmp.temperature + 10) * 1000);
-	memcpy(Common.radio.txBuffer + B, (uint8_t*)&temv, 2); B += 2;	// 0:2
+	memcpy(Common.radio.txBuffer + 0, (uint8_t*)&temv, 2);	// 0:1
 
 	temv = (uint32_t)(Common.bmp.pressure * 10000);
-	memcpy(Common.radio.txBuffer + B, (uint8_t*)&temv, 3); B += 3;	// 3:6
+	memcpy(Common.radio.txBuffer + 2, (uint8_t*)&temv, 3);	// 2:5
 
-	floatToBytes(&(Common.gps.latitudeDegrees), Common.radio.txBuffer + B); B += 4;		// 7:10
-	floatToBytes(&(Common.gps.longitudeDegrees), Common.radio.txBuffer + B); B += 4;	// 11:14
+	floatToBytes(&(Common.gps.latitudeDegrees), Common.radio.txBuffer + 6);		// 6:9
+	floatToBytes(&(Common.gps.longitudeDegrees), Common.radio.txBuffer + 10);	// 10:13
 
 	temv = (uint32_t)(Common.gps.altitude * 10);
-	memcpy(Common.radio.txBuffer + B, (uint8_t*)&temv, 2); B += 2;	// 15:16
+	memcpy(Common.radio.txBuffer + 14, (uint8_t*)&temv, 2);	// 14:15
 
-	Common.radio.txBuffer[B] = (uint8_t)(Common.mpu.yaw * (255.0 / 360.0));	B++;	// 17
-	Common.radio.txBuffer[B] = (uint8_t)(Common.mpu.pitch * (255.0 / 360.0)); B++;	// 18
-	Common.radio.txBuffer[B] = (uint8_t)(Common.mpu.roll * (255.0 / 360.0)); B++;	// 19
+	Common.radio.txBuffer[16] = (uint8_t)(Common.mpu.yaw * (255.0 / 360.0));	// 16
+	Common.radio.txBuffer[17] = (uint8_t)(Common.mpu.pitch * (255.0 / 360.0));	// 17
+	Common.radio.txBuffer[18] = (uint8_t)(Common.mpu.roll * (255.0 / 360.0));	// 18
 
 	/*
-	Common.radio.txBuffer[B] = (uint8_t)(Common.sps.pm1 * (255.0 / __)); B++;		// 20
-	Common.radio.txBuffer[B] = (uint8_t)(Common.sps.pm10 * (255.0 / __)); B++;		// 21
+	Common.radio.txBuffer[19] = (uint8_t)(Common.sps.pm1 * (255.0 / __)); B++;		// 19
+	Common.radio.txBuffer[20] = (uint8_t)(Common.sps.pm10 * (255.0 / __)); B++;		// 20
 	*/
-	B+=2;
 
-	Common.radio.txBuffer[B] = Common.operation_mode; B++;	// 22
-	Common.radio.txBuffer[B] = packetNumber; B++;			// 23
-	Common.radio.txLen = B;
+	Common.radio.txBuffer[21] = Common.operation_mode;	// 21
+	Common.radio.txBuffer[22] = packetNumber;			// 22
+	Common.radio.txLen = 23;
 }
 
 static void duplex_loop(void)

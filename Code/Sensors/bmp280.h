@@ -21,7 +21,7 @@ typedef struct //BMP280
 	uint16_t i2c_addr;
 
 	BMP280_config params;
-	float pressure, temperature, altitude;
+	float pressure, temperature, altitude, alt_dx;
 	bool active;
 
 	// reading compensation variables

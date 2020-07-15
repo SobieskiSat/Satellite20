@@ -12,8 +12,20 @@ static SX1278_config sx1278_default_config =
 	SX1278_SF_7,		// spreading factor (6:12)
 	SX1278_CR_4_5,		// coding rate (5:8)
 	SX1278_BW_125KHZ,	// bandwidth (8:500)[kHz]
-	SX1278_CRC_DIS,		// ??
+	SX1278_CRC_EN,		// verify packet checksum at reception
 	50					// receive timeout [ms]
+};
+
+// Pressure sensor config
+#include "bmp280.h"
+#define SEA_PRESSURE 1002	// pressure at sea level [hPa]
+static BMP280_config bmp280_default_config =
+{
+	BMP280_MODE_NORMAL,		// operation mode
+	BMP280_FILTER_OFF,		// short-term dirsturbance filter
+	BMP280_OVERSAMPLING_16,	// pressure oversampling (1:16 or none)
+	BMP280_OVERSAMPLING_16,	// temperature oversampling (1:16 or none)
+	BMP280_STANDBY_125		// standby between measurements (05:4000)[ms]
 };
 
 // IMU config
@@ -32,21 +44,12 @@ static MPU9250_config mpu9250_default_config =
 	{0.862595, 2.022901, -1.541985},	// gyroBias[3]
 	{-83.557129 / 1000.0, 5.432129 / 1000.0, 139.282227 / 1000.0},	// accelBias[3]
 
-	-1,				// alg_rate [Hz]
+	-1,					// alg_rate [Hz]
 	100.0				// euler_rate [Hz]
 };
 
-// Pressure sensor config
-#include "bmp280.h"
-#define SEA_PRESSURE 1002	// pressure at sea level [hPa]
-static BMP280_config bmp280_default_config =
-{
-	BMP280_MODE_NORMAL,		// operation mode
-	BMP280_FILTER_OFF,		// short-term dirsturbance filter
-	BMP280_OVERSAMPLING_16,	// pressure oversampling (1:16 or none)
-	BMP280_OVERSAMPLING_16,	// temperature oversampling (1:16 or none)
-	BMP280_STANDBY_125		// standby between measurements (05:4000)[ms]
-};
+// Duplex
+#define DUPLEX_TX_COUNT 5			// Count of packets transmitted per one received
 
 // Timing parameters [ms]
 #define DATA_PRINT_DELAY 1000
@@ -55,7 +58,6 @@ static BMP280_config bmp280_default_config =
 #define LOG_IMU_DELAY 100
 #define LOG_MOT_DELAY 100
 #define LOG_TARGET_YAW_DELAY 1000
-#define DUPLEX_TX_COUNT 5			// Count of packets transmitted per one received
 // Radio timeout value is set in SX1278 config 
 #define SENSING_BMP_DELAY 50
 #define STEERING_PID_DELAY 10		// Delay between motor thrust updates
@@ -70,6 +72,7 @@ static BMP280_config bmp280_default_config =
 #define STEERING_ENABLE 1	// defines MOTOR_ENABLE
 
 // Debug messages
+#define RUN_DEBUG 1
 #define LOGING_DEBUG 1
 #define LOGING_PRINT_DATA 1
 	#define LOGING_PRINT_SENSORS 1
@@ -80,16 +83,20 @@ static BMP280_config bmp280_default_config =
 #define STEERING_DEBUG 1
 
 // Flight parameters
+#define FLIGHT_START_THRE 16
+#define DEFAULT_LAT	50.0
+#define DEFAULT_LON	19.0
+#define DEFAULT_ALT	500.0
 #define DEFAULT_TARGET_LAT 50.0
 #define DEFAULT_TARGET_LON 19.0
 #define DEFAULT_TARGET_ALT 500.0
 #define DEFAULT_TARGET_YAW 0.0
 #define KEEPOUT_LAT 0.01	// Destination range (area)
 #define KEEPOUT_LON 0.01
-#define KEEPOUT_ALT 50.0
+#define KEEPOUT_ALT 25.0
 #define TERMINAL_HOR 45.0	// Maximum horizonal angle to be accepted
-#define TERMINAL_YAWR 40.0	// Maximum yaw rotation speed in (deg/s) to be accepted
-#define TERMINAL_VEL -10.0	// Maximum falling speed to be accepted
+#define TERMINAL_YAW_DX 40.0	// Maximum yaw angular speed in (deg/s) to be accepted
+#define TERMINAL_ALT_DX -15.0	// Maximum falling speed to be accepted (m/s)
 // PID
 #define PID_kp 1.0 		//dobrany
 #define PID_ki 0.5

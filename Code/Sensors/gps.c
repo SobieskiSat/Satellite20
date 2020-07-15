@@ -185,7 +185,6 @@ bool GPS_init(GPS* inst)
 	}
 	*/
 	return true;
-//	return false;
 }
 
 bool GPS_update(GPS* inst)

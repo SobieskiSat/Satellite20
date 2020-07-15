@@ -120,12 +120,9 @@ static void steering_setup(void)
 static void steering_loop(void)
 {
 	#if STEERING_ENABLE
-	if (Common.mpu.active)
+	if (Common.mpu.active && Common.operation_mode != 31 && Common.motors_enabled && Common.servo_enabled) 
 	{
-		if (Common.operation_mode == 31) disableMotors();
-		else enableMotors();
-
-		if (Common.operation_mode != 31 && millis() - lastMotUpdate >= STEERING_PID_DELAY)	// run motor alogrithm
+		if (millis() - lastMotUpdate >= STEERING_PID_DELAY)	// run motor alogrithm
 		{	
 			PID(Common.mpu.yaw, Common.target_yaw);
 			lastMotUpdate = millis();

@@ -89,8 +89,8 @@ static void MX_I2C2_Init(void);
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 {
-	//HAL_UART_Receive_IT(huart, gps.uartBuffer, 1);
-	//GPS_read(&gps);
+	HAL_UART_Receive_IT(huart, Common.gps.uartBuffer, 1);
+	GPS_read(&Common.gps);
 }
 
 /* USER CODE END 0 */

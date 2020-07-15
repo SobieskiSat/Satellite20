@@ -75,6 +75,12 @@ static bool sensing_setup(void)
 				println("[SENSING] L86 init unsuccesfull, retrying...");
 			#endif
 		}
+		if (Common.gps.active && !Common.gps.fix)
+		{
+			Common.gps.latitudeDegrees = DEFAULT_TARGET_LAT;
+			Common.gps.longitudeDegrees = DEFAULT_TARGET_LON;
+			Common.gps.altitude = DEFAULT_TARGET_ALT;
+		}
 	#else
 		#if SENSING_DEBUG
 			println("warning: [SENSING] L86 DISABLED!");
@@ -207,7 +213,10 @@ static void sensing_loop(void)
 	#if BMP_ENABLE
 		if (Common.bmp.active && millis() - lastBmpRead >= SENSING_BMP_DELAY)
 		{
+			Common.bmp.alt_dx = Common.bmp.altitude;
 			bmp280_update(&(Common.bmp));
+			Common.bmp.alt_dx -= Common.bmp.altitude;
+			Common.bmp.alt_dx *= 1000 / (millis() - lastBmpRead);
 			lastBmpRead = millis();
 		}
 	#endif

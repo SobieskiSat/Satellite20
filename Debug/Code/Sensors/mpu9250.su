@@ -21,5 +21,5 @@ mpu9250.c:290:6:MPU9250_calibrate	104	static
 mpu9250.c:422:6:MPU9250_SelfTest	152	static
 mpu9250.c:523:6:AK8963_calibrate	64	static
 mpu9250.c:566:6:MPU9250_updateEuler	24	static
-mpu9250.c:605:6:MadgwickQuaternionUpdate	216	static
-mpu9250.c:702:6:MahonyQuaternionUpdate	184	static
+mpu9250.c:610:6:MadgwickQuaternionUpdate	216	static
+mpu9250.c:707:6:MahonyQuaternionUpdate	184	static

@@ -2,4 +2,4 @@ clock.h:8:24:micros	4	static
 clock.h:9:24:millis	4	static
 run.h:83:20:println	24	static
 sensing.c:17:13:sensing_setup	16	static
-sensing.c:205:13:sensing_loop	8	static
+sensing.c:211:13:sensing_loop	8	static

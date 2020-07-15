@@ -21,8 +21,8 @@ void setMotors(float dutyL, float dutyR)
 
 		TIM4->CNT = 0;	// reset timer counter -> clears motor timeout
 
-		HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, GPIO_PIN_SET);
+		Common.mot_l = dutyL;
+		Common.mot_r = dutyR;
 	}
 }
 
@@ -33,6 +33,9 @@ void haltMotors(void)
 	TIM3->CCR3 = TIM3->ARR;
 
 	TIM4->CNT = 0;	// reset timer counter -> clears motor timeout
+
+	Common.mot_l = 0;
+	Common.mot_r = 0;
 }
 
 void enableMotors(void)
@@ -45,12 +48,8 @@ void enableMotors(void)
 		//MAX_PWM_FREQ = 42000000 / (2 * PWM_RESOLUTION); // 82031 Hz for 256 resolution
 		//setPwmFrequency(MAX_PWM_FREQ);
 
-		motL_forward = true;
-		motR_forward = true;
-
-		// flip direction based on config
-		HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, motL_forward ^ MOTOR_L_DIR);
-		HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, motR_forward ^ MOTOR_R_DIR);
+		writePin(PH_L, MOTOR_L_DIR);
+		writePin(PH_R, MOTOR_R_DIR);
 
 		HAL_TIM_PWM_Start(Get_TIM3_Instance(), TIM_CHANNEL_2);
 		HAL_TIM_PWM_Start(Get_TIM3_Instance(), TIM_CHANNEL_3);
@@ -60,7 +59,6 @@ void enableMotors(void)
 		writePin(MOT_STBY, LOW);
 		delay(10);
 		writePin(MOT_STBY, HIGH);
-		println("[MOT] MOTORS ENABLED!!");
 	}
 }
 
@@ -73,7 +71,6 @@ void disableMotors(void)
 		motorsEnabled = false;
 		HAL_TIM_PWM_Stop(Get_TIM3_Instance(), TIM_CHANNEL_2);
 		HAL_TIM_PWM_Stop(Get_TIM3_Instance(), TIM_CHANNEL_3);
-		println("[MOT] Motors DISABLED!!!!!!!1");
 	}
 }
 
@@ -90,7 +87,7 @@ void setPwmFrequency(uint32_t f_hz)
 
 	if (f_hz > MAX_PWM_FREQ)
 	{
-		println("[MOT] PWM frequency too high! Setting maximum.");
+		//println("[MOT] PWM frequency too high! Setting maximum.");
 		setPwmFrequency(MAX_PWM_FREQ);
 	}
 	else
@@ -100,9 +97,7 @@ void setPwmFrequency(uint32_t f_hz)
 		arro /= 2;
 		TIM3->CNT = 0;
 		TIM3->ARR = arro;
-
-		printLen = sprintf(printBuffer, "[MOT] Frequency set to: %luHz\n\r", f_hz);
-		printv(printBuffer, printLen);
+		//println("[MOT] Frequency set to: %luHz\n\r", f_hz);
 	}
 }
 
@@ -110,8 +105,7 @@ void setMotorTimeout(uint32_t timeout_ms)
 {
 	TIM4->CNT = 0;
 	TIM4->ARR = timeout_ms;
-	printLen = sprintf(printBuffer, "[MOT] Timeout set to: %lums\n\r", timeout_ms);
-	printv(printBuffer, printLen);
+	//println("[MOT] Timeout set to: %lums\n\r", timeout_ms);
 }
 
 void motorTimeout(void)
