@@ -53,7 +53,8 @@ Code/Sensors/mpu9250.o: ../Code/Sensors/mpu9250.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/sps30.h
 
 ../Code/Sensors/mpu9250.h:
 
@@ -170,3 +171,5 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h:
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/sps30.h:

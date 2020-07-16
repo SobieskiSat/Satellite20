@@ -143,7 +143,7 @@ bool bmp280_update(BMP280 *inst)
 
 	int32_t fine_temp;
 	inst->temperature = (float)(compensate_temperature(inst, adc_temp, &fine_temp)) / 100.0;
-	inst->pressure = (float)(compensate_pressure(inst, adc_pressure, fine_temp)) / 256.0;
+	inst->pressure = (float)(compensate_pressure(inst, adc_pressure, fine_temp)) / 25600.0;
 	inst->altitude = 44330 * (1.0 - pow(inst->pressure / SEA_PRESSURE, 0.1903));
 
 	return true;

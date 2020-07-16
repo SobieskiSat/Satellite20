@@ -53,7 +53,8 @@ Code/Components/motors.o: ../Code/Components/motors.c \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/sps30.h
 
 ../Code/Components/motors.h:
 
@@ -172,3 +173,5 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h:
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/sps30.h:

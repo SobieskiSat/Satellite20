@@ -58,6 +58,7 @@ Code/Scripts/loging.o: ../Code/Scripts/loging.c ../Inc/main.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/sps30.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sd.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h
@@ -195,6 +196,8 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h:
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/sps30.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:
 

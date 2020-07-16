@@ -10,9 +10,10 @@
 #include "gps.h"
 #include "bmp280.h"
 #include "mpu9250.h"
-//#include "sps30.h"
+#include "sps30.h"
 
 uint32_t lastBmpRead;
+uint32_t lastSpsRead;
 
 static bool sensing_setup(void)
 {
@@ -75,6 +76,8 @@ static bool sensing_setup(void)
 				println("[SENSING] L86 init unsuccesfull, retrying...");
 			#endif
 		}
+		Common.gps.active = true; //######################
+		Common.gps.paused = false;
 		if (Common.gps.active && !Common.gps.fix)
 		{
 			Common.gps.latitudeDegrees = DEFAULT_TARGET_LAT;
@@ -123,7 +126,7 @@ static bool sensing_setup(void)
 				println("[SENSING] Initializing AK8963");
 			#endif
 			(*Common.log_print)("*S31");
-			while (!AK8963_present(&(Common.mpu)))
+			while (!AK8963_present(&(Common.mpu)) && false) //####################
 			{
 				if (++attempts > 5)
 				{
@@ -143,6 +146,7 @@ static bool sensing_setup(void)
 		}
 		if (Common.mpu.active)
 		{	
+			writePin(LEDA, HIGH);
 			#if SENSING_DEBUG
 					println("[SENSING] Checking MPU9250 readings. Don't move the board!");
 			#endif
@@ -181,6 +185,8 @@ static bool sensing_setup(void)
 				(*Common.log_print)("*WS33");
 			}
 			MPU9250_init(&(Common.mpu), &mpu9250_default_config);
+			writePin(LEDA, LOW);
+			writePin(LEDB, HIGH);
 			if (mpu9250_default_config.calibrate)
 			{
 				#if SENSING_DEBUG
@@ -188,13 +194,46 @@ static bool sensing_setup(void)
 				#endif
 			}
 			AK8963_init(&(Common.mpu), &mpu9250_default_config);
+			writePin(LEDB, LOW);
 		}
 	#else
 		#if SENSING_DEBUG
 			println("warning: [SENSING] MPU9250 DISABLED!");
 		#endif
 		(*Common.log_print)("*WS30");
-		Common.gps.active = false;
+		Common.mpu.active = false;
+	#endif
+
+	#if SPS_ENABLE
+		attempts = 0;
+		Common.sps.uart = Get_UART2_Instance();
+		#if SENSING_DEBUG
+			println("[SENSING] Initializing SPS30");
+		#endif
+		(*Common.log_print)("*S40");
+
+		while (!SPS30_init(&(Common.sps)))
+		{
+			if (++attempts > 5)
+			{
+				#if SENSING_DEBUG
+					println("error: [SENSING] No connection with SPS30, sensor is not active");
+				#endif
+				(*Common.log_print)("*ES40");
+				break;
+			}
+
+			delay(500);
+			#if SENSING_DEBUG
+				println("[SENSING] SPS30 init unsuccesfull, retrying...");
+			#endif
+		}
+	#else
+		#if SENSING_DEBUG
+			println("warning: [SENSING] SPS30 DISABLED!");
+		#endif
+		(*Common.log_print)("*WS40");
+		Common.sps.active = false;
 	#endif
 
 	#if SENSING_DEBUG
@@ -202,10 +241,11 @@ static bool sensing_setup(void)
 		println("- BMP %s", Common.bmp.active ? "active" : "not active");
 		println("- GPS %s", Common.gps.active ? "active" : "not active");
 		println("- IMU %s", Common.mpu.active ? "active" : "not active");
+		println("- SPS %s", Common.sps.active ? "active" : "not active");
 	#endif
-	if (!Common.bmp.active || !Common.gps.active || !Common.mpu.active) (*Common.log_print)("*WS00");
+	if (!Common.bmp.active || !Common.gps.active || !Common.mpu.active || !Common.sps.active) (*Common.log_print)("*WS00");
 
-	return (Common.bmp.active || !BMP_ENABLE) && (Common.gps.active || !GPS_ENABLE) && (Common.mpu.active || !IMU_ENABLE);
+	return (Common.bmp.active || !BMP_ENABLE) && (Common.gps.active || !GPS_ENABLE) && (Common.mpu.active || !IMU_ENABLE) && (Common.sps.active || !SPS_ENABLE);
 }
 
 static void sensing_loop(void)
@@ -222,11 +262,27 @@ static void sensing_loop(void)
 	#endif
 
 	#if GPS_ENABLE
-		if (Common.gps.active) GPS_update(&(Common.gps));
+		if (Common.gps.active)
+		{
+			if (GPS_update(&(Common.gps)))
+			{
+				if (Common.gps.fix) writePin(LEDC, HIGH);
+				else writePin(LEDC, LOW);
+				if (Common.gps.gpsTime.month != 7) togglePin(LEDD);
+				else writePin(LEDD, LOW);
+
+				print(GPS_lastNMEA(&Common.gps));
+			}
+		}
+		togglePin(LEDB);
 	#endif
 
 	#if IMU_ENABLE
 		if (Common.mpu.active) MPU9250_update(&(Common.mpu));
+	#endif
+
+	#if SPS_ENABLE
+		if (Common.sps.active && millis() - lastSpsRead >= SENSING_SPS_DELAY) { SPS30_update(&(Common.sps)); lastSpsRead = millis(); }
 	#endif
 
 	//SPS30

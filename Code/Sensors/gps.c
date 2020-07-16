@@ -4,6 +4,7 @@
 #include <math.h>
 #include <string.h>
 #include "run.h"
+#include "loging.c"
 
 #define min(a,b) \
 ({ __typeof__ (a) _a = (a); \
@@ -28,8 +29,8 @@ char GPS_read(GPS* inst)
 	if (inst->paused) return c;
 
 	c = (char)inst->uartBuffer[0];
-	char ca[2] = {c, "\0"};
-	print(ca);
+	//char ca[2] = {c, '\0'};
+	//print(ca);
 
 	inst->currentline[inst->lineidx++] = c;
 	// [!!!] \/ wtf is that
@@ -143,36 +144,41 @@ bool GPS_init(GPS* inst)
 	inst->sentences_parsed[4] = "ZZZ";
 	inst->sentences_known[0] = "ZZZ";
 
-	//GPS_standby(inst);
-	//GPS_wakeup(inst);
+	char mesago[50] = "$PMTK314,1,1,0,1,5,5,0,0,0,0,0,0,0,0,0,0,0*29\r\n\0";
+	HAL_UART_Transmit(inst->uart, mesago, strlen(mesago), HAL_MAX_DELAY);			// transmit bytes
+	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);	// wait for finished transmission
 
-	/*
-	HAL_Delay(1000);
+	char messio[17] = "$PMTK101*32\r\n\0";
+	HAL_UART_Transmit(inst->uart, messio, strlen(messio), HAL_MAX_DELAY);			// transmit bytes
+	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);	// wait for finished transmission
 
-	GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_ALLDATA);
+	char anijammo[22] = "$PMTK286,1*23\r\n\0";
+	HAL_UART_Transmit(inst->uart, anijammo, strlen(anijammo), HAL_MAX_DELAY);			// transmit bytes
+	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);	// wait for finished transmission
 
-	HAL_Delay(1000);
+	delay(10000);
 
-	GPS_sendCommand(inst, PMTK_SET_NMEA_UPDATE_5HZ);
+	println("Sending command");
+	char jammo[22] = "$PMTK838,1*2C\r\n\0";
+	HAL_UART_Transmit(inst->uart, jammo, strlen(jammo), HAL_MAX_DELAY);			// transmit bytes
+	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);	// wait for finished transmission
 
-	HAL_Delay(1000);
-
-	//GPS_sendCommand(inst, PMTK_API_SET_FIX_CTL_1HZ);
-	//GPS_sendCommand(inst, PGCMD_ANTENNA);
-	//GPS_sendCommand(inst, PMTK_Q_RELEASE);
-
+	println("Activating Rx");
 	HAL_UART_Receive_IT(inst->uart, inst->uartBuffer, 1);
+	inst->active = true;
 
 	uint32_t timeout = millis();
 
-	while (millis() - timeout <= 1000)
+	while (millis() - timeout <= 3000)
 	{
+		//HAL_UART_Receive(inst->uart, inst->uartBuffer, 1, 100);
 		//GPS_read(inst);
 		if (GPS_newNMEAreceived(inst))
 		{
 			// not exact, but works now
-			println(GPS_lastNMEA(inst));
+			print(GPS_lastNMEA(inst));
 			GPS_parse(inst, GPS_lastNMEA(inst));
+			/*
 			if (GPS_lastNMEA(inst)[0] == '$' && GPS_lastNMEA(inst)[1] == 'G')
 			{
 				//GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_RMCGGAGSA);
@@ -181,9 +187,11 @@ bool GPS_init(GPS* inst)
 				return true;
 
 			}
+			*/
 		}
 	}
-	*/
+
+
 	return true;
 }
 
@@ -191,8 +199,9 @@ bool GPS_update(GPS* inst)
 {
 	if (GPS_newNMEAreceived(inst))
 	{
-		if (GPS_parse(inst, GPS_lastNMEA(inst))) inst->newData = true;
+		if (GPS_parse(inst, GPS_lastNMEA(inst))) { inst->newData = true; return true; }
 	}
+	return false;
 }
 
 /**************************************************************************/

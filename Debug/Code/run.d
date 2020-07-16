@@ -52,6 +52,7 @@ Code/run.o: ../Code/run.c ../Code/run.h ../Inc/main.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/sps30.h \
  ../Code/config.h ../Code/Scripts/loging.c ../Inc/fatfs.h \
  ../Middlewares/Third_Party/FatFs/src/ff.h \
  ../Middlewares/Third_Party/FatFs/src/integer.h ../Inc/ffconf.h \
@@ -179,6 +180,8 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h:
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/sps30.h:
 
 ../Code/config.h:
 

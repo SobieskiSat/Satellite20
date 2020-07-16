@@ -60,7 +60,7 @@ static bool duplex_setup(void)
 		return true;
 	#else // RADIO_ENABLE
 		#if DUPLEX_DEBUG
-			println("warning: [DUPLEX] RADIO DISABLED!")
+			println("warning: [DUPLEX] RADIO DISABLED!");
 		#endif
 		(*Common.log_print)("*WD00");
 		Common.radio.active = false;
@@ -84,8 +84,8 @@ static void decodePacket()
 		Common.operation_mode = temv & (0xFF >> 2);
 		if (Common.operation_mode == 3)
 		{
-			Common.motors_enabled = temv & (1 << 7);
-			Common.servo_enabled = temv & (1 << 6);
+			Common.motors_enabled = temv & (1 << 0);
+			Common.servo_enabled = temv & (1 << 1);
 		}
 
 		if (Common.operation_mode == 2 || Common.operation_mode == 3)
@@ -95,8 +95,8 @@ static void decodePacket()
 		}
 		if (Common.radio.rxLen == 13 && Common.operation_mode == 1)
 		{
-			bytesToFloat(Common.radio.rxBuffer + 3, (uint8_t*)&(Common.target_lat));
-			bytesToFloat(Common.radio.rxBuffer + 7, (uint8_t*)&(Common.target_lat));
+			bytesToFloat(Common.radio.rxBuffer + 3, &(Common.target_lat));
+			bytesToFloat(Common.radio.rxBuffer + 7, &(Common.target_lon));
 			
 			memcpy((uint8_t*)&temv, Common.radio.rxBuffer + 11, 2);
 			Common.target_alt = (float)(temv) / 10;
@@ -126,8 +126,8 @@ static void preparePacket()
 	Common.radio.txBuffer[18] = (uint8_t)(Common.mpu.roll * (255.0 / 360.0));	// 18
 
 	/*
-	Common.radio.txBuffer[19] = (uint8_t)(Common.sps.pm1 * (255.0 / __)); B++;		// 19
-	Common.radio.txBuffer[20] = (uint8_t)(Common.sps.pm10 * (255.0 / __)); B++;		// 20
+	Common.radio.txBuffer[19] = (uint8_t)(Common.sps.pm1 * (255.0 / __));	// 19
+	Common.radio.txBuffer[20] = (uint8_t)(Common.sps.pm10 * (255.0 / __));	// 20
 	*/
 
 	Common.radio.txBuffer[21] = Common.operation_mode;	// 21
@@ -164,7 +164,7 @@ static void duplex_loop(void)
 			else
 			{
 				preparePacket();
-				SX1278_transmit(&(Common.radio), &(Common.radio.txBuffer), &(Common.radio.txLen));	// Packet is written directly to memory buffer of the instance
+				SX1278_transmit(&(Common.radio), Common.radio.txBuffer, Common.radio.txLen);	// Packet is written directly to memory buffer of the instance
 				packetNumber++;
 				return;
 			}

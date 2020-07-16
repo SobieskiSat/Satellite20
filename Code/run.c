@@ -12,11 +12,12 @@
 #include "Scripts/steering.c"
 #include "Components/motors.h"
 
+#include "sps30.h"
+
 /* To do:
 - setup info packet
 - LoRa overcurrent setting
 - SPS30
-- change packetNumber limit on antenna
 */
 
 uint8_t flight_safety;
@@ -88,6 +89,8 @@ static void setup(void)
 {
 	//writePin(LEDD, HIGH);	while (readPin(BTN_1) == HIGH);	writePin(LEDD, LOW);
 
+	delay(2000);
+
 	armsOpen = true;
 	flight_safety = 0;
 	latchArms();
@@ -96,9 +99,9 @@ static void setup(void)
 
 	loging_setup();
 	
-	sensing_setup();
-	
 	duplex_setup();
+
+	sensing_setup();
 
 	steering_setup();
 
@@ -107,8 +110,6 @@ static void setup(void)
 
 static void loop(void)
 {
-	loging_loop();
-
 	sensing_loop();
 
 	duplex_loop();
@@ -116,4 +117,6 @@ static void loop(void)
 	terminator();
 
 	steering_loop();
+
+	loging_loop();
 }

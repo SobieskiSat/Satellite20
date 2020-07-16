@@ -53,46 +53,46 @@ static MPU9250_config mpu9250_default_config =
 
 // Timing parameters [ms]
 #define DATA_PRINT_DELAY 1000
-#define LOG_SAVE_DELAY 1473
+#define LOG_SAVE_DELAY 2373
 #define LOG_BMP_DELAY 100
 #define LOG_IMU_DELAY 100
 #define LOG_MOT_DELAY 100
+#define LOG_GPS_DELAY 2000
 #define LOG_TARGET_YAW_DELAY 1000
 // Radio timeout value is set in SX1278 config 
 #define SENSING_BMP_DELAY 50
+#define SENSING_SPS_DELAY 1200
 #define STEERING_PID_DELAY 10		// Delay between motor thrust updates
 #define STEERING_YAW_DELAY 100		// Delay between target yaw corrections
 
 // Peripherial state
-#define SD_ENABLE 1
-#define RADIO_ENABLE 1
-#define BMP_ENABLE 1
-#define GPS_ENABLE 1
-#define IMU_ENABLE 1
-#define STEERING_ENABLE 1	// defines MOTOR_ENABLE
+#define SD_ENABLE 0
+#define RADIO_ENABLE 0
+#define BMP_ENABLE 0
+#define GPS_ENABLE 0
+#define IMU_ENABLE 0
+#define SPS_ENABLE 1
+#define STEERING_ENABLE 0	// defines MOTOR_ENABLE
 
 // Debug messages
-#define RUN_DEBUG 1
-#define LOGING_DEBUG 1
+#define RUN_DEBUG 0
+#define LOGING_DEBUG 0
 #define LOGING_PRINT_DATA 1
 	#define LOGING_PRINT_SENSORS 1
-	#define LOGING_PRINT_RADIO 1
-	#define LOGING_PRINT_INFO 1
-#define DUPLEX_DEBUG 1
+	#define LOGING_PRINT_RADIO 0
+	#define LOGING_PRINT_INFO 0
+#define DUPLEX_DEBUG 0
 #define SENSING_DEBUG 1
-#define STEERING_DEBUG 1
+#define STEERING_DEBUG 0
 
 // Flight parameters
 #define FLIGHT_START_THRE 16
-#define DEFAULT_LAT	50.0
-#define DEFAULT_LON	19.0
-#define DEFAULT_ALT	500.0
-#define DEFAULT_TARGET_LAT 50.0
-#define DEFAULT_TARGET_LON 19.0
-#define DEFAULT_TARGET_ALT 500.0
+#define DEFAULT_TARGET_LAT 50.053530
+#define DEFAULT_TARGET_LON 19.935201
+#define DEFAULT_TARGET_ALT 261.0
 #define DEFAULT_TARGET_YAW 0.0
-#define KEEPOUT_LAT 0.01	// Destination range (area)
-#define KEEPOUT_LON 0.01
+#define KEEPOUT_LAT 0.0001	// Destination range (area)
+#define KEEPOUT_LON 0.0001
 #define KEEPOUT_ALT 25.0
 #define TERMINAL_HOR 45.0	// Maximum horizonal angle to be accepted
 #define TERMINAL_YAW_DX 40.0	// Maximum yaw angular speed in (deg/s) to be accepted

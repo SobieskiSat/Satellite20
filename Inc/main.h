@@ -60,6 +60,7 @@ I2C_HandleTypeDef* Get_I2C1_Instance(void);
 I2C_HandleTypeDef* Get_I2C2_Instance(void);
 SPI_HandleTypeDef* Get_SPI1_Instance(void);
 UART_HandleTypeDef* Get_UART1_Instance(void);
+UART_HandleTypeDef* Get_UART2_Instance(void);
 RTC_HandleTypeDef* Get_RTC_Instance(void);
 TIM_HandleTypeDef* Get_TIM2_Instance(void);
 TIM_HandleTypeDef* Get_TIM3_Instance(void);

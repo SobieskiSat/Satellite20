@@ -301,8 +301,7 @@ bool SX1278_rx_get_packet(SX1278* inst)
 	SX1278_read_burst(inst, 0x00, inst->rxBuffer, packet_size);
 
 	inst->newPacket = inst->rxDone && !inst->rxTimeout && (!inst->crcError || LR_VALIDATE_CRCERROR);
-	if (inst->newPacket) inst->newRxData = true;
-	inst->rxCount++;
+	if (inst->newPacket) { inst->newRxData = true; inst->rxCount++; }
 	inst->rssi = SX1278_getRSSI(inst);
 	inst->rxLen = packet_size;
 	SX1278_clearLoRaIrq(inst);
@@ -401,7 +400,7 @@ void SX1278_reset(SX1278* inst) {
 	HAL_GPIO_WritePin(inst->nss_port, inst->nss, HIGH);
 	HAL_GPIO_WritePin(inst->reset_port, inst->reset, LOW);
 	delay(1);
-	HAL_GPIO_WritePin(inst->reset_port, inst->reset, LOW);
+	HAL_GPIO_WritePin(inst->reset_port, inst->reset, HIGH);
 	delay(100);
 }
 

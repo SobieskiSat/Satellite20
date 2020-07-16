@@ -16,6 +16,7 @@
 #include "mpu9250.h"
 #include "gps.h"
 #include "sx1278.h"
+#include "sps30.h"
 
 // ############ Run specific ############
 static void setup(void);
@@ -26,7 +27,7 @@ static struct
 	MPU9250 mpu;
 	GPS gps;
 	SX1278 radio;
-	//SPS30 sps;
+	SPS30 sps;
 	float mot_l;
 	float mot_r;
 	bool motors_enabled;
@@ -122,5 +123,6 @@ static inline void printDate(void)
 // ############### Useful #################
 static inline void floatToBytes(float* value, uint8_t* buffer) { for (uint8_t i = 0; i < 4; i++) buffer[i] = *((uint8_t*)(value) + i); }
 static inline void bytesToFloat(uint8_t* buffer, float* value) { for (uint8_t i = 0; i < 4; i++) *((uint8_t*)(value) + i) = buffer[i]; }
+static inline void bytesToFloatRev(uint8_t* buffer, float* value) { for (uint8_t i = 0; i < 4; i++) *((uint8_t*)(value) + 3 - i) = buffer[i]; }
 
 #endif /* RUN_H_ */

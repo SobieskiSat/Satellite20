@@ -1,5 +1,4 @@
-Code/Scripts/duplex.o: ../Code/Scripts/duplex.c \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h ../Inc/main.h \
+Code/Sensors/sps30.o: ../Code/Sensors/sps30.c ../Code/Sensors/sps30.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../Inc/stm32f4xx_hal_conf.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
@@ -38,7 +37,8 @@ Code/Scripts/duplex.o: ../Code/Scripts/duplex.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h \
- ../Inc/usb_device.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h ../Inc/main.h \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h ../Inc/usb_device.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h \
  ../Inc/usbd_conf.h ../Inc/main.h ../Inc/usbd_cdc_if.h \
  ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h \
@@ -51,14 +51,10 @@ Code/Scripts/duplex.o: ../Code/Scripts/duplex.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/bmp280.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/sps30.h \
- C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/sps30.h
 
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
-
-../Inc/main.h:
+../Code/Sensors/sps30.h:
 
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 
@@ -136,6 +132,12 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
 
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h:
 
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h:
+
+../Inc/main.h:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/run.h:
+
 ../Inc/usb_device.h:
 
 ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h:
@@ -166,10 +168,6 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/mpu9250.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/gps.h:
 
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/clock.h:
-
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/sx1278.h:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Sensors/sps30.h:
-
-C:/Users/damia/Desktop/CanSat/Satellite20/Code/config.h:

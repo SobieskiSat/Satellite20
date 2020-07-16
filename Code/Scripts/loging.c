@@ -55,6 +55,10 @@ char radioBuffer[4096];
 uint16_t radioBufferIndex;
 //void log_radio(SX1278* radio);
 
+char spsBuffer[2048];
+uint16_t spsBufferIndex;
+//void log_sps(SPS30* sps);
+
 uint32_t lastLogSave;
 //void log_save();
 
@@ -64,6 +68,7 @@ bool sdActive;
 uint32_t lastBmpLog;
 uint32_t lastImuLog;
 uint32_t lastMotLog;
+uint32_t lastGpsLog;
 uint32_t lastTargetYawLog;
 
 
@@ -87,6 +92,8 @@ static void log_new()
 	sprintf(directoryName, directoryNameCopy);
 	SD_newFile(strcat(directoryName, "/RADIO.TXT"));
 	sprintf(directoryName, directoryNameCopy);
+	SD_newFile(strcat(directoryName, "/SPS.TXT"));
+	sprintf(directoryName, directoryNameCopy);
 
 	logBufferIndex = 0;
 	bmpBufferIndex = 0;
@@ -94,6 +101,7 @@ static void log_new()
 	imuBufferIndex = 0;
 	motBufferIndex = 0;
 	radioBufferIndex = 0;
+	spsBufferIndex = 0;
 }
 static void log_save()
 {
@@ -140,18 +148,29 @@ static void log_save()
 		SD_writeToFile(openedPath, radioBuffer);
 	}
 
+	if (spsBufferIndex > 0)
+	{
+		sprintf(openedPath, strcat(directoryName, "/SPS.TXT"));
+		sprintf(directoryName, directoryNameCopy);
+		SD_writeToFile(openedPath, spsBuffer);
+	}
+
 	logBufferIndex = 0;
 	bmpBufferIndex = 0;
 	gpsBufferIndex = 0;
 	imuBufferIndex = 0;
 	motBufferIndex = 0;
 	radioBufferIndex = 0;
-	memset(logBuffer, 0x00, 1024);
+	spsBufferIndex = 0;
+	memset(logBuffer, 0x00, 4096);
 	memset(bmpBuffer, 0x00, 1024);
 	memset(gpsBuffer, 0x00, 1024);
 	memset(imuBuffer, 0x00, 1024);
 	memset(motBuffer, 0x00, 1024);
 	memset(radioBuffer, 0x00, 4096);
+	memset(spsBuffer, 0x00, 2048);
+
+	togglePin(LEDA);
 }
 
 static void log_print(const char* format, ...)
@@ -191,12 +210,17 @@ static void log_gps(GPS* gps)
 	if (gpsBufferIndex < 950)
 	{
 		sprintf(timestamp, "\t@%lu\r\n", millis());
-		sprintf(tempBuffer, "%.07f %.07f %.01f", gps->latitudeDegrees, gps->longitudeDegrees, gps->altitude);
+		sprintf(tempBuffer, "%.07f %.07f %.01f %.2d-%.2d-20%.2d %.2d:%.2d:%.2d",
+				gps->latitudeDegrees, gps->longitudeDegrees, gps->altitude,
+				gps->gpsTime.dayM, gps->gpsTime.month, gps->gpsTime.year,
+				gps->gpsTime.hour, gps->gpsTime.minute, gps->gpsTime.second);
 		strcat(tempBuffer, timestamp);
 		strcat(gpsBuffer, tempBuffer);
 		gpsBufferIndex = strlen(gpsBuffer);
 
 		memset(tempBuffer, 0x00, 1024);
+
+		togglePin(LEDB);
 	}
 }
 static void log_imu(MPU9250* mpu)
@@ -251,6 +275,22 @@ static void log_radio(SX1278* radio)
 		memset(tempBuffer, 0x00, 1024);
 	}
 }
+static void log_sps(SPS30* sps)
+{
+	if (spsBufferIndex < 1900)
+	{
+		sprintf(timestamp, "\t@%lu\r\n", millis());
+		sprintf(tempBuffer, "%.1f %.1f %.1f %.1f | %.1f %.1f %.1f %.1f %.1f | %.1f",
+							sps->pm1, sps->pm2, sps->pm4, sps->pm10,
+							sps->n_pm05, sps->n_pm1, sps->n_pm2, sps->n_pm4, sps->n_pm10,
+							sps->typical_size);
+		strcat(tempBuffer, timestamp);
+		strcat(spsBuffer, tempBuffer);
+		spsBufferIndex = strlen(spsBuffer);
+
+		memset(tempBuffer, 0x00, 1024);
+	}
+}
 
 
 static bool loging_setup(void)		// Writes test file to SD card, if successful creates new log folder
@@ -289,7 +329,9 @@ static bool loging_setup(void)		// Writes test file to SD card, if successful cr
 		}
 		else
 		{
-			println("[LOGING] SD Init fail!");
+			#if LOGING_DEBUG
+				println("[LOGING] SD Init fail!");
+			#endif
 			goto error_handler;
 		}
 
@@ -308,7 +350,7 @@ static bool loging_setup(void)		// Writes test file to SD card, if successful cr
 			return false;
 
 	#else // SD_ENABLE
-		println("warning: [LOGING] SD DISABLED!")
+		println("warning: [LOGING] SD DISABLED!");
 		Common.log_print = &log_print_dummy;
 		return false;
 	#endif
@@ -320,9 +362,9 @@ static void loging_loop(void)
 		if (Common.bmp.active && millis() - lastBmpLog >= LOG_BMP_DELAY) { log_bmp(&(Common.bmp)); lastBmpLog = millis(); }
 		if (Common.mpu.active && millis() - lastImuLog >= LOG_IMU_DELAY) { log_imu(&(Common.mpu)); lastImuLog = millis(); }
 		if (millis() - lastMotLog >= LOG_MOT_DELAY) { log_mot(Common.mot_l, Common.mot_r); lastMotLog = millis(); }
-		if (Common.gps.active && Common.gps.newData) { log_gps(&(Common.gps)); Common.gps.newData = false; }
+		if (Common.gps.active && millis() - lastGpsLog >= LOG_GPS_DELAY /*Common.gps.newData*/) { log_gps(&(Common.gps)); Common.gps.newData = false; lastGpsLog = millis();}
 		if (Common.radio.active && (Common.radio.newTxData || Common.radio.newRxData)) { log_radio(&(Common.radio)); }
-		//if (Common.sps.newData) { log_sps(&(Common.sps)); Common.sps.newData = false; }
+		if (Common.sps.newData) { log_sps(&(Common.sps)); Common.sps.newData = false; }
 		if (Common.operation_mode != 31 && millis() - lastTargetYawLog >= LOG_TARGET_YAW_DELAY) { log_print("TY: %.1f*", Common.target_yaw); lastTargetYawLog = millis(); }
 
 		if (millis() - lastLogSave >= LOG_SAVE_DELAY) { log_save(); lastLogSave = millis(); }
@@ -346,10 +388,12 @@ static void loging_loop(void)
 				}
 				else if (Common.gps.active) println("GPS has no fix");
 				if (Common.mpu.active) println("Rotation: %.0f, %.0f, %.0f", Common.mpu.yaw, Common.mpu.pitch, Common.mpu.roll);
-				/* if (Common.sps.active)
+				if (Common.sps.active)
 				{
-					println("Particulate matter: %.1f, %.1f", Common.sps.pm1, Common.sps.pm10);
-				} */
+					println("Mass concentraion: %.1f %.1f %.1f %.1f", Common.sps.pm1, Common.sps.pm2, Common.sps.pm4, Common.sps.pm10);
+					println("Number concentraion: %.1f %.1f %.1f %.1f %.1f", Common.sps.n_pm05, Common.sps.n_pm1, Common.sps.n_pm2, Common.sps.n_pm4, Common.sps.n_pm10);
+					println("Typical size: %.2f", Common.sps.typical_size);
+				}
 			#endif
 			#if LOGING_PRINT_RADIO
 				if (Common.radio.active)

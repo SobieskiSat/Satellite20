@@ -1,5 +1,5 @@
 clock.h:8:24:micros	4	static
 clock.h:9:24:millis	4	static
-run.h:83:20:println	24	static
-sensing.c:17:13:sensing_setup	16	static
-sensing.c:211:13:sensing_loop	8	static
+run.h:84:20:println	24	static
+sensing.c:18:13:sensing_setup	16	static
+sensing.c:251:13:sensing_loop	8	static

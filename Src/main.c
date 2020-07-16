@@ -61,6 +61,7 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim5;
 
 UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
@@ -79,6 +80,7 @@ static void MX_TIM3_Init(void);
 static void MX_TIM5_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C2_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -89,8 +91,12 @@ static void MX_I2C2_Init(void);
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 {
-	HAL_UART_Receive_IT(huart, Common.gps.uartBuffer, 1);
-	GPS_read(&Common.gps);
+	//if (huart == Common.gps.uart)
+	//{
+		HAL_UART_Receive_IT(huart, Common.gps.uartBuffer, 1);
+		GPS_read(&Common.gps);
+		togglePin(LEDA);
+	//}
 }
 
 /* USER CODE END 0 */
@@ -136,6 +142,7 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_USART1_UART_Init();
   MX_I2C2_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
 	// Start millisecond timer
@@ -150,6 +157,9 @@ int main(void)
 	HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, GPIO_PIN_RESET);
 	//HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_RESET);
 	//HAL_GPIO_WritePin(EN_R_GPIO_Port, EN_R_Pin, GPIO_PIN_RESET);
+
+	 // __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
+	 // HAL_NVIC_EnableIRQ(USART1_IRQn);
 
 	// Execute code
 	setup();
@@ -573,6 +583,39 @@ static void MX_USART1_UART_Init(void)
 
 }
 
+/**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
+}
+
 /** 
   * Enable DMA controller clock
   */
@@ -603,8 +646,8 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
@@ -678,6 +721,7 @@ I2C_HandleTypeDef* Get_I2C1_Instance(void) { return &hi2c1; }
 I2C_HandleTypeDef* Get_I2C2_Instance(void) { return &hi2c2; }
 SPI_HandleTypeDef* Get_SPI1_Instance(void) { return &hspi1; }
 UART_HandleTypeDef* Get_UART1_Instance(void) { return &huart1; }
+UART_HandleTypeDef* Get_UART2_Instance(void) { return &huart2; }
 RTC_HandleTypeDef* Get_RTC_Instance(void) { return &hrtc; }
 TIM_HandleTypeDef* Get_TIM2_Instance(void) { return &htim2; }
 TIM_HandleTypeDef* Get_TIM3_Instance(void) { return &htim3; }
