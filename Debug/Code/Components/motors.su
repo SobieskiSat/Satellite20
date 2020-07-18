@@ -1,7 +1,7 @@
-motors.c:14:6:setMotors	16	static
-motors.c:29:6:haltMotors	4	static
-motors.c:41:6:enableMotors	8	static
-motors.c:65:6:disableMotors	8	static
-motors.c:77:6:setPwmFrequency	24	static
-motors.c:104:6:setMotorTimeout	16	static
-motors.c:111:6:motorTimeout	4	static
+motors.c:7:6:setMotors	16	static
+motors.c:27:6:haltMotors	4	static
+motors.c:40:6:enableMotors	8	static
+motors.c:63:6:disableMotors	8	static
+motors.c:75:6:setPwmFrequency	24	static
+motors.c:102:6:setMotorTimeout	16	static
+motors.c:109:6:motorTimeout	4	static

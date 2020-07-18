@@ -105,6 +105,7 @@ static void log_new()
 }
 static void log_save()
 {
+	lastLogSave = millis();
 	//__disable_irq();
 	if (logBufferIndex > 0)
 	{
@@ -155,6 +156,11 @@ static void log_save()
 		SD_writeToFile(openedPath, spsBuffer);
 	}
 
+	#if LOGING_DEBUG
+		println("[LOGING] Buffers saved, took: %ums, ", millis() - lastLogSave);
+		println("%d/4096 %d/1024 %d/1024 %d/1024 %d/1024 %d/4096 %d/2048", logBufferIndex, bmpBufferIndex, gpsBufferIndex, imuBufferIndex, motBufferIndex, radioBufferIndex, spsBufferIndex);
+	#endif
+
 	logBufferIndex = 0;
 	bmpBufferIndex = 0;
 	gpsBufferIndex = 0;
@@ -169,8 +175,6 @@ static void log_save()
 	memset(motBuffer, 0x00, 1024);
 	memset(radioBuffer, 0x00, 4096);
 	memset(spsBuffer, 0x00, 2048);
-
-	togglePin(LEDA);
 }
 
 static void log_print(const char* format, ...)
@@ -219,8 +223,6 @@ static void log_gps(GPS* gps)
 		gpsBufferIndex = strlen(gpsBuffer);
 
 		memset(tempBuffer, 0x00, 1024);
-
-		togglePin(LEDB);
 	}
 }
 static void log_imu(MPU9250* mpu)
@@ -258,12 +260,14 @@ static void log_radio(SX1278* radio)
 		if (radio->newTxData)
 		{
 			sprintf(tempBuffer, "TX\t[");
+			radio->txBuffer[radio->txLen] = '\0';
 			strcat(tempBuffer, radio->txBuffer);
 			radio->newTxData = false;
 		}
 		if (radio->newRxData)
 		{
 			sprintf(tempBuffer, "RX\t%d\t[", radio->rssi);
+			radio->txBuffer[radio->rxLen] = '\0';
 			strcat(tempBuffer, radio->rxBuffer);
 			radio->newRxData = false;
 		}
@@ -367,7 +371,7 @@ static void loging_loop(void)
 		if (Common.sps.newData) { log_sps(&(Common.sps)); Common.sps.newData = false; }
 		if (Common.operation_mode != 31 && millis() - lastTargetYawLog >= LOG_TARGET_YAW_DELAY) { log_print("TY: %.1f*", Common.target_yaw); lastTargetYawLog = millis(); }
 
-		if (millis() - lastLogSave >= LOG_SAVE_DELAY) { log_save(); lastLogSave = millis(); }
+		if (millis() - lastLogSave >= LOG_SAVE_DELAY) { log_save(); }
 	#endif
 
 	#if LOGING_PRINT_DATA
@@ -404,6 +408,7 @@ static void loging_loop(void)
 			#endif
 			#if LOGING_PRINT_INFO
 				println("Motor state: %s", Common.motors_enabled ? "enabled" : "disabled");
+				println("Motor power: %.1f %.1f", Common.mot_l, Common.mot_r);
 				println("Servo state: %s", Common.servo_enabled ? "open" : "closed");
 				println("Targeting to: %.4f, %.4f, %.1f at %.1f*", Common.target_lat, Common.target_lon, Common.target_alt, Common.target_yaw);
 				char operation_string[10];
@@ -416,7 +421,7 @@ static void loging_loop(void)
 					case 2:
 						sprintf(operation_string, "direction"); break;
 					case 3:
-						sprintf(operation_string, "maual"); break;
+						sprintf(operation_string, "manul"); break;
 					case 31:
 					default:
 						sprintf(operation_string, "terminate"); break;

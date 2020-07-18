@@ -4,17 +4,15 @@
 #include "config.h"
 #include "run.h"
 
-// Left motor: Timer3 Channel2
-// Right motor: Timer3 Channel2
-// PWM configured in Mode2 - Up-Down
-// DRV8838 has max of 250kHz PWM frequency
-// Motors will automatically turn off after (TIM4->ARR * 1ms) time, default 100ms
-// Any new value applied will reset timeout timer
-
 void setMotors(float dutyL, float dutyR)
 {
-	if (motorsEnabled)
+	if (motorsRunning)
 	{
+		if (dutyL > 1) dutyL = 1;
+		else if (dutyL < 0) dutyL = 0;
+		if (dutyR > 1) dutyR = 1;
+		else if (dutyR < 0) dutyR = 0;
+
 		TIM3->CCR2 = (uint32_t)((float)TIM3->ARR * (1 - dutyL));
 		TIM3->CCR3 = (uint32_t)((float)TIM3->ARR * (1 - dutyR));
 		TIM3->CNT = 0;
@@ -31,6 +29,7 @@ void haltMotors(void)
 	// Function called on TIM4 overflow interrupt
 	TIM3->CCR2 = TIM3->ARR;
 	TIM3->CCR3 = TIM3->ARR;
+	TIM3->CNT = 0;
 
 	TIM4->CNT = 0;	// reset timer counter -> clears motor timeout
 
@@ -40,10 +39,9 @@ void haltMotors(void)
 
 void enableMotors(void)
 {
-	if (!motorsEnabled)
+	if (!motorsRunning)
 	{
-		haltMotors();
-		motorsEnabled = true;
+		motorsRunning = true;
 
 		//MAX_PWM_FREQ = 42000000 / (2 * PWM_RESOLUTION); // 82031 Hz for 256 resolution
 		//setPwmFrequency(MAX_PWM_FREQ);
@@ -64,13 +62,13 @@ void enableMotors(void)
 
 void disableMotors(void)
 {
-	if (motorsEnabled)
+	if (motorsRunning || false)
 	{
 		writePin(MOT_STBY, LOW);
 		haltMotors();
-		motorsEnabled = false;
 		HAL_TIM_PWM_Stop(Get_TIM3_Instance(), TIM_CHANNEL_2);
 		HAL_TIM_PWM_Stop(Get_TIM3_Instance(), TIM_CHANNEL_3);
+		motorsRunning = false;
 	}
 }
 

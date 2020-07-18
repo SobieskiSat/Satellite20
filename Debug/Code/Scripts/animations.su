@@ -1,0 +1,8 @@
+clock.h:9:24:millis	4	static
+animations.c:8:13:play_animation	16	static
+animations.c:10:19:leds_low	8	static
+animations.c:11:19:leds_high	8	static
+animations.c:13:19:leds_bounce	8	static
+animations.c:23:19:leds_fill	8	static
+animations.c:33:19:leds_confirm	8	static
+animations.c:43:19:leds_negate	8	static

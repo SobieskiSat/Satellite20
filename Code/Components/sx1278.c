@@ -15,7 +15,7 @@ uint8_t frf_bytes[8] = {0};
 void SX1278_write(SPI_HandleTypeDef* spi, uint8_t data)
 {
 	// writes byte [data] on SPI bus
-	HAL_SPI_Transmit(spi, &data, 1, 1000);
+	HAL_SPI_Transmit(spi, &data, 1, 10);
 	while (HAL_SPI_GetState(spi) != HAL_SPI_STATE_READY);
 }
 void SX1278_command(SX1278* inst, uint8_t addr, uint8_t cmd)
@@ -50,7 +50,7 @@ uint8_t SX1278_read(SPI_HandleTypeDef* spi)
 	uint8_t txByte = 0x00;
 	uint8_t rxByte = 0x00;
 
-	HAL_SPI_TransmitReceive(spi, &txByte, &rxByte, 1, 1000);
+	HAL_SPI_TransmitReceive(spi, &txByte, &rxByte, 1, 10);
 	while (HAL_SPI_GetState(spi) != HAL_SPI_STATE_READY);
 
 	return rxByte;
@@ -260,6 +260,8 @@ void SX1278_tx_push(SX1278* inst)
 {
 	//set module to TX mode and transmit
 	SX1278_command(inst, LR_RegOpMode, 0x8b);
+	inst->rxStart = millis();	// Cringy but forces interrupt if something goes wrong
+	inst->pendingIRQ = true;
 }
 bool SX1278_tx_finish(SX1278* inst)
 {
@@ -267,6 +269,7 @@ bool SX1278_tx_finish(SX1278* inst)
 	inst->txDone = ((inst->irqStatus & IRQ_LR_TXDONE) > 0x00);
 	if (inst->txDone) inst->newTxData = true;
 	inst->txCount++;
+	inst->pendingIRQ = false;
 	SX1278_clearLoRaIrq(inst);
 	SX1278_standby(inst);
 
@@ -345,6 +348,8 @@ void SX1278_tx_mode(SX1278* inst)
 	inst->txLen = 0;
 	inst->txDone = false;
 	inst->mode = TX;
+	inst->rxTimeout = false;
+	inst->rxStart = millis();
 }
 
 void SX1278_rx_mode(SX1278* inst)
@@ -367,6 +372,8 @@ void SX1278_rx_mode(SX1278* inst)
 	inst->newPacket = false;
 	inst->rxDone = false;
 	inst->mode = RX;
+	inst->rxTimeout = false;
+	inst->rxStart = millis();
 	//println("[LoRa] Finished setting RX mode.");
 }
 
@@ -438,8 +445,9 @@ bool SX1278_dio0_IRQ(SX1278* inst)
 
 bool SX1278_intTimeout(SX1278* inst)
 {
-	if ((millis() - inst->rxStart >= inst->config.rxTimeoutSymb) && inst->mode == RX && inst->pendingIRQ)
+	if (((millis() - inst->rxStart >= inst->config.rxTimeoutSymb) && inst->mode == RX && inst->pendingIRQ))
 	{
+		//println("[RADIO] RX timeout");
 		inst->rxTimeout = true;
 		inst->rxStart = millis();
 

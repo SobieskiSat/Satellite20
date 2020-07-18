@@ -12,18 +12,18 @@
 
 static void MPU9250_writeByte(MPU9250* inst, uint8_t mem_addr, uint8_t data)
 {
-	HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr, mem_addr, 1, &data, 1, 2);
+	HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr, mem_addr, 1, &data, 1, 5);
 }
 static char MPU9250_readByte(MPU9250* inst, uint8_t mem_addr)
 {
 	uint8_t data[1]; // `data` will store the register data
-	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, data, 1, 2);
+	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, data, 1, 5);
 	return (char)data[0];
 }
 static void MPU9250_readBytes(MPU9250* inst, uint8_t mem_addr, uint8_t count, uint8_t* dest)
 {     
 	uint8_t data[14];
-	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, data, count, 2);
+	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, data, count, 5);
 
 	int ii = 0;
 	for(ii = 0; ii < count; ii++) // maybe memcpy() [?]
@@ -33,18 +33,18 @@ static void MPU9250_readBytes(MPU9250* inst, uint8_t mem_addr, uint8_t count, ui
 }
 static void AK8963_writeByte(MPU9250* inst, uint8_t mem_addr, uint8_t data)
 {
-	HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr_ak, mem_addr, 1, &data, 1, 2);
+	HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr_ak, mem_addr, 1, &data, 1, 5);
 }
 static char AK8963_readByte(MPU9250* inst, uint8_t mem_addr)
 {
 	uint8_t data[1]; // `data` will store the register data
-	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr_ak, mem_addr, 1, data, 1, 2);
+	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr_ak, mem_addr, 1, data, 1, 5);
 	return (char)data[0];
 }
 static void AK8963_readBytes(MPU9250* inst, uint8_t mem_addr, uint8_t count, uint8_t* dest)
 {     
 	uint8_t data[14];
-	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr_ak, mem_addr, 1, data, count, 2);
+	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr_ak, mem_addr, 1, data, count, 5);
 
 	int ii = 0;
 	for(ii = 0; ii < count; ii++) // maybe memcpy() [?]
@@ -573,19 +573,21 @@ void MPU9250_updateEuler(MPU9250* inst)		// Convert quaternions to Euler angles
 	inst->yaw	*= -180.0f / M_PI;			// Convert to degrees
 	inst->pitch *= 180.0f / M_PI;
 	inst->roll  *= 180.0f / M_PI;
-	/*
+
 	inst->yaw 	+= inst->eulerOffsets[0];	// Add offsets
 	inst->pitch	+= inst->eulerOffsets[1];
 	inst->roll 	+= inst->eulerOffsets[2];
-	*/
 
 	inst->yaw_dx = inst->yaw;
 	inst->yaw_dx -= inst->yaw;
 	inst->yaw_dx *= (1000000.0f / (micros() - inst->euler_lastUpdate));
 
 	if(inst->yaw < 0)	inst->yaw	+= 360.0f;	// Fix overflow
+	else if (inst->yaw > 360) inst->yaw -= 360.0f;
 	if(inst->pitch < 0)	inst->pitch	+= 360.0f;
+	else if (inst->pitch > 360) inst->pitch -= 360.0f;
 	if(inst->roll < 0)	inst->roll	+= 360.0f;
+	else if (inst->roll > 360) inst->roll -= 360.0f;
 
 	/* Other alorithm, also calculates linear acceleration
 	a12 =   2.0f * (q[1] * q[2] + q[0] * q[3]);

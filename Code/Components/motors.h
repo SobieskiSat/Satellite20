@@ -13,7 +13,7 @@
 
 static uint32_t MAX_PWM_FREQ = 1;
 
-static bool motorsEnabled;
+static bool motorsRunning;
 
 void setMotors(float dutyL, float dutyR);
 void haltMotors(void);	// assign timeout interrupt to that

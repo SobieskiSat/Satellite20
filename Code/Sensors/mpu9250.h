@@ -6,7 +6,7 @@
 #include <math.h>
 #include "stm32f4xx_hal.h"
 
-#define MPU9250_DEBUG 1	// enable debug messages
+#define MPU9250_DEBUG 0	// enable debug messages
 
 typedef struct // MPU9250_config
 {

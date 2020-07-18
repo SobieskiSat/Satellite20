@@ -146,13 +146,12 @@ static bool sensing_setup(void)
 		}
 		if (Common.mpu.active)
 		{	
-			writePin(LEDA, HIGH);
 			#if SENSING_DEBUG
 					println("[SENSING] Checking MPU9250 readings. Don't move the board!");
 			#endif
 			(*Common.log_print)("*S32");
 			attempts = 0;
-			
+			writePin(LEDA, HIGH);
 			delay(500);
 			while (!MPU9250_SelfTest(&(Common.mpu)))
 			{
@@ -264,17 +263,8 @@ static void sensing_loop(void)
 	#if GPS_ENABLE
 		if (Common.gps.active)
 		{
-			if (GPS_update(&(Common.gps)))
-			{
-				if (Common.gps.fix) writePin(LEDC, HIGH);
-				else writePin(LEDC, LOW);
-				if (Common.gps.gpsTime.month != 7) togglePin(LEDD);
-				else writePin(LEDD, LOW);
-
-				print(GPS_lastNMEA(&Common.gps));
-			}
+			GPS_update(&(Common.gps));
 		}
-		togglePin(LEDB);
 	#endif
 
 	#if IMU_ENABLE

@@ -1,8 +1,8 @@
-run.h:124:20:floatToBytes	24	static
-run.h:125:20:bytesToFloat	24	static
+run.h:118:20:floatToBytes	24	static
+run.h:119:20:bytesToFloat	24	static
 duplex.c:13:13:send_info_packet	8	static
-duplex.c:18:13:duplex_setup	8	static
+duplex.c:18:13:duplex_setup	16	static
 duplex.c:71:13:duplex_checkINT	8	static
 duplex.c:76:13:decodePacket	24	static
-duplex.c:107:13:preparePacket	24	static
-duplex.c:138:13:duplex_loop	4	static
+duplex.c:109:13:preparePacket	24	static
+duplex.c:138:13:duplex_loop	8	static

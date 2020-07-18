@@ -81,17 +81,18 @@ static void decodePacket()
 		uint32_t temv = 0;
 
 		temv = (uint32_t)Common.radio.rxBuffer[0];
-		Common.operation_mode = temv & (0xFF >> 2);
+		Common.operation_mode = temv >> 2;
 		if (Common.operation_mode == 3)
 		{
 			Common.motors_enabled = temv & (1 << 0);
 			Common.servo_enabled = temv & (1 << 1);
 		}
+		else if (Common.operation_mode > 3 && Common.operation_mode != 31) Common.operation_mode = 0;
 
 		if (Common.operation_mode == 2 || Common.operation_mode == 3)
 		{
 			temv = (uint32_t)Common.radio.rxBuffer[1];
-			Common.target_yaw = (float)(temv) * 360.0 / 255.0; 
+			Common.target_yaw = (float)(temv) * 360.0 / 255.0;
 		}
 		if (Common.radio.rxLen == 13 && Common.operation_mode == 1)
 		{
@@ -101,6 +102,7 @@ static void decodePacket()
 			memcpy((uint8_t*)&temv, Common.radio.rxBuffer + 11, 2);
 			Common.target_alt = (float)(temv) / 10;
 		}
+		togglePin(LEDB);
 	}
 }
 
@@ -125,10 +127,8 @@ static void preparePacket()
 	Common.radio.txBuffer[17] = (uint8_t)(Common.mpu.pitch * (255.0 / 360.0));	// 17
 	Common.radio.txBuffer[18] = (uint8_t)(Common.mpu.roll * (255.0 / 360.0));	// 18
 
-	/*
-	Common.radio.txBuffer[19] = (uint8_t)(Common.sps.pm1 * (255.0 / __));	// 19
-	Common.radio.txBuffer[20] = (uint8_t)(Common.sps.pm10 * (255.0 / __));	// 20
-	*/
+	Common.radio.txBuffer[19] = (uint8_t)(Common.sps.pm1 * (255.0 / 50.0));	// 19
+	Common.radio.txBuffer[20] = (uint8_t)(Common.sps.pm10 * (255.0 / 50.0));	// 20
 
 	Common.radio.txBuffer[21] = Common.operation_mode;	// 21
 	Common.radio.txBuffer[22] = packetNumber;			// 22
@@ -157,6 +157,12 @@ static void duplex_loop(void)
 			if (packetNumber == DUPLEX_TX_COUNT)
 			{
 				SX1278_receive(&(Common.radio));
+				#if DUPLEX_DEBUG
+					if (Common.radio.rxTimeout)
+					{
+						println("[DUPLEX] Receive start.");
+					}
+				#endif
 				packetNumber = 0;
 				transmitting = false;
 				return;
@@ -165,6 +171,7 @@ static void duplex_loop(void)
 			{
 				preparePacket();
 				SX1278_transmit(&(Common.radio), Common.radio.txBuffer, Common.radio.txLen);	// Packet is written directly to memory buffer of the instance
+				togglePin(LEDA);
 				packetNumber++;
 				return;
 			}

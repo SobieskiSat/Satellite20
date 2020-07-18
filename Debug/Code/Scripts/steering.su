@@ -2,4 +2,4 @@ clock.h:9:24:millis	4	static
 steering.c:23:13:PID	64	static
 steering.c:66:14:bearing	72	static
 steering.c:89:13:steering_setup	8	static
-steering.c:120:13:steering_loop	4	static
+steering.c:128:13:steering_loop	8	static

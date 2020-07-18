@@ -60,7 +60,6 @@ static inline bool print(const char* format, ...)
 {
 	if (usbPresent)
 	{
-		writePin(LEDD, HIGH);
 		va_list argptr;
 		va_start(argptr, format);
 		printLen = vsprintf(printBuffer, format, argptr);
@@ -72,11 +71,9 @@ static inline bool print(const char* format, ...)
 		{
 			if (micros() - printStart > timeout && false)
 			{
-				writePin(LEDD, LOW);
 				return false;
 			}
 		}
-		writePin(LEDD, LOW);
 		return true;
 	}
 	return false;
@@ -85,7 +82,6 @@ static inline bool println(const char* format, ...)
 {
 	if (usbPresent)
 	{
-		writePin(LEDD, HIGH);
 		va_list argptr;
 		va_start(argptr, format);
 		printLen = vsprintf(printBuffer, format, argptr);
@@ -102,11 +98,9 @@ static inline bool println(const char* format, ...)
 		{
 			if (micros() - printStart > timeout && false)
 			{
-				writePin(LEDD, LOW);
 				return false;
 			}
 		}
-		writePin(LEDD, LOW);
 		return true;
 	}
 	return false;

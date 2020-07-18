@@ -70,6 +70,7 @@ Src/main.o: ../Src/main.c ../Inc/main.h \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/duplex.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/sensing.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/steering.c \
+ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/animations.c \
  C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h
 
 ../Inc/main.h:
@@ -227,5 +228,7 @@ C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/duplex.c:
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/sensing.c:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/steering.c:
+
+C:/Users/damia/Desktop/CanSat/Satellite20/Code/Scripts/animations.c:
 
 C:/Users/damia/Desktop/CanSat/Satellite20/Code/Components/motors.h:

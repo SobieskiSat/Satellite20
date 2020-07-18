@@ -144,55 +144,37 @@ bool GPS_init(GPS* inst)
 	inst->sentences_parsed[4] = "ZZZ";
 	inst->sentences_known[0] = "ZZZ";
 
-	char mesago[50] = "$PMTK314,1,1,0,1,5,5,0,0,0,0,0,0,0,0,0,0,0*29\r\n\0";
-	HAL_UART_Transmit(inst->uart, mesago, strlen(mesago), HAL_MAX_DELAY);			// transmit bytes
+	uint8_t msg_len = 0;
+	char message[50] = {0};
+	msg_len = sprintf(message, "$PMTK314,1,1,0,1,5,5,0,0,0,0,0,0,0,0,0,0,0*29\r\n");
+	HAL_UART_Transmit(inst->uart, message, msg_len, 1000);			// transmit bytes
 	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);	// wait for finished transmission
+	delay(100);
 
-	char messio[17] = "$PMTK101*32\r\n\0";
-	HAL_UART_Transmit(inst->uart, messio, strlen(messio), HAL_MAX_DELAY);			// transmit bytes
+	msg_len = sprintf(message, "$PMTK101*32\r\n");
+	HAL_UART_Transmit(inst->uart, message, msg_len, 1000);			// transmit bytes
 	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);	// wait for finished transmission
+	delay(100);
 
-	char anijammo[22] = "$PMTK286,1*23\r\n\0";
-	HAL_UART_Transmit(inst->uart, anijammo, strlen(anijammo), HAL_MAX_DELAY);			// transmit bytes
+	msg_len = sprintf(message, "$PMTK286,1*23\r\n");
+	HAL_UART_Transmit(inst->uart, message, msg_len, 1000);			// transmit bytes
 	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);	// wait for finished transmission
+	delay(100);
 
-	delay(10000);
-
-	println("Sending command");
-	char jammo[22] = "$PMTK838,1*2C\r\n\0";
-	HAL_UART_Transmit(inst->uart, jammo, strlen(jammo), HAL_MAX_DELAY);			// transmit bytes
-	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);	// wait for finished transmission
-
-	println("Activating Rx");
 	HAL_UART_Receive_IT(inst->uart, inst->uartBuffer, 1);
-	inst->active = true;
 
 	uint32_t timeout = millis();
-
 	while (millis() - timeout <= 3000)
 	{
-		//HAL_UART_Receive(inst->uart, inst->uartBuffer, 1, 100);
-		//GPS_read(inst);
-		if (GPS_newNMEAreceived(inst))
+		if (GPS_newNMEAreceived(inst) && GPS_parse(inst, GPS_lastNMEA(inst)))
 		{
-			// not exact, but works now
-			print(GPS_lastNMEA(inst));
-			GPS_parse(inst, GPS_lastNMEA(inst));
-			/*
-			if (GPS_lastNMEA(inst)[0] == '$' && GPS_lastNMEA(inst)[1] == 'G')
-			{
-				//GPS_sendCommand(inst, PMTK_SET_NMEA_OUTPUT_RMCGGAGSA);
-				//GPS_sendCommand(inst, PMTK_SET_NMEA_UPDATE_1HZ);
-				inst->active = true;
-				return true;
-
-			}
-			*/
+			inst->active = true;
+			return true;
 		}
 	}
 
-
-	return true;
+	inst->active = false;
+	return false;
 }
 
 bool GPS_update(GPS* inst)
@@ -533,7 +515,7 @@ char* GPS_parseStr(GPS* inst, char* buff, char* p, int n)
 /**************************************************************************/
 bool GPS_isEmpty(GPS* inst, char* pStart)
 {
-	if (',' !=* pStart && '*' !=* pStart && pStart != NULL) return false;
+	if (',' != *pStart && '*' != *pStart && pStart != NULL) return false;
 	else return true;
 }
 

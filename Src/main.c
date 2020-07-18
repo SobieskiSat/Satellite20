@@ -95,7 +95,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart)
 	//{
 		HAL_UART_Receive_IT(huart, Common.gps.uartBuffer, 1);
 		GPS_read(&Common.gps);
-		togglePin(LEDA);
 	//}
 }
 
@@ -149,17 +148,10 @@ int main(void)
 	HAL_TIM_Base_Start(&htim2);
 
 	// Setup pins
-	HAL_GPIO_WritePin(LEDA_GPIO_Port, LEDA_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LEDB_GPIO_Port, LEDB_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LEDC_GPIO_Port, LEDC_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LEDD_GPIO_Port, LEDD_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(PH_L_GPIO_Port, PH_L_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(PH_R_GPIO_Port, PH_R_Pin, GPIO_PIN_RESET);
-	//HAL_GPIO_WritePin(EN_L_GPIO_Port, EN_L_Pin, GPIO_PIN_RESET);
-	//HAL_GPIO_WritePin(EN_R_GPIO_Port, EN_R_Pin, GPIO_PIN_RESET);
-
-	 // __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
-	 // HAL_NVIC_EnableIRQ(USART1_IRQn);
+	writePin(LEDA, LOW);
+	writePin(LEDB, LOW);
+	writePin(LEDC, LOW);
+	writePin(LEDD, LOW);
 
 	// Execute code
 	setup();

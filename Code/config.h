@@ -12,8 +12,8 @@ static SX1278_config sx1278_default_config =
 	SX1278_SF_7,		// spreading factor (6:12)
 	SX1278_CR_4_5,		// coding rate (5:8)
 	SX1278_BW_125KHZ,	// bandwidth (8:500)[kHz]
-	SX1278_CRC_EN,		// verify packet checksum at reception
-	50					// receive timeout [ms]
+	SX1278_CRC_DIS,		// verify packet checksum at reception
+	100					// receive timeout [ms]
 };
 
 // Pressure sensor config
@@ -33,7 +33,7 @@ static BMP280_config bmp280_default_config =
 // ? ADD SMPLRT_DIV
 static MPU9250_config mpu9250_default_config =
 {
-	{90.0f, 0.0f, 0.0f},	// Euler offsets
+	{90.0f, 90.0f, 90.0f},	// Euler offsets
 	MPU9250_AFS_2G,		// Ascale
 	MPU9250_GFS_250DPS, // Gscale
 	MPU9250_MFS_16BITS, // Mscale
@@ -66,21 +66,21 @@ static MPU9250_config mpu9250_default_config =
 #define STEERING_YAW_DELAY 100		// Delay between target yaw corrections
 
 // Peripherial state
-#define SD_ENABLE 0
-#define RADIO_ENABLE 0
-#define BMP_ENABLE 0
-#define GPS_ENABLE 0
-#define IMU_ENABLE 0
+#define SD_ENABLE 1
+#define RADIO_ENABLE 1
+#define BMP_ENABLE 1
+#define GPS_ENABLE 1
+#define IMU_ENABLE 1
 #define SPS_ENABLE 1
-#define STEERING_ENABLE 0	// defines MOTOR_ENABLE
+#define STEERING_ENABLE 1	// defines MOTOR_ENABLE
 
 // Debug messages
-#define RUN_DEBUG 0
+#define RUN_DEBUG 1
 #define LOGING_DEBUG 0
 #define LOGING_PRINT_DATA 1
 	#define LOGING_PRINT_SENSORS 1
-	#define LOGING_PRINT_RADIO 0
-	#define LOGING_PRINT_INFO 0
+	#define LOGING_PRINT_RADIO 1
+	#define LOGING_PRINT_INFO 1
 #define DUPLEX_DEBUG 0
 #define SENSING_DEBUG 1
 #define STEERING_DEBUG 0
@@ -96,7 +96,7 @@ static MPU9250_config mpu9250_default_config =
 #define KEEPOUT_ALT 25.0
 #define TERMINAL_HOR 45.0	// Maximum horizonal angle to be accepted
 #define TERMINAL_YAW_DX 40.0	// Maximum yaw angular speed in (deg/s) to be accepted
-#define TERMINAL_ALT_DX -15.0	// Maximum falling speed to be accepted (m/s)
+#define TERMINAL_ALT_DX 15.0	// Maximum falling speed to be accepted (m/s)
 // PID
 #define PID_kp 1.0 		//dobrany
 #define PID_ki 0.5
@@ -106,5 +106,8 @@ static MPU9250_config mpu9250_default_config =
 #define MOTOR_L_DIR 0
 #define MOTOR_R_DIR 0
 #define MOTOR_PWM_RESOLUTION 1024
+
+// Other
+#define INTERFACE_BTN 1
 
 #endif /* CONFIG_H_ */

@@ -22,7 +22,7 @@ float yaw_last_error;
 
 static void PID(float yaw, float target_yaw)
 {
-	float maxPower = 0.6;	// scale of motor power
+	float maxPower = 0.5;	// scale of motor power
 	float TurboMode= 50.0;
 	float error= target_yaw-yaw;
 	float thrust;
@@ -54,7 +54,7 @@ static void PID(float yaw, float target_yaw)
 		else if (PID_coef<-180.0+TurboMode)
 			PID_coef=-180.0+TurboMode;
 
-	setMotors((thrust - PID_coef) * maxPower * (1.0 / 360.0), (thrust + PID_coef) * maxPower * (1.0 / 360.0) * 0.92);
+	setMotors((thrust - PID_coef) * maxPower * (1.0 / 360.0), (thrust + PID_coef) * maxPower * (1.0 / 360.0));
 
 	//setMotors(maxPower, maxPower*0.9); //prawie skalibrowane
 	//setMotors((thrust - error) * maxPower * (1.0 / 360.0), (thrust + error) * maxPower * (1.0 / 360.0));
@@ -86,7 +86,7 @@ static float bearing(float lat, float lon, float lat2, float lon2)
     return brng;
 }
 
-static void steering_setup(void)
+static bool steering_setup(void)
 {
 	#if STEERING_ENABLE
 		#if STEERING_DEBUG
@@ -94,18 +94,26 @@ static void steering_setup(void)
 		#endif
 		(*Common.log_print)("*P00");
 
+		yaw_last_error=0.0;
+		Common.target_lat = DEFAULT_TARGET_LAT;
+		Common.target_lon = DEFAULT_TARGET_LON;
+		Common.target_alt = DEFAULT_TARGET_ALT;
+		Common.target_yaw = DEFAULT_TARGET_YAW;
+		motorsRunning = false;
+		enableMotors();
+		setMotors(0.9, 0.9);
+		delay(200);
+		setMotors(0, 0);
+		//disableMotors();
 		if (!Common.mpu.active)
 		{
 			#if STEERING_DEBUG
 				println("error: [STEERING] PID cannot function because IMU is not active!");
 			#endif
 			(*Common.log_print)("*EP00");
+			return false;
 		}
-		yaw_last_error=0.0;
-		Common.target_lat = DEFAULT_TARGET_LAT;
-		Common.target_lon = DEFAULT_TARGET_LON;
-		Common.target_alt = DEFAULT_TARGET_ALT;
-		Common.target_yaw = DEFAULT_TARGET_YAW;
+		return true;
 	#else
 		#if STEERING_DEBUG
 			println("warning: [STEERING] PID IS DISABLED!")
@@ -126,9 +134,10 @@ static void steering_loop(void)
 		{	
 			PID(Common.mpu.yaw, Common.target_yaw);
 			lastMotUpdate = millis();
+			writePin(LEDD, abs(Common.mpu.yaw - Common.target_yaw) < 3);
 		}
 
-		if ((Common.operation_mode == 0 || Common.operation_mode == 1) && millis() - lastYawUpdate >= STEERING_YAW_DELAY)
+		if ((Common.operation_mode == 0 || Common.operation_mode == 1) && millis() - lastYawUpdate >= STEERING_YAW_DELAY && Common.gps.fix)
 		{
 			Common.target_yaw = bearing(Common.gps.latitudeDegrees, Common.gps.longitudeDegrees, Common.target_lat, Common.target_lon); // target_yaw wyliczane z pozycji anteny
 			lastYawUpdate = millis();

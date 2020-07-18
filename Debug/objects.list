@@ -1,6 +1,7 @@
 "Code/Components/motors.o"
 "Code/Components/sd.o"
 "Code/Components/sx1278.o"
+"Code/Scripts/animations.o"
 "Code/Scripts/duplex.o"
 "Code/Scripts/loging.o"
 "Code/Scripts/sensing.o"
