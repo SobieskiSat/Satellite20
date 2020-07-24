@@ -22,7 +22,7 @@ float yaw_last_error;
 
 static void PID(float yaw, float target_yaw)
 {
-	float maxPower = 0.5;	// scale of motor power
+	float maxPower = 0.85;	// scale of motor power
 	float TurboMode= 50.0;
 	float error= target_yaw-yaw;
 	float thrust;
@@ -54,7 +54,7 @@ static void PID(float yaw, float target_yaw)
 		else if (PID_coef<-180.0+TurboMode)
 			PID_coef=-180.0+TurboMode;
 
-	setMotors((thrust - PID_coef) * maxPower * (1.0 / 360.0), (thrust + PID_coef) * maxPower * (1.0 / 360.0));
+	setMotors(0.2 * ((thrust - PID_coef) * maxPower * (1.0 / 360.0)) + 0.6, 0.2 * ((thrust + PID_coef) * maxPower * (1.0 / 360.0)) + 0.6);
 
 	//setMotors(maxPower, maxPower*0.9); //prawie skalibrowane
 	//setMotors((thrust - error) * maxPower * (1.0 / 360.0), (thrust + error) * maxPower * (1.0 / 360.0));
@@ -104,7 +104,7 @@ static bool steering_setup(void)
 		setMotors(0.9, 0.9);
 		delay(200);
 		setMotors(0, 0);
-		//disableMotors();
+		disableMotors();
 		if (!Common.mpu.active)
 		{
 			#if STEERING_DEBUG

@@ -28,39 +28,43 @@ char GPS_read(GPS* inst)
 	char c = 0;
 	if (inst->paused) return c;
 
-	c = (char)inst->uartBuffer[0];
-	//char ca[2] = {c, '\0'};
-	//print(ca);
-
-	inst->currentline[inst->lineidx++] = c;
-	// [!!!] \/ wtf is that
-	if (inst->lineidx >= MAXLINELENGTH) inst->lineidx = MAXLINELENGTH - 1; // ensure there is someplace to put the next received character
-
-	if (c == '\n')
+	int i = 0;
+	for (i = 0; i < 1; i++)
 	{
-		inst->currentline[inst->lineidx] = 0;	// add endline character
+		c = (char)inst->uartBuffer[i];
+		char ca[2] = {c, '\0'};
+		//print(ca);
 
-		if (inst->currentline == inst->line1)
+		inst->currentline[inst->lineidx++] = c;
+		// [!!!] \/ wtf is that
+		if (inst->lineidx >= MAXLINELENGTH) inst->lineidx = MAXLINELENGTH - 1; // ensure there is someplace to put the next received character
+
+		if (c == '\n')
 		{
-			inst->currentline = inst->line2;
-			inst->lastline = inst->line1;
-		}
-		else
-		{
-			inst->currentline = inst->line1;
-			inst->lastline = inst->line2;
+			inst->currentline[inst->lineidx] = 0;	// add endline character
+
+			if (inst->currentline == inst->line1)
+			{
+				inst->currentline = inst->line2;
+				inst->lastline = inst->line1;
+			}
+			else
+			{
+				inst->currentline = inst->line1;
+				inst->lastline = inst->line2;
+			}
+
+			inst->lineidx = 0;
+			inst->recvdflag = true;
+			inst->recvdTime = millis();	// time we got the end of the string
+			inst->sentTime = firstChar;
+			firstChar = 0;				// there are no characters yet
+			return c;					// wait until next character to set time
 		}
 
-		inst->lineidx = 0;
-		inst->recvdflag = true;
-		inst->recvdTime = millis();	// time we got the end of the string
-		inst->sentTime = firstChar;
-		firstChar = 0;				// there are no characters yet
-		return c;					// wait until next character to set time
+		if (firstChar == 0) firstChar = tStart;
+		return c;
 	}
-
-	if (firstChar == 0) firstChar = tStart;
-	return c;
 }
 
 /**************************************************************************/
@@ -144,8 +148,13 @@ bool GPS_init(GPS* inst)
 	inst->sentences_parsed[4] = "ZZZ";
 	inst->sentences_known[0] = "ZZZ";
 
+	inst->first_fix = true;
+
+	//while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);
+
 	uint8_t msg_len = 0;
 	char message[50] = {0};
+
 	msg_len = sprintf(message, "$PMTK314,1,1,0,1,5,5,0,0,0,0,0,0,0,0,0,0,0*29\r\n");
 	HAL_UART_Transmit(inst->uart, message, msg_len, 1000);			// transmit bytes
 	while (HAL_UART_GetState(inst->uart) != HAL_UART_STATE_READY);	// wait for finished transmission
@@ -251,6 +260,7 @@ bool GPS_parse(GPS* inst, char* nmea)
 			if (inst->fixquality > 0)
 			{
 				inst->fix = true;
+				//if (inst->first_fix) { inst->gpsTime.hour += 2; setTime(&(inst->gpsTime));  inst->gpsTime.hour -= 2; inst->first_fix = false;}
 				inst->lastFix = inst->sentTime;
 			}
 			else inst->fix = false;
@@ -569,24 +579,27 @@ void GPS_parseTime(GPS* inst, char* p)
 /**************************************************************************/
 void GPS_parseLat(GPS* inst, char* p)
 {
-	//int32_t degree;
-	//long minutes;
+	int32_t degree;
+	long minutes;
 	char degreebuff[10];
 	if (!GPS_isEmpty(inst, p))
 	{
 		strncpy(degreebuff, p, 2);
 		p += 2;
 		degreebuff[2] = '\0';
-		long degree = atol(degreebuff) * 10000000;
+		degree = atol(degreebuff) * 10000000;
 		strncpy(degreebuff, p, 2); // minutes
 		p += 3;										// skip decimal point
 		strncpy(degreebuff + 2, p, 4);
 		degreebuff[6] = '\0';
-		long minutes = 50*	atol(degreebuff) / 3;
+		minutes = 50 *	atol(degreebuff) / 3;
 		inst->latitude_fixed = degree + minutes;
 		inst->latitude = degree / 100000 + minutes * 0.000006;
+		float temp_lat = inst->latitudeDegrees;
+		//println("[GPS] Lat should be: %.6f", (inst->latitude - 100 * (int)(inst->latitude / 100)) / 60.0);
 		inst->latitudeDegrees = (inst->latitude - 100 * (int)(inst->latitude / 100)) / 60.0;
 		inst->latitudeDegrees += (int)(inst->latitude / 100);
+		if (inst->latitudeDegrees < 30.0) inst->latitudeDegrees = temp_lat;
 	}
 }
 

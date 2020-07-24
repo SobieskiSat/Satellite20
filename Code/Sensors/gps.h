@@ -186,7 +186,8 @@ typedef struct
 	bool active;
 	bool newData;
 
-	uint8_t uartBuffer[1];
+	uint8_t uartBuffer[64];
+	bool first_fix;
 
 } GPS;
 

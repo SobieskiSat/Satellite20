@@ -4,9 +4,9 @@ run.h:120:20:bytesToFloatRev	24	static
 sps30.c:11:13:SPS30_read	24	static
 sps30.c:80:13:SPS30_write	32	static
 sps30.c:101:6:SPS30_init	16	static
-sps30.c:119:6:SPS30_update	16	static
-sps30.c:147:6:SPS30_start_meas	16	static
-sps30.c:157:6:SPS30_stop_meas	16	static
-sps30.c:165:6:SPS30_reset	16	static
-sps30.c:173:6:SPS30_present	16	static
-sps30.c:183:6:SPS30_clean	16	static
+sps30.c:120:6:SPS30_update	16	static
+sps30.c:148:6:SPS30_start_meas	16	static
+sps30.c:158:6:SPS30_stop_meas	16	static
+sps30.c:166:6:SPS30_reset	16	static
+sps30.c:174:6:SPS30_present	16	static
+sps30.c:184:6:SPS30_clean	16	static

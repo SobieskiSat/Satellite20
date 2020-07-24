@@ -12,18 +12,18 @@
 
 static void MPU9250_writeByte(MPU9250* inst, uint8_t mem_addr, uint8_t data)
 {
-	HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr, mem_addr, 1, &data, 1, 5);
+	HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr, mem_addr, 1, &data, 1, 10);
 }
 static char MPU9250_readByte(MPU9250* inst, uint8_t mem_addr)
 {
 	uint8_t data[1]; // `data` will store the register data
-	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, data, 1, 5);
+	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, data, 1, 10);
 	return (char)data[0];
 }
 static void MPU9250_readBytes(MPU9250* inst, uint8_t mem_addr, uint8_t count, uint8_t* dest)
 {     
 	uint8_t data[14];
-	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, data, count, 5);
+	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr, mem_addr, 1, data, count, 30);
 
 	int ii = 0;
 	for(ii = 0; ii < count; ii++) // maybe memcpy() [?]
@@ -33,18 +33,18 @@ static void MPU9250_readBytes(MPU9250* inst, uint8_t mem_addr, uint8_t count, ui
 }
 static void AK8963_writeByte(MPU9250* inst, uint8_t mem_addr, uint8_t data)
 {
-	HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr_ak, mem_addr, 1, &data, 1, 5);
+	HAL_I2C_Mem_Write(inst->i2c, inst->i2c_addr_ak, mem_addr, 1, &data, 1, 10);
 }
 static char AK8963_readByte(MPU9250* inst, uint8_t mem_addr)
 {
 	uint8_t data[1]; // `data` will store the register data
-	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr_ak, mem_addr, 1, data, 1, 5);
+	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr_ak, mem_addr, 1, data, 1, 10);
 	return (char)data[0];
 }
 static void AK8963_readBytes(MPU9250* inst, uint8_t mem_addr, uint8_t count, uint8_t* dest)
 {     
 	uint8_t data[14];
-	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr_ak, mem_addr, 1, data, count, 5);
+	HAL_I2C_Mem_Read(inst->i2c, inst->i2c_addr_ak, mem_addr, 1, data, count, 10);
 
 	int ii = 0;
 	for(ii = 0; ii < count; ii++) // maybe memcpy() [?]
@@ -252,8 +252,8 @@ bool AK8963_init(MPU9250* inst, MPU9250_config* config)
 	return true;
 }
 
-bool MPU9250_present(MPU9250* inst) { /*MPU9250_reset(inst);*/ return (MPU9250_readByte(inst, MPU9250_WHO_AM_I) == 0x71); }
-bool AK8963_present(MPU9250* inst) { /*MPU9250_reset(inst);*/ return (AK8963_readByte(inst, AK8963_WHO_AM_I) == 0x48); }
+bool MPU9250_present(MPU9250* inst) { MPU9250_reset(inst); return (MPU9250_readByte(inst, MPU9250_WHO_AM_I) == 0x71); }
+bool AK8963_present(MPU9250* inst) { MPU9250_reset(inst); return (AK8963_readByte(inst, AK8963_WHO_AM_I) == 0x48); }
 
 bool MPU9250_update(MPU9250* inst)
 {

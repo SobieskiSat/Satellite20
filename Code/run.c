@@ -18,12 +18,12 @@
 - LoRa overcurrent setting
 */
 
-uint8_t flight_safety;
+uint16_t flight_safety;
 bool armsOpen, setupSuccess;
 uint8_t terminate;
 
-static void latchArms(void) { if (armsOpen)  { /*TIM_->CCR_ = 900;*/ armsOpen = false; }}
-static void openArms(void)  { if (!armsOpen) { /*TIM_->CCR_ = 550;*/ armsOpen = true; }}
+static void latchArms(void) { if (armsOpen)  { TIM5->CCR4 = 00; armsOpen = false; }}
+static void openArms(void)  { if (!armsOpen) { TIM5->CCR4 = 1000; armsOpen = true; }}
 
 static void terminator(void)
 {
@@ -34,7 +34,8 @@ static void terminator(void)
 				  (abs(Common.mpu.roll - 90) > TERMINAL_HOR)) << 3;		// In vertical position
 	terminate |= ((abs(Common.gps.latitudeDegrees - Common.target_lat) < KEEPOUT_LAT) &&
 				  (abs(Common.gps.longitudeDegrees - Common.target_lon) < KEEPOUT_LON)) << 4;	// At the destination (planar)
-	terminate |= (Common.bmp.altitude - Common.target_alt < KEEPOUT_ALT) << 5;	// Close to the ground
+	//terminate |= (Common.bmp.altitude - Common.target_alt < KEEPOUT_ALT) << 5;	// Close to the ground
+	terminate |= (Common.gps.fix && ((Common.gps.altitude - Common.target_alt) < KEEPOUT_ALT)) << 5;	// Close to the ground
 
 	if (Common.operation_mode != 31)
 	{
@@ -83,9 +84,21 @@ static void terminator(void)
 
 static void setup(void)
 {
+/*
+	char co[2] = {0, '\0'};
+	Common.gps.uart = Get_UART1_Instance();
+	while (true)
+	{
+		co[0] = '.';
+		HAL_UART_Receive(Common.gps.uart, Common.gps.uartBuffer, 1, 500);
+		co[0] = Common.gps.uartBuffer[0];
+		print(co);
+	}
+*/
 
 	setupSuccess = true;
 	animation_dir = 1;
+
 	#if INTERFACE_BTN
 		while (readPin(BTN_1) == LOW) { leds_bounce(); delay(1); }
 	#endif
@@ -108,6 +121,8 @@ static void setup(void)
 	#endif
 	play_animation(&leds_fill, 2000);
 	leds_low();
+
+	Common.operation_mode = 0;
 }
 
 static void loop(void)
@@ -124,3 +139,23 @@ static void loop(void)
 
 	loging_loop();
 }
+
+/*
+uint8_t i;
+//enableMotors();
+for (i = 0; i <= 254; i++)
+{
+	setMotors(((float)i) / 255.0, ((float)i) / 255.0);
+	delay(100);
+}
+delay(2000);
+print("Between");
+//enableMotors();
+delay(2000);
+for (i = 254; i > 0; i--)
+{
+	setMotors(((float)i) / 255.0, ((float)i) / 255.0);
+	delay(100);
+}
+delay(400);
+*/

@@ -16,7 +16,7 @@ void SX1278_write(SPI_HandleTypeDef* spi, uint8_t data)
 {
 	// writes byte [data] on SPI bus
 	HAL_SPI_Transmit(spi, &data, 1, 10);
-	while (HAL_SPI_GetState(spi) != HAL_SPI_STATE_READY);
+	//while (HAL_SPI_GetState(spi) != HAL_SPI_STATE_READY);
 }
 void SX1278_command(SX1278* inst, uint8_t addr, uint8_t cmd)
 {
@@ -51,7 +51,7 @@ uint8_t SX1278_read(SPI_HandleTypeDef* spi)
 	uint8_t rxByte = 0x00;
 
 	HAL_SPI_TransmitReceive(spi, &txByte, &rxByte, 1, 10);
-	while (HAL_SPI_GetState(spi) != HAL_SPI_STATE_READY);
+	//while (HAL_SPI_GetState(spi) != HAL_SPI_STATE_READY);
 
 	return rxByte;
 }

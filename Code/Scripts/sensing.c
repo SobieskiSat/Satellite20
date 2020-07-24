@@ -264,6 +264,7 @@ static void sensing_loop(void)
 		if (Common.gps.active)
 		{
 			GPS_update(&(Common.gps));
+			//writePin(LEDC, Common.gps.fix);
 		}
 	#endif
 

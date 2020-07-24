@@ -106,6 +106,7 @@ bool SPS30_init(SPS30* inst)
 	delay(400);
 	SPS30_reset(inst);
 	delay(400);
+	//SPS30_present(inst);
 
 	SPS30_start_meas(inst);
 
@@ -118,7 +119,7 @@ bool SPS30_init(SPS30* inst)
 
 bool SPS30_update(SPS30* inst)
 {
-	//SPS30_stop_meas(inst);
+	SPS30_stop_meas(inst);
 	// Read measurement
 	inst->txBuffer[0] = SPS30_READ_MEAS;
 	inst->txBuffer[1] = 0x00;
@@ -140,7 +141,7 @@ bool SPS30_update(SPS30* inst)
 	#if SPS30_DEBUG
 		if (inst->rxLen == 0x00) println("[SPS] No new data to read");
 	#endif
-	//SPS30_start_meas(inst);
+	SPS30_start_meas(inst);
 	return inst->newData;
 }
 

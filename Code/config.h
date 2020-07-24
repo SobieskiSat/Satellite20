@@ -7,7 +7,7 @@
 #include "sx1278.h"
 static SX1278_config sx1278_default_config =
 {
-	434000000,			// radio frequency (d=61.035)[Hz]
+	433800000,			// radio frequency (d=61.035)[Hz]
 	SX1278_POWER_17DBM,	// output power (11:20)[dBm]
 	SX1278_SF_7,		// spreading factor (6:12)
 	SX1278_CR_4_5,		// coding rate (5:8)
@@ -18,7 +18,7 @@ static SX1278_config sx1278_default_config =
 
 // Pressure sensor config
 #include "bmp280.h"
-#define SEA_PRESSURE 1002	// pressure at sea level [hPa]
+#define SEA_PRESSURE 1004.9581	// pressure at sea level [hPa]
 static BMP280_config bmp280_default_config =
 {
 	BMP280_MODE_NORMAL,		// operation mode
@@ -33,7 +33,7 @@ static BMP280_config bmp280_default_config =
 // ? ADD SMPLRT_DIV
 static MPU9250_config mpu9250_default_config =
 {
-	{90.0f, 90.0f, 90.0f},	// Euler offsets
+	{180.0f, 90.0f, 90.0f},	// Euler offsets
 	MPU9250_AFS_2G,		// Ascale
 	MPU9250_GFS_250DPS, // Gscale
 	MPU9250_MFS_16BITS, // Mscale
@@ -53,11 +53,11 @@ static MPU9250_config mpu9250_default_config =
 
 // Timing parameters [ms]
 #define DATA_PRINT_DELAY 1000
-#define LOG_SAVE_DELAY 2373
+#define LOG_SAVE_DELAY 10000
 #define LOG_BMP_DELAY 100
 #define LOG_IMU_DELAY 100
 #define LOG_MOT_DELAY 100
-#define LOG_GPS_DELAY 2000
+#define LOG_GPS_DELAY 1000
 #define LOG_TARGET_YAW_DELAY 1000
 // Radio timeout value is set in SX1278 config 
 #define SENSING_BMP_DELAY 50
@@ -66,30 +66,30 @@ static MPU9250_config mpu9250_default_config =
 #define STEERING_YAW_DELAY 100		// Delay between target yaw corrections
 
 // Peripherial state
-#define SD_ENABLE 1
+#define SD_ENABLE 0
 #define RADIO_ENABLE 1
 #define BMP_ENABLE 1
 #define GPS_ENABLE 1
 #define IMU_ENABLE 1
-#define SPS_ENABLE 1
+#define SPS_ENABLE 0
 #define STEERING_ENABLE 1	// defines MOTOR_ENABLE
 
 // Debug messages
-#define RUN_DEBUG 1
+#define RUN_DEBUG 0
 #define LOGING_DEBUG 0
-#define LOGING_PRINT_DATA 1
+#define LOGING_PRINT_DATA 0
 	#define LOGING_PRINT_SENSORS 1
 	#define LOGING_PRINT_RADIO 1
 	#define LOGING_PRINT_INFO 1
 #define DUPLEX_DEBUG 0
-#define SENSING_DEBUG 1
+#define SENSING_DEBUG 0
 #define STEERING_DEBUG 0
 
 // Flight parameters
-#define FLIGHT_START_THRE 16
-#define DEFAULT_TARGET_LAT 50.053530
-#define DEFAULT_TARGET_LON 19.935201
-#define DEFAULT_TARGET_ALT 261.0
+#define FLIGHT_START_THRE 25000
+#define DEFAULT_TARGET_LAT 50.833584
+#define DEFAULT_TARGET_LON 16.531752
+#define DEFAULT_TARGET_ALT 40.0
 #define DEFAULT_TARGET_YAW 0.0
 #define KEEPOUT_LAT 0.0001	// Destination range (area)
 #define KEEPOUT_LON 0.0001
@@ -104,10 +104,10 @@ static MPU9250_config mpu9250_default_config =
 
 // Motor config
 #define MOTOR_L_DIR 0
-#define MOTOR_R_DIR 0
+#define MOTOR_R_DIR 1
 #define MOTOR_PWM_RESOLUTION 1024
 
 // Other
-#define INTERFACE_BTN 1
+#define INTERFACE_BTN 0
 
 #endif /* CONFIG_H_ */

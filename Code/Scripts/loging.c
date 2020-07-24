@@ -23,11 +23,20 @@
 #include "motors.h"
 #include "sx1278.h"
 
+#define LOG_TEMP_SIZE 4096
+#define LOG_LOG_SIZE 4096
+#define LOG_BMP_SIZE 1024
+#define LOG_GPS_SIZE 1024
+#define LOG_IMU_SIZE 1024
+#define LOG_MOT_SIZE 1024
+#define LOG_RADIO_SIZE 4096
+#define LOG_SPS_SIZE 2048
+
 char directoryName[32];
 char directoryNameCopy[32];
 char openedPath[32];
 char timestamp[32];
-char tempBuffer[4096];
+char tempBuffer[LOG_TEMP_SIZE];
 
 //void log_new();
 char logBuffer[4096];
@@ -35,27 +44,27 @@ uint16_t logBufferIndex;
 //void log_print(const char* format, ...);
 static void log_print_dummy(const char* format, ...) { return; }
 
-char bmpBuffer[1024];
+char bmpBuffer[LOG_BMP_SIZE];
 uint16_t bmpBufferIndex;
 //void log_bmp(BMP280* bmp);
 
-char gpsBuffer[1024];
+char gpsBuffer[LOG_GPS_SIZE];
 uint16_t gpsBufferIndex;
 //void log_gps(GPS* gps);
 
-char imuBuffer[1024];
+char imuBuffer[LOG_IMU_SIZE];
 uint16_t imuBufferIndex;
 //void log_imu(MPU9250* mpu);
 
-char motBuffer[1024];
+char motBuffer[LOG_MOT_SIZE];
 uint16_t motBufferIndex;
 //void log_mot(float left, float right);
 
-char radioBuffer[4096];
+char radioBuffer[LOG_RADIO_SIZE];
 uint16_t radioBufferIndex;
 //void log_radio(SX1278* radio);
 
-char spsBuffer[2048];
+char spsBuffer[LOG_SPS_SIZE];
 uint16_t spsBufferIndex;
 //void log_sps(SPS30* sps);
 
@@ -94,6 +103,7 @@ static void log_new()
 	sprintf(directoryName, directoryNameCopy);
 	SD_newFile(strcat(directoryName, "/SPS.TXT"));
 	sprintf(directoryName, directoryNameCopy);
+	SD_deinit();
 
 	logBufferIndex = 0;
 	bmpBufferIndex = 0;
@@ -105,81 +115,92 @@ static void log_new()
 }
 static void log_save()
 {
-	lastLogSave = millis();
-	//__disable_irq();
-	if (logBufferIndex > 0)
+	if (SD_init() == FR_OK)
 	{
-		sprintf(openedPath, strcat(directoryName, "/LOG.TXT"));
-		sprintf(directoryName, directoryNameCopy);
-		SD_writeToFile(openedPath, logBuffer);
+		lastLogSave = millis();
+		//__disable_irq();
+		if (logBufferIndex > 0)
+		{
+			sprintf(openedPath, strcat(directoryName, "/LOG.TXT"));
+			sprintf(directoryName, directoryNameCopy);
+			SD_writeToFile(openedPath, logBuffer);
+		}
+
+		if (bmpBufferIndex > 0)
+		{
+			sprintf(openedPath, strcat(directoryName, "/BMP.TXT"));
+			sprintf(directoryName, directoryNameCopy);
+			SD_writeToFile(openedPath, bmpBuffer);
+			println("B M P   S A V I G O!");
+		}
+
+		if (gpsBufferIndex > 0)
+		{
+			sprintf(openedPath, strcat(directoryName, "/GPS.TXT"));
+			sprintf(directoryName, directoryNameCopy);
+			SD_writeToFile(openedPath, gpsBuffer);
+		}
+
+		if (imuBufferIndex > 0)
+		{
+			sprintf(openedPath, strcat(directoryName, "/IMU.TXT"));
+			sprintf(directoryName, directoryNameCopy);
+			SD_writeToFile(openedPath, imuBuffer);
+		}
+
+		if (motBufferIndex > 0)
+		{
+			sprintf(openedPath, strcat(directoryName, "/MOT.TXT"));
+			sprintf(directoryName, directoryNameCopy);
+			SD_writeToFile(openedPath, motBuffer);
+		}
+
+		if (radioBufferIndex > 0)
+		{
+			sprintf(openedPath, strcat(directoryName, "/RADIO.TXT"));
+			sprintf(directoryName, directoryNameCopy);
+			SD_writeToFile(openedPath, radioBuffer);
+		}
+
+		if (spsBufferIndex > 0)
+		{
+			sprintf(openedPath, strcat(directoryName, "/SPS.TXT"));
+			sprintf(directoryName, directoryNameCopy);
+			SD_writeToFile(openedPath, spsBuffer);
+		}
+
+		#if LOGING_DEBUG
+			println("[LOGING] Buffers saved, took+: %ums, ", millis() - lastLogSave);
+			println("%f %f %f %f %f %f %f", (float)(logBufferIndex) / (float)(LOG_LOG_SIZE),
+										 (float)(bmpBufferIndex) / (float)(LOG_BMP_SIZE),
+										 (float)(gpsBufferIndex) / (float)(LOG_GPS_SIZE),
+										 (float)(imuBufferIndex) / (float)(LOG_IMU_SIZE),
+										 (float)(motBufferIndex) / (float)(LOG_MOT_SIZE),
+										 (float)(radioBufferIndex) / (float)(LOG_RADIO_SIZE),
+										 (float)(spsBufferIndex) / (float)(LOG_SPS_SIZE));
+		#endif
+
+		logBufferIndex = 0;
+		bmpBufferIndex = 0;
+		gpsBufferIndex = 0;
+		imuBufferIndex = 0;
+		motBufferIndex = 0;
+		radioBufferIndex = 0;
+		spsBufferIndex = 0;
+		memset(logBuffer, 0x00, LOG_LOG_SIZE);
+		memset(bmpBuffer, 0x00, LOG_BMP_SIZE);
+		memset(gpsBuffer, 0x00, LOG_GPS_SIZE);
+		memset(imuBuffer, 0x00, LOG_IMU_SIZE);
+		memset(motBuffer, 0x00, LOG_MOT_SIZE);
+		memset(radioBuffer, 0x00, LOG_RADIO_SIZE);
+		memset(spsBuffer, 0x00, LOG_SPS_SIZE);
+		SD_deinit();
 	}
-
-	if (bmpBufferIndex > 0)
-	{
-		sprintf(openedPath, strcat(directoryName, "/BMP.TXT"));
-		sprintf(directoryName, directoryNameCopy);
-		SD_writeToFile(openedPath, bmpBuffer);
-	}
-
-	if (gpsBufferIndex > 0)
-	{
-		sprintf(openedPath, strcat(directoryName, "/GPS.TXT"));
-		sprintf(directoryName, directoryNameCopy);
-		SD_writeToFile(openedPath, gpsBuffer);
-	}
-
-	if (imuBufferIndex > 0)
-	{
-		sprintf(openedPath, strcat(directoryName, "/IMU.TXT"));
-		sprintf(directoryName, directoryNameCopy);
-		SD_writeToFile(openedPath, imuBuffer);
-	}
-
-	if (motBufferIndex > 0)
-	{
-		sprintf(openedPath, strcat(directoryName, "/MOT.TXT"));
-		sprintf(directoryName, directoryNameCopy);
-		SD_writeToFile(openedPath, motBuffer);
-	}
-
-	if (radioBufferIndex > 0)
-	{
-		sprintf(openedPath, strcat(directoryName, "/RADIO.TXT"));
-		sprintf(directoryName, directoryNameCopy);
-		SD_writeToFile(openedPath, radioBuffer);
-	}
-
-	if (spsBufferIndex > 0)
-	{
-		sprintf(openedPath, strcat(directoryName, "/SPS.TXT"));
-		sprintf(directoryName, directoryNameCopy);
-		SD_writeToFile(openedPath, spsBuffer);
-	}
-
-	#if LOGING_DEBUG
-		println("[LOGING] Buffers saved, took: %ums, ", millis() - lastLogSave);
-		println("%d/4096 %d/1024 %d/1024 %d/1024 %d/1024 %d/4096 %d/2048", logBufferIndex, bmpBufferIndex, gpsBufferIndex, imuBufferIndex, motBufferIndex, radioBufferIndex, spsBufferIndex);
-	#endif
-
-	logBufferIndex = 0;
-	bmpBufferIndex = 0;
-	gpsBufferIndex = 0;
-	imuBufferIndex = 0;
-	motBufferIndex = 0;
-	radioBufferIndex = 0;
-	spsBufferIndex = 0;
-	memset(logBuffer, 0x00, 4096);
-	memset(bmpBuffer, 0x00, 1024);
-	memset(gpsBuffer, 0x00, 1024);
-	memset(imuBuffer, 0x00, 1024);
-	memset(motBuffer, 0x00, 1024);
-	memset(radioBuffer, 0x00, 4096);
-	memset(spsBuffer, 0x00, 2048);
 }
 
 static void log_print(const char* format, ...)
 {
-	if (logBufferIndex < 3700)
+	if (logBufferIndex < LOG_LOG_SIZE * 0.9)
 	{
 		sprintf(timestamp, "\t@%lu\r\n", millis());
 
@@ -198,7 +219,7 @@ static void log_print(const char* format, ...)
 
 static void log_bmp(BMP280* bmp)
 {
-	if (bmpBufferIndex < 950)
+	if (bmpBufferIndex < LOG_BMP_SIZE * 0.9)
 	{
 		sprintf(timestamp, "\t@%lu\r\n", millis());
 		sprintf(tempBuffer, "%.02f %.02f", bmp->pressure, bmp->temperature);
@@ -211,7 +232,7 @@ static void log_bmp(BMP280* bmp)
 }
 static void log_gps(GPS* gps)
 {
-	if (gpsBufferIndex < 950)
+	if (gpsBufferIndex < LOG_GPS_SIZE * 0.9)
 	{
 		sprintf(timestamp, "\t@%lu\r\n", millis());
 		sprintf(tempBuffer, "%.07f %.07f %.01f %.2d-%.2d-20%.2d %.2d:%.2d:%.2d",
@@ -223,11 +244,12 @@ static void log_gps(GPS* gps)
 		gpsBufferIndex = strlen(gpsBuffer);
 
 		memset(tempBuffer, 0x00, 1024);
+		togglePin(LEDA);
 	}
 }
 static void log_imu(MPU9250* mpu)
 {
-	if (imuBufferIndex < 950)
+	if (imuBufferIndex < LOG_IMU_SIZE * 0.9)
 	{
 		sprintf(timestamp, "\t@%lu\r\n", millis());
 		sprintf(tempBuffer, "%.02f %.02f %.02f", mpu->yaw, mpu->pitch, mpu->roll);
@@ -240,7 +262,7 @@ static void log_imu(MPU9250* mpu)
 }
 static void log_mot(float left, float right)
 {
-	if (motBufferIndex < 950)
+	if (motBufferIndex < LOG_MOT_SIZE * 0.9)
 	{
 		sprintf(timestamp, "\t@%lu\r\n", millis());
 		sprintf(tempBuffer, "%.01f %.01f", left, right);
@@ -253,7 +275,7 @@ static void log_mot(float left, float right)
 }
 static void log_radio(SX1278* radio)
 {
-	if (radioBufferIndex < 3700)
+	if (radioBufferIndex < LOG_RADIO_SIZE * 0.9)
 	{
 		sprintf(timestamp, "]\t@%lu\r\n", millis());
 
@@ -281,10 +303,10 @@ static void log_radio(SX1278* radio)
 }
 static void log_sps(SPS30* sps)
 {
-	if (spsBufferIndex < 1900)
+	if (spsBufferIndex < LOG_SPS_SIZE * 0.9)
 	{
 		sprintf(timestamp, "\t@%lu\r\n", millis());
-		sprintf(tempBuffer, "%.1f %.1f %.1f %.1f | %.1f %.1f %.1f %.1f %.1f | %.1f",
+		sprintf(tempBuffer, "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.2f",
 							sps->pm1, sps->pm2, sps->pm4, sps->pm10,
 							sps->n_pm05, sps->n_pm1, sps->n_pm2, sps->n_pm4, sps->n_pm10,
 							sps->typical_size);
@@ -343,17 +365,20 @@ static bool loging_setup(void)		// Writes test file to SD card, if successful cr
 		log_new();
 		Common.log_print = &log_print;
 		(*Common.log_print)("*L00"); // [LOGING] SD works, welcome onboard!
+		SD_deinit();
 		return true;
 
 		error_handler:
 			#if LOGING_DEBUG
 				println("error: [LOGING] SD logging is not active due to occured errors");
 			#endif
+			SD_deinit;
 			sdActive = false;
 			Common.log_print = &log_print_dummy;
 			return false;
 
 	#else // SD_ENABLE
+		SD_deinit();
 		println("warning: [LOGING] SD DISABLED!");
 		Common.log_print = &log_print_dummy;
 		return false;
@@ -363,11 +388,11 @@ static bool loging_setup(void)		// Writes test file to SD card, if successful cr
 static void loging_loop(void)
 {
 	#if SD_ENABLE
-		if (Common.bmp.active && millis() - lastBmpLog >= LOG_BMP_DELAY) { log_bmp(&(Common.bmp)); lastBmpLog = millis(); }
-		if (Common.mpu.active && millis() - lastImuLog >= LOG_IMU_DELAY) { log_imu(&(Common.mpu)); lastImuLog = millis(); }
+		if (millis() - lastBmpLog >= LOG_BMP_DELAY) { log_bmp(&(Common.bmp)); lastBmpLog = millis(); }
+		if (millis() - lastImuLog >= LOG_IMU_DELAY) { log_imu(&(Common.mpu)); lastImuLog = millis(); }
 		if (millis() - lastMotLog >= LOG_MOT_DELAY) { log_mot(Common.mot_l, Common.mot_r); lastMotLog = millis(); }
-		if (Common.gps.active && millis() - lastGpsLog >= LOG_GPS_DELAY /*Common.gps.newData*/) { log_gps(&(Common.gps)); Common.gps.newData = false; lastGpsLog = millis();}
-		if (Common.radio.active && (Common.radio.newTxData || Common.radio.newRxData)) { log_radio(&(Common.radio)); }
+		if (millis() - lastGpsLog >= LOG_GPS_DELAY /*Common.gps.newData*/) { log_gps(&(Common.gps)); Common.gps.newData = false; lastGpsLog = millis();}
+		if ((Common.radio.newTxData || Common.radio.newRxData)) { log_radio(&(Common.radio)); }
 		if (Common.sps.newData) { log_sps(&(Common.sps)); Common.sps.newData = false; }
 		if (Common.operation_mode != 31 && millis() - lastTargetYawLog >= LOG_TARGET_YAW_DELAY) { log_print("TY: %.1f*", Common.target_yaw); lastTargetYawLog = millis(); }
 

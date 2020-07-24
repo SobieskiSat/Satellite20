@@ -8,10 +8,13 @@ void setMotors(float dutyL, float dutyR)
 {
 	if (motorsRunning)
 	{
+		println("[MOT] %f %f", dutyL, dutyR);
 		if (dutyL > 1) dutyL = 1;
 		else if (dutyL < 0) dutyL = 0;
 		if (dutyR > 1) dutyR = 1;
 		else if (dutyR < 0) dutyR = 0;
+
+		//println("[MOT] %.3f %.3f", dutyL, dutyR);
 
 		TIM3->CCR2 = (uint32_t)((float)TIM3->ARR * (1 - dutyL));
 		TIM3->CCR3 = (uint32_t)((float)TIM3->ARR * (1 - dutyR));
